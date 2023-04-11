@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.custom-restricted-width {display: inline-block;}
+* {margin-left: 2px;}
+</style>
+</head>
+<body>
+
+<form class="pure-form pure-form-stacked" action="AddSeries.php" method="post">
+    <fieldset>
+        <legend>Add Series</legend>        
+        <label for="sname">Series name</label>
+        <input type="text" name="sname" id="sname" placeholder="Series name" />
+        <label for="day">Day</label>
+        <select name="day" id="day">
+            <option value="0">Monday</option>
+            <option value="1">Tuesday</option>
+            <option value="2">Wednesday</option>
+            <option value="3">Thursday</option>
+            <option value="4">Friday</option>
+            <option value="5">Saturday</option>
+            <option value="6">Sunday</option>
+            </select>
+        <label for="time">Start time</label>
+        <input type="text" name="time" id="time" placeholder="08:30" />
+        <button type="submit" class="pure-button pure-button-primary">Add</button>
+    </fieldset>
+    </form>
+
+</body>
+</html>

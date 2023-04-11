@@ -3,6 +3,7 @@ lcd "/Users/charlesdavies/documents/tennis web app/WebPages"
 cd /web/tennis
 put Home/Home.html 
 put ListSeries/*.php
+put ListSeries/*.html
 put ListUsers/*.php
 put DeleteUser/*.php
 put Users/*.php
