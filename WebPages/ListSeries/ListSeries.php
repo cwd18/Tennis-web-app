@@ -11,6 +11,17 @@
 </head>
 <body>
 
+<div class="pure-menu pure-menu-horizontal">
+    <a href="Home.html" class="pure-menu-heading pure-menu-link">Series List</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+            <a href="AddSeries.html" class="pure-menu-link">Add Series</a>
+        </li>
+        <li class="pure-menu-item">
+            <a href="RemSeries.php" class="pure-menu-link">Remove Series</a>
+        </li>
+    </ul>
+</div>
 
 <table class="pure-table">
     <thead>
