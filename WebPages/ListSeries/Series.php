@@ -11,10 +11,16 @@
 </head>
 <body>
 
+<div class="pure-menu pure-menu-horizontal">
+    <a href="ListSeries.php" class="pure-menu-heading pure-menu-link">Series</a>
+    <ul class="pure-menu-list">
+
 <?php
 $Seriesid=$_GET["Seriesid"];
-echo "<a href=\"AddSeriesCandidates.php?Seriesid={$Seriesid}\">Add people  </a>\n";
-echo "<a href=\"RemSeriesCandidates.php?Seriesid={$Seriesid}\">Remove people </a>\n";
+
+echo "<li class=\"pure-menu-item\"><a href=\"AddSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add people</a></li>\n";
+echo "<li class=\"pure-menu-item\"><a href=\"RemSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove people</a></li>\n";
+echo "</ul>\n</div>\n";
 
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
 $servername = "localhost";
@@ -33,15 +39,15 @@ $row = $result->fetch_assoc();
 $Name=$row["SeriesName"];
 $Day=$DayName[$row["SeriesWeekday"]];
 $Time=substr($row["SeriesTime"],0,5);
-echo "<h1>",$Name,"</h1>\n";
+echo "<h2>",$Name,"</h2>\n";
 echo "<p>Fixture is normally on ",$Day," at ",$Time,"</p>\n";
 
-echo "<h2>Default fixture invitees:</h2>\n";
+echo "<p><b>Default fixture invitees:</b></p>\n";
 
 $sql="SELECT FirstName, LastName, EmailAddress 
 FROM Users, SeriesCandidates
 WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
-ORDER BY LastName";
+ORDER BY LastName;";
 
 $result = $conn->query($sql);
 

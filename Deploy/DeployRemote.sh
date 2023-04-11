@@ -5,5 +5,7 @@ put Home/Home.html
 put ListSeries/*.php
 put ListUsers/*.php
 put DeleteUser/*.php
+put Users/*.php
+put Users/*.html
 exit
 EOT

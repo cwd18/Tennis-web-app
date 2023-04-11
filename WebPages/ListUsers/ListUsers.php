@@ -11,10 +11,17 @@
 </head>
 <body>
 
-<a href="Home.html">Home  </a>
-<a href="AddUser.html">Add person  </a>
-<a href="DeleteUser.php">Remove person </a>
-<br><br>
+<div class="pure-menu pure-menu-horizontal">
+    <a href="Home.html" class="pure-menu-heading pure-menu-link">Actions</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+            <a href="AddUser.html" class="pure-menu-link">Add person</a>
+        </li>
+        <li class="pure-menu-item">
+            <a href="DeleteUser.php" class="pure-menu-link">Remove person</a>
+        </li>
+    </ul>
+</div>
 
 <table class="pure-table">
     <thead>
@@ -34,7 +41,7 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 
 $sql="SELECT FirstName, LastName, EmailAddress 
 FROM Users
-ORDER BY LastName";
+ORDER BY LastName;";
 
 $result = $conn->query($sql);
 
