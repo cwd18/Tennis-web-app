@@ -17,9 +17,6 @@
         <li class="pure-menu-item">
             <a href="AddSeries.html" class="pure-menu-link">Add Series</a>
         </li>
-        <li class="pure-menu-item">
-            <a href="RemSeries.php" class="pure-menu-link">Remove Series</a>
-        </li>
     </ul>
 </div>
 
