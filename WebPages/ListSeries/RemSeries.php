@@ -28,9 +28,18 @@ $sql="SELECT  SeriesName FROM FixtureSeries WHERE Seriesid = $Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $SeriesName=$row['SeriesName'];
-echo "<p>Removing $SeriesName</p>\n";
 $sql="DELETE FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+try {
 $result = $conn->query($sql);
+if ($result === TRUE) {
+    echo "<p>Removed the fixture series \"$SeriesName\"</p>\n";
+  } else {
+    echo "<p>Couldn't delete the fixture series \"$SeriesName\": " , $conn->error, "</p>\n";
+  }
+} catch (Exception $e) {
+    echo "<p>Couldn't delete the fixture series \"$SeriesName\":<br>" , $e->getMessage(), "</p>\n";
+}
+  
 
 echo "<br>\n";
 ?>
