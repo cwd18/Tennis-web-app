@@ -43,7 +43,6 @@ $Time=substr($row["SeriesTime"],0,5);
 echo "<h2>",$Name,"</h2>\n";
 echo "<p>Fixture is normally on ",$Day," at ",$Time,"</p>\n";
 
-echo "<p><b>Default fixture invitees:</b></p>\n";
 
 $sql="SELECT FirstName, LastName, EmailAddress 
 FROM Users, SeriesCandidates
@@ -51,13 +50,18 @@ WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
 ORDER BY LastName;";
 
 $result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    echo "<p><b>Default fixture invitees:</b></p>\n";
+    echo '<table class="pure-table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>',"\n";
 
-echo '<table class="pure-table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>',"\n";
-
-while ($row = $result->fetch_assoc()) {
-    $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);
-    $EmailAddress=str_replace("-","&#8209",$EmailAddress);
-    echo "<tr><td>{$row["FirstName"]} {$row["LastName"]}</td><td>{$EmailAddress}</td></tr>\n";
+    while ($row = $result->fetch_assoc()) {
+        $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);
+        $EmailAddress=str_replace("-","&#8209",$EmailAddress);
+        echo "<tr><td>{$row["FirstName"]} {$row["LastName"]}</td><td>{$EmailAddress}</td></tr>\n";
+    }
+}
+else {
+    echo "<p><b>No fixture invitees</b></p>\n";
 }
 
 $conn->close();
