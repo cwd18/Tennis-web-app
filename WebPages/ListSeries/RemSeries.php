@@ -12,6 +12,9 @@
 <body>
 
 <?php
+// This PHP script removes the specified fixture series by Seriesid
+// The SQL DELETE FROM will fail if the series is referenced by any invitees or fixtures
+// Pressing the "Done" button hyperlinks to ListSeries.php
 
 $servername = "localhost";
 $username = "tennisapp";
@@ -19,7 +22,7 @@ $password = "Tennis=LT28";
 $dbname = "Tennis";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-$Seriesid=$_GET['Seriesid'];
+$Seriesid=$_GET['Seriesid']; // The Seriesid to delete
 
 echo "<form class=\"pure-form pure-form-aligned\" action=\"ListSeries.php\" method=\"post\">\n";
 echo "<fieldset>\n<legend>Remove fixture series</legend>\n"; 
