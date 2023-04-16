@@ -16,11 +16,15 @@
     <ul class="pure-menu-list">
 
 <?php
+// Lists the specifies fixture series, showing any default invitees and fixtures
+// Includes a menu of commands to manage a series 
 $Seriesid=$_GET["Seriesid"];
 
+// Menu of commands...
 echo "<li class=\"pure-menu-item\"><a href=\"AddSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add people</a></li>\n";
 echo "<li class=\"pure-menu-item\"><a href=\"RemSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove people</a></li>\n";
 echo "<li class=\"pure-menu-item\"><a href=\"RemSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove series</a></li>\n";
+echo "<li class=\"pure-menu-item\"><a href=\"AddFixture.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add fixture</a></li>\n";
 echo "</ul>\n</div>\n";
 
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
@@ -30,9 +34,10 @@ $password = "Tennis=LT28";
 $dbname = "Tennis";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+// Display basic series data...
 $sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
 FROM FixtureSeries
-WHERE Seriesid={$Seriesid}";
+WHERE Seriesid=$Seriesid";
 
 $result = $conn->query($sql);
 
@@ -44,6 +49,7 @@ echo "<h2>",$Name,"</h2>\n";
 echo "<p>Fixture is normally on ",$Day," at ",$Time,"</p>\n";
 
 
+// List default attendees...
 $sql="SELECT FirstName, LastName, EmailAddress 
 FROM Users, SeriesCandidates
 WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
@@ -59,16 +65,33 @@ if ($result->num_rows > 0) {
         $EmailAddress=str_replace("-","&#8209",$EmailAddress);
         echo "<tr><td>{$row["FirstName"]} {$row["LastName"]}</td><td>{$EmailAddress}</td></tr>\n";
     }
+    echo "</tbody></table>\n";
 }
 else {
     echo "<p><b>No fixture invitees</b></p>\n";
 }
 
+// List fixtures for this series...
+$sql="SELECT FixtureDate, FixtureTime FROM Fixtures WHERE Seriesid=$Seriesid ORDER BY FixtureDate DESC;";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    echo "<p><b>Fixtures (most recent first):</b></p>\n";
+    echo '<table class="pure-table"><thead><tr><th>Date</th><th>Time</th></tr></thead><tbody>',"\n";
+
+    while ($row = $result->fetch_assoc()) {
+        $FixtureDate=$row["FixtureDate"];
+        $FixtureTime=$row["FixtureTime"];
+        echo "<tr><td>$FixtureDate</td><td>$FixtureTime</td></tr>\n";
+    }
+    echo "</tbody></table>\n";
+}
+else {
+    echo "<p><b>No fixtures</b></p>\n";
+}
+
+
 $conn->close();
 ?>
-
-</tbody>
-</table>
 
 </body>
 </html>
