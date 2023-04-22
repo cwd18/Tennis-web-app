@@ -80,8 +80,10 @@ if ($result->num_rows > 0) {
 
     while ($row = $result->fetch_assoc()) {
         $FixtureDate=$row["FixtureDate"];
-        $FixtureTime=$row["FixtureTime"];
-        echo "<tr><td>$FixtureDate</td><td>$FixtureTime</td></tr>\n";
+        $d=strtotime($FixtureDate);
+        $dstr=date("l jS \of F Y",$d);
+        $FixtureTime=substr($row["FixtureTime"],0,5);
+        echo "<tr><td>$dstr</td><td>$FixtureTime</td></tr>\n";
     }
     echo "</tbody></table>\n";
 }

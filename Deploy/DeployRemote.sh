@@ -1,4 +1,4 @@
-sftp charles.davies@devereux28.ddns.net <<EOT
+sftp Charles@192.168.68.2 <<EOT
 lcd "/Users/charlesdavies/documents/tennis web app/WebPages"
 cd /web/tennis
 put Home/Home.html 

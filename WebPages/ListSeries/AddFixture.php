@@ -37,7 +37,8 @@ $Time=substr($row["SeriesTime"],0,5);
 // Calculate the date of the next fixture
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
 $Day=$DayName[$Weekday];
-$d=strtotime("next ".$Day);
+$d0=strtotime("+6 Days");
+$d=strtotime("next ".$Day,$d0);
 $FixtureDate=date("y-m-d",$d);
 
 // Insert next fixture
