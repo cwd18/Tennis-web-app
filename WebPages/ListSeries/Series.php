@@ -5,13 +5,18 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-.custom-restricted-width {display: inline-block;}
+.custom-restricted {
+    height: 100px;
+    width: 160px;
+    border: 1px solid gray;
+    border-radius: 4px;
+    }
 * {margin-left: 2px;}
 </style>
 </head>
 <body>
 
-<div class="pure-menu pure-menu-horizontal">
+<div class="pure-menu pure-menu-scrollable custom-restricted">
     <a href="ListSeries.php" class="pure-menu-heading pure-menu-link">Series</a>
     <ul class="pure-menu-list">
 
@@ -21,10 +26,14 @@
 $Seriesid=$_GET["Seriesid"];
 
 // Menu of commands...
-echo "<li class=\"pure-menu-item\"><a href=\"AddSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add people</a></li>\n";
-echo "<li class=\"pure-menu-item\"><a href=\"RemSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove people</a></li>\n";
-echo "<li class=\"pure-menu-item\"><a href=\"RemSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove series</a></li>\n";
-echo "<li class=\"pure-menu-item\"><a href=\"AddFixture.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add fixture</a></li>\n";
+echo "<li class=\"pure-menu-item\">
+<a href=\"AddFixture.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add fixture</a></li>\n";
+echo "<li class=\"pure-menu-item\">
+<a href=\"AddSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add people</a></li>\n";
+echo "<li class=\"pure-menu-item\">
+<a href=\"RemSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove people</a></li>\n";
+echo "<li class=\"pure-menu-item\">
+<a href=\"RemSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove series</a></li>\n";
 echo "</ul>\n</div>\n";
 
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
