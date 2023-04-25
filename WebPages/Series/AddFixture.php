@@ -18,11 +18,8 @@ echo "<form class=\"pure-form pure-form-aligned\" action=\"Series.php?Seriesid=$
 echo "<fieldset>\n";
 echo "<legend>Add new fixture</legend>\n";
 
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
 // Get basic series data...
 $sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime

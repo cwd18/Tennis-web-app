@@ -43,5 +43,5 @@ Fixtureid INT(8),
 Userid INT(8),
 RequestTime TIMESTAMP,
 FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
-FOREIGN KEY (userid) REFERENCES Users(Userid)
+FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );

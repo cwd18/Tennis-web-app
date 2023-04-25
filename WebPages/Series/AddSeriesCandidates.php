@@ -10,22 +10,27 @@
 </head>
 <body>
 
-<form class="pure-form pure-form-aligned" action="SelectUsers1.php" method="post"> 
+<form class="pure-form pure-form-aligned" action="AddSeriesCandidates1.php" method="post"> 
 <fieldset>
-<legend>Delete User</legend>        
+   
         
 <?php
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Select one or more candidates to be added to the specified series
+$Seriesid=$_GET["Seriesid"];
 
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+
+// Retrieve list of possible candidates to add, which excludes existing candidates
 $sql="SELECT Userid, FirstName, LastName 
 FROM Users
-ORDER BY LastName";
-
+WHERE Users.Userid NOT IN (SELECT Userid FROM SeriesCandidates WHERE Seriesid=$Seriesid)
+ORDER BY LastName;";
 $result = $conn->query($sql);
+
+// Create checkbox for each possible candidate
+echo "<legend>Select users to add to series</legend>\n";
+echo "<input type=\"hidden\" name=\"Seriesid\" value=\"$Seriesid\">\n";
 
 $n=1;
 while ($row = $result->fetch_assoc()) {
@@ -33,10 +38,11 @@ while ($row = $result->fetch_assoc()) {
     $Name="{$row["FirstName"]} {$row["LastName"]}";
     echo "<div class=\"pure-control-group\">";
     echo "<label class=\"pure-checkbox\">\n";
-    echo "<input type=\"checkbox\" name=\"{$n}\" value=\"{$Userid}\">\n";
-    echo "{$Name}</label></div>\n";
+    echo "<input type=\"checkbox\" name=\"User_$n\" value=\"$Userid\">\n";
+    echo "$Name</label></div>\n";
     $n++;
   }
+
 
 $conn->close();
 ?>

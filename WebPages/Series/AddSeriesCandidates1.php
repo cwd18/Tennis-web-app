@@ -12,18 +12,17 @@
 <body>
 
 <?php
-
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Add specified candidates to series
 
 $Seriesid=$_POST["Seriesid"];
 
-echo "<form class=\"pure-form pure-form-aligned\" action=\"Series.php?Seriesid=$Seriesid\" method=\"post\">\n";
-echo "<fieldset>\n<legend>Remove people</legend>\n"; 
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
+echo "<form class=\"pure-form pure-form-aligned\" action=\"Series.php?Seriesid=$Seriesid\" method=\"post\">\n";
+echo "<fieldset>\n<legend>Add people</legend>\n"; 
+
+if (count($_POST)>1) {
 foreach($_POST as $x => $x_value) {
     if ($x!="Seriesid") {
         $Userid=$x_value;
@@ -32,12 +31,14 @@ foreach($_POST as $x => $x_value) {
         $row = $result->fetch_assoc();
         $FirstName=$row['FirstName'];
         $LastName=$row['LastName'];
-        echo "<p>Removing $FirstName $LastName</p>\n";
-        $sql="DELETE FROM SeriesCandidates WHERE Seriesid=$Seriesid AND Userid=$Userid;";
+        echo "<p>Adding $FirstName $LastName</p>\n";
+        $sql="INSERT INTO SeriesCandidates (Seriesid, Userid) VALUES ($Seriesid, $Userid);";
         $result = $conn->query($sql);
     }
 }
-
+} else {
+    echo "<p>No user selected</p>\n";
+}
 echo "<br>\n";
 ?>
 

@@ -13,16 +13,13 @@
 
 <?php
 
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
 $Seriesid=$_POST["Seriesid"];
 
 echo "<form class=\"pure-form pure-form-aligned\" action=\"Series.php?Seriesid=$Seriesid\" method=\"post\">\n";
-echo "<fieldset>\n<legend>Add people</legend>\n"; 
+echo "<fieldset>\n<legend>Remove people</legend>\n"; 
 
 foreach($_POST as $x => $x_value) {
     if ($x!="Seriesid") {
@@ -32,11 +29,12 @@ foreach($_POST as $x => $x_value) {
         $row = $result->fetch_assoc();
         $FirstName=$row['FirstName'];
         $LastName=$row['LastName'];
-        echo "<p>Adding $FirstName $LastName</p>\n";
-        $sql="INSERT INTO SeriesCandidates VALUES ($Seriesid, $Userid);";
+        echo "<p>Removing $FirstName $LastName</p>\n";
+        $sql="DELETE FROM SeriesCandidates WHERE Seriesid=$Seriesid AND Userid=$Userid;";
         $result = $conn->query($sql);
     }
 }
+
 echo "<br>\n";
 ?>
 

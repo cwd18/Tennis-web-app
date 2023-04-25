@@ -10,28 +10,27 @@
 </head>
 <body>
 
-<form class="pure-form pure-form-aligned" action="AddSeriesCandidates1.php" method="post"> 
+<form class="pure-form pure-form-aligned" action="AddFixturePerson1.php" method="post"> 
 <fieldset>
    
         
 <?php
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Select one or more candidates to be added to the specified fixture
+$Fixtureid=$_GET["Fixtureid"];
 
-$Seriesid=$_GET["Seriesid"];
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
+// Retrieve list of possible candidates to add, which excludes existing candidates
 $sql="SELECT Userid, FirstName, LastName 
 FROM Users
-WHERE Users.Userid NOT IN (SELECT Userid FROM SeriesCandidates WHERE Seriesid=$Seriesid)
+WHERE Users.Userid NOT IN (SELECT Userid FROM FixtureParticipants WHERE Fixtureid=$Fixtureid)
 ORDER BY LastName;";
-
 $result = $conn->query($sql);
 
-echo "<legend>Select users to add to series</legend>\n";
-echo "<input type=\"hidden\" name=\"Seriesid\" value=\"$Seriesid\">\n";
+// Create checkbox for each possible candidate
+echo "<legend>Select users to add to fixture</legend>\n";
+echo "<input type=\"hidden\" name=\"Fixtureid\" value=\"$Fixtureid\">\n";
 
 $n=1;
 while ($row = $result->fetch_assoc()) {

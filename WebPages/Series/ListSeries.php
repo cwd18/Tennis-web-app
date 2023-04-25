@@ -32,11 +32,9 @@
 
 <?php
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
 $sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime 
 FROM FixtureSeries";

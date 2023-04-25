@@ -15,21 +15,21 @@
 <legend>Add new series</legend> 
 
 <?php
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Add a new fixture series from passed parameters
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
+// Retrieve passed parameters
 $sname=$_POST['sname'];
 $day=$_POST['day'];
 $time=$_POST['time'];
 
+// Add the new fixture series
 $sql="INSERT INTO FixtureSeries (SeriesName, SeriesWeekday, SeriesTime)
-VALUES ('$sname', $day, '$time')";
+VALUES ('$sname', $day, '$time');";
 
 if ($conn->query($sql) === TRUE) {
-    echo "Adding $sname <br>\n";
+    echo "Added $sname <br>\n";
   } else {
     echo "Error: " . $sql . "<br>" . $conn->error, "<br>\n";
   }

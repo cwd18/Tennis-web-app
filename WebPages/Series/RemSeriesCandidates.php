@@ -15,11 +15,8 @@
    
         
 <?php
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
 $Seriesid=$_GET["Seriesid"];
 

@@ -16,11 +16,8 @@
 // The SQL DELETE FROM will fail if the series is referenced by any invitees or fixtures
 // Pressing the "Done" button hyperlinks to ListSeries.php
 
-$servername = "localhost";
-$username = "tennisapp";
-$password = "Tennis=LT28";
-$dbname = "Tennis";
-$conn = new mysqli($servername, $username, $password, $dbname);
+require_once('ConnectDB.php');
+$conn = ConnectDB();
 
 $Seriesid=$_GET['Seriesid']; // The Seriesid to delete
 
@@ -43,7 +40,6 @@ if ($result === TRUE) {
     echo "<p>Couldn't delete the fixture series \"$SeriesName\":<br>" , $e->getMessage(), "</p>\n";
 }
   
-
 echo "<br>\n";
 ?>
 
