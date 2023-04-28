@@ -30,7 +30,7 @@ $EmailAddress=$row['EmailAddress'];
 
 // Update if any changes
 if ($NewFirstName!=$FirstName or $NewLastName!=$LastName or $NewEmailAddress!=$EmailAddress){
-    $sql="UPDATE Users SET FirstName=$NewFirstName, LastName=$NewLastName, EmailAddress=$NewEmailAddress
+    $sql="UPDATE Users SET FirstName='$NewFirstName', LastName='$NewLastName', EmailAddress='$NewEmailAddress'
     WHERE Userid=$Userid;";
     $result=$conn->query($sql);
     if ($NewFirstName!=$FirstName) {echo "<p>$FirstName -> $NewFirstName</p>\n";}
