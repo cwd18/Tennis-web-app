@@ -45,9 +45,9 @@ $FixtureTime=$row['FixtureTime'];
 echo "<li class=\"pure-menu-item\">
 <a href=\"AddFixturePerson.php?Fixtureid=$Fixtureid\" class=\"pure-menu-link\">Add people</a></li>\n";
 echo "<li class=\"pure-menu-item\">
-<a href=\"RemSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove people</a></li>\n";
+<a href=\"RemFixturePerson.php?Fixtureid=$Fixtureid\" class=\"pure-menu-link\">Remove people</a></li>\n";
 echo "<li class=\"pure-menu-item\">
-<a href=\"RemSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove series</a></li>\n";
+<a href=\"RemFixture.php?Fixtureid=$Fixtureid\" class=\"pure-menu-link\">Remove fixture</a></li>\n";
 echo "</ul>\n</div>\n";
 
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
@@ -88,6 +88,8 @@ else {
 
 $conn->close();
 ?>
+
+<br>
 
 </body>
 </html>

@@ -17,42 +17,26 @@
         <li class="pure-menu-item">
             <a href="AddUser.html" class="pure-menu-link">Add person</a>
         </li>
-        <li class="pure-menu-item">
-            <a href="DeleteUser.php" class="pure-menu-link">Remove person</a>
-        </li>
     </ul>
 </div>
 
-<table class="pure-table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-        </tr>
-    </thead>
-    <tbody>
-
 <?php
+// List users with a link to edits
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
-$sql="SELECT FirstName, LastName, EmailAddress 
-FROM Users
-ORDER BY LastName;";
-
+$sql="SELECT Userid, FirstName, LastName FROM Users ORDER BY LastName;";
 $result = $conn->query($sql);
 
 while ($row = $result->fetch_assoc()) {
-    $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);
-    $EmailAddress=str_replace("-","&#8209",$EmailAddress);
-    echo "<tr><td>{$row["FirstName"]} {$row["LastName"]}</td><td>{$EmailAddress}</td></tr>\n";
+    $Userid=$row['Userid'];
+    $FirstName=$row['FirstName'];
+    $LastName=$row['LastName'];
+    echo "<p><a href=\"EditUser.php?Userid=$Userid\">$FirstName $LastName</a></p>\n";
 }
 
 $conn->close();
 ?>
-
-</tbody>
-</table>
 
 </body>
 </html>

@@ -104,5 +104,7 @@ else {
 $conn->close();
 ?>
 
+<br>
+
 </body>
 </html>
