@@ -10,27 +10,26 @@
 </head>
 <body>
 
-<form class="pure-form pure-form-aligned" action="RemSeriesCandidates1.php" method="post"> 
+<form class="pure-form pure-form-aligned" action="RemFixturePerson1.php" method="post"> 
 <fieldset>
-   
-        
+ 
 <?php
-// Remove one or more series candidates
-$Seriesid=$_GET["Seriesid"];
+// Remove one or more fixture participants
+$Fixtureid=$_GET["Fixtureid"];
 
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
-
+// Get fixture participants
 $sql="SELECT Users.Userid, FirstName, LastName 
-FROM Users, SeriesCandidates
-WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
+FROM Users, FixtureParticipants
+WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
 ORDER BY LastName;";
-
 $result = $conn->query($sql);
 
-echo "<legend>Select users to remove from series</legend>\n";
-echo "<input type=\"hidden\" name=\"Seriesid\" value=\"$Seriesid\">\n";
+// Create checkbox list of participants
+echo "<legend>Select users to remove from fixture</legend>\n";
+echo "<input type=\"hidden\" name=\"Fixtureid\" value=\"$Fixtureid\">\n";
 
 $n=1;
 while ($row = $result->fetch_assoc()) {
@@ -50,7 +49,7 @@ $conn->close();
 <br><br>
 
 <?php
-echo "<a class=\"pure-button\" href=\"Series.php?Seriesid=$Seriesid\">Cancel</a>\n";
+echo "<a class=\"pure-button\" href=\"Fixture.php?Fixtureid=$Fixtureid\">Cancel</a>\n";
 ?>
 
 </fieldset>

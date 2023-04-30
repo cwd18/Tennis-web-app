@@ -13,7 +13,6 @@
 <form class="pure-form pure-form-aligned" action="AddSeriesCandidates1.php" method="post"> 
 <fieldset>
    
-        
 <?php
 // Select one or more candidates to be added to the specified series
 $Seriesid=$_GET["Seriesid"];
@@ -48,6 +47,11 @@ $conn->close();
 ?>
 
 <button type="submit" class="pure-button pure-button-primary">Select</button>
+<br><br>
+
+<?php
+echo "<a class=\"pure-button\" href=\"Series.php?Seriesid=$Seriesid\">Cancel</a>\n";
+?>
 
 </fieldset>
 </form>

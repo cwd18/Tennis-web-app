@@ -41,12 +41,14 @@ $FixtureDate=date("y-m-d",$d);
 // Insert next fixture
 $sql="INSERT INTO Fixtures (Seriesid, FixtureDate, FixtureTime)
 VALUES ('$Seriesid', '$FixtureDate', '$Time');";
+$result=$conn->query($sql);
+$Fixtureid=$conn->insert_id;
+echo "Adding fixture $Fixtureid on $FixtureDate at $Time<br>\n";
 
-if ($conn->query($sql) === TRUE) {
-    echo "Adding fixture on $FixtureDate at $Time<br>\n";
-  } else {
-    echo "Error: " . $sql . "<br>" . $conn->error, "<br>\n";
-  }
+// Initialise participants from series candidates
+$sql="INSERT INTO FixtureParticipants (Fixtureid, Userid)
+SELECT '$Fixtureid', Userid FROM SeriesCandidates WHERE Seriesid='$Seriesid';";
+$result = $conn->query($sql);
 
 $conn->close();
 ?>
