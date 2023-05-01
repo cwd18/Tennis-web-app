@@ -32,6 +32,8 @@ echo "<li class=\"pure-menu-item\">
 echo "<li class=\"pure-menu-item\">
 <a href=\"RemSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove people</a></li>\n";
 echo "<li class=\"pure-menu-item\">
+<a href=\"EditSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Edit series data</a></li>\n";
+echo "<li class=\"pure-menu-item\">
 <a href=\"RemSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove series</a></li>\n";
 echo "</ul>\n</div>\n";
 
@@ -41,19 +43,14 @@ require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Display basic series data...
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
-FROM FixtureSeries
-WHERE Seriesid=$Seriesid;";
-
+$sql="SELECT SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
 $result = $conn->query($sql);
-
 $row = $result->fetch_assoc();
 $Name=$row["SeriesName"];
 $Day=$DayName[$row["SeriesWeekday"]];
 $Time=substr($row["SeriesTime"],0,5);
 echo "<h2>",$Name,"</h2>\n";
-echo "<p>Fixture is normally on ",$Day," at ",$Time,"</p>\n";
-
+echo "<p>New fixture defaults to ",$Day," at ",$Time,"</p>\n";
 
 // List default attendees...
 $sql="SELECT FirstName, LastName, EmailAddress 
