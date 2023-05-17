@@ -1,3 +1,17 @@
+<?php
+// Add specified user to Users table
+
+$fname=$_POST['fname'];
+$lname=$_POST['lname'];
+$email=$_POST['email'];
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+$sql="INSERT INTO Users (FirstName, LastName, EmailAddress)
+VALUES ('$fname', '$lname', '$email');";
+$result=$conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,22 +29,11 @@
 <legend>Add person</legend> 
 
 <?php
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-$fname=$_POST['fname'];
-$lname=$_POST['lname'];
-$email=$_POST['email'];
-
-$sql="INSERT INTO Users (FirstName, LastName, EmailAddress)
-VALUES ('$fname', '$lname', '$email')";
-
-if ($conn->query($sql) === TRUE) {
+if ($result === TRUE) {
     echo "$fname $lname added<br>\n";
   } else {
     echo "Error: " . $sql . "<br>" . $conn->error, "<br>\n";
   }
-
 $conn->close();
 ?>
 

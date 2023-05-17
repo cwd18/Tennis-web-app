@@ -1,17 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-* {margin-left: 2px;}
-</style>
-</head>
-<body>
-
 <?php
 // Update specified user data
-// Get form values
 $Userid=$_POST['Userid'];
 $NewFirstName=$_POST['fname'];
 $NewLastName=$_POST['lname'];
@@ -27,7 +15,20 @@ $row=$result->fetch_assoc();
 $FirstName=$row['FirstName'];
 $LastName=$row['LastName'];
 $EmailAddress=$row['EmailAddress'];
+?>
 
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {margin-left: 2px;}
+</style>
+</head>
+<body>
+
+<?php
 // Update if any changes
 if ($NewFirstName!=$FirstName or $NewLastName!=$LastName or $NewEmailAddress!=$EmailAddress){
     $sql="UPDATE Users SET FirstName='$NewFirstName', LastName='$NewLastName', EmailAddress='$NewEmailAddress'

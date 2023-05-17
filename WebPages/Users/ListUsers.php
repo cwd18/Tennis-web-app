@@ -1,5 +1,12 @@
+<?php
+// List users with a link to edits
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+$sql="SELECT Userid, FirstName, LastName FROM Users ORDER BY LastName;";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
-<!-- List all users -->
 <html>
 <head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -21,20 +28,12 @@
 </div>
 
 <?php
-// List users with a link to edits
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-$sql="SELECT Userid, FirstName, LastName FROM Users ORDER BY LastName;";
-$result = $conn->query($sql);
-
 while ($row = $result->fetch_assoc()) {
     $Userid=$row['Userid'];
     $FirstName=$row['FirstName'];
     $LastName=$row['LastName'];
     echo "<p><a href=\"EditUser.php?Userid=$Userid\">$FirstName $LastName</a></p>\n";
 }
-
 $conn->close();
 ?>
 
