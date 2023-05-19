@@ -1,3 +1,41 @@
+<?php
+// Add the next fixture to the specified series
+$Seriesid=$_GET["Seriesid"];
+
+$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+
+// Get basic series data...
+$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
+FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$Name=$row["SeriesName"];
+$Weekday=$row["SeriesWeekday"];
+$Time=substr($row["SeriesTime"],0,5);
+
+// Calculate the date of the next fixture
+$Day=$DayName[$Weekday];
+$d0=strtotime("+6 Days");
+$d=strtotime("next ".$Day,$d0);
+$FixtureDate=date("y-m-d",$d);
+
+// Insert next fixture
+$sql="INSERT INTO Fixtures (Seriesid, FixtureDate, FixtureTime)
+VALUES ('$Seriesid', '$FixtureDate', '$Time');";
+$result=$conn->query($sql);
+$Fixtureid=$conn->insert_id;
+
+// Initialise participants from series candidates
+$sql="INSERT INTO FixtureParticipants (Fixtureid, Userid)
+SELECT '$Fixtureid', Userid FROM SeriesCandidates WHERE Seriesid='$Seriesid';";
+$result = $conn->query($sql);
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,49 +48,14 @@
 </head>
 <body>
 
+<form class="pure-form pure-form-aligned" action="Series.php?Seriesid=<?php echo $Seriesid;?>" method="post"> 
+<fieldset>
+<legend>Add new fixture</legend>
 <?php
-// Add the next fixture to the specified series
-$Seriesid=$_GET["Seriesid"];
-
-echo "<form class=\"pure-form pure-form-aligned\" action=\"Series.php?Seriesid=$Seriesid\" method=\"post\">\n"; 
-echo "<fieldset>\n";
-echo "<legend>Add new fixture</legend>\n";
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-// Get basic series data...
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
-FROM FixtureSeries
-WHERE Seriesid=$Seriesid;";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$Name=$row["SeriesName"];
-$Weekday=$row["SeriesWeekday"];
-$Time=substr($row["SeriesTime"],0,5);
-
-// Calculate the date of the next fixture
-$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
-$Day=$DayName[$Weekday];
-$d0=strtotime("+6 Days");
-$d=strtotime("next ".$Day,$d0);
-$FixtureDate=date("y-m-d",$d);
-
-// Insert next fixture
-$sql="INSERT INTO Fixtures (Seriesid, FixtureDate, FixtureTime)
-VALUES ('$Seriesid', '$FixtureDate', '$Time');";
-$result=$conn->query($sql);
-$Fixtureid=$conn->insert_id;
-echo "Adding fixture $Fixtureid on $FixtureDate at $Time<br>\n";
-
-// Initialise participants from series candidates
-$sql="INSERT INTO FixtureParticipants (Fixtureid, Userid)
-SELECT '$Fixtureid', Userid FROM SeriesCandidates WHERE Seriesid='$Seriesid';";
-$result = $conn->query($sql);
-
-$conn->close();
+$d=strtotime($FixtureDate);
+$dstr=date("l jS \of F Y",$d);
+echo "Added fixture $Fixtureid on $dstr at $Time<br>\n";
 ?>
-
 <br>
 <button type="submit" class="pure-button pure-button-primary">Done</button>
 

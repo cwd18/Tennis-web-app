@@ -1,3 +1,15 @@
+<?php
+// Remove one or more series candidates
+$Seriesid=$_GET["Seriesid"];
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+$sql="SELECT Users.Userid, FirstName, LastName 
+FROM Users, SeriesCandidates
+WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
+ORDER BY LastName;";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -14,24 +26,10 @@
 <fieldset>
    
         
+<legend>Select users to remove from series</legend>
+<input type="hidden" name="Seriesid" value="<?php echo $Seriesid;?>">
+
 <?php
-// Remove one or more series candidates
-$Seriesid=$_GET["Seriesid"];
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-
-$sql="SELECT Users.Userid, FirstName, LastName 
-FROM Users, SeriesCandidates
-WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
-ORDER BY LastName;";
-
-$result = $conn->query($sql);
-
-echo "<legend>Select users to remove from series</legend>\n";
-echo "<input type=\"hidden\" name=\"Seriesid\" value=\"$Seriesid\">\n";
-
 $n=1;
 while ($row = $result->fetch_assoc()) {
     $Userid=(string)($row["Userid"]);
@@ -49,9 +47,7 @@ $conn->close();
 <button type="submit" class="pure-button pure-button-primary">Remove</button>
 <br><br>
 
-<?php
-echo "<a class=\"pure-button\" href=\"Series.php?Seriesid=$Seriesid\">Cancel</a>\n";
-?>
+<a class="pure-button" href="Series.php?Seriesid=<?php echo $Seriesid;?>">Cancel</a>
 
 </fieldset>
 </form>

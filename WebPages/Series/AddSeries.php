@@ -1,3 +1,15 @@
+<?php
+// Add a new fixture series from passed parameters
+$sname=$_POST['sname'];
+$day=$_POST['day'];
+$time=$_POST['time'];
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+$sql="INSERT INTO FixtureSeries (SeriesName, SeriesWeekday, SeriesTime)
+VALUES ('$sname', $day, '$time');";
+$result=$conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,25 +27,11 @@
 <legend>Add new series</legend> 
 
 <?php
-// Add a new fixture series from passed parameters
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-// Retrieve passed parameters
-$sname=$_POST['sname'];
-$day=$_POST['day'];
-$time=$_POST['time'];
-
-// Add the new fixture series
-$sql="INSERT INTO FixtureSeries (SeriesName, SeriesWeekday, SeriesTime)
-VALUES ('$sname', $day, '$time');";
-
-if ($conn->query($sql) === TRUE) {
+if ($result === TRUE) {
     echo "Added $sname <br>\n";
   } else {
     echo "Error: " . $sql . "<br>" . $conn->error, "<br>\n";
   }
-
 $conn->close();
 ?>
 

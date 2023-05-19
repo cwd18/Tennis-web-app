@@ -1,3 +1,22 @@
+<?php
+// Lists the specified fixture series, showing any default invitees and fixtures
+// Includes a menu of commands to manage a series 
+$Seriesid=$_GET["Seriesid"];
+
+$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+
+// Retrieve basic series data...
+$sql="SELECT SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$Name=$row["SeriesName"];
+$Day=$DayName[$row["SeriesWeekday"]];
+$Time=substr($row["SeriesTime"],0,5);
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,39 +35,28 @@
 <body>
 
 <div class="pure-menu pure-menu-scrollable custom-restricted">
-    <a href="ListSeries.php" class="pure-menu-heading pure-menu-link">Series</a>
-    <ul class="pure-menu-list">
+<a href="ListSeries.php" class="pure-menu-heading pure-menu-link">Series</a>
+<ul class="pure-menu-list">
+<li class="pure-menu-item">
+<a href="AddFixture.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Add fixture</a>
+</li>
+<li class="pure-menu-item">
+<a href="AddSeriesCandidates.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Add people</a>
+</li>
+<li class="pure-menu-item">
+<a href="RemSeriesCandidates.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Remove people</a>
+</li>
+<li class="pure-menu-item">
+<a href="EditSeries.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Edit series data</a>
+</li>
+<li class="pure-menu-item">
+<a href="RemSeries.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Remove series</a>
+</li>
+</ul>
+</div>
+
 
 <?php
-// Lists the specified fixture series, showing any default invitees and fixtures
-// Includes a menu of commands to manage a series 
-$Seriesid=$_GET["Seriesid"];
-
-// Menu of commands...
-echo "<li class=\"pure-menu-item\">
-<a href=\"AddFixture.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add fixture</a></li>\n";
-echo "<li class=\"pure-menu-item\">
-<a href=\"AddSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Add people</a></li>\n";
-echo "<li class=\"pure-menu-item\">
-<a href=\"RemSeriesCandidates.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove people</a></li>\n";
-echo "<li class=\"pure-menu-item\">
-<a href=\"EditSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Edit series data</a></li>\n";
-echo "<li class=\"pure-menu-item\">
-<a href=\"RemSeries.php?Seriesid=$Seriesid\" class=\"pure-menu-link\">Remove series</a></li>\n";
-echo "</ul>\n</div>\n";
-
-$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-// Display basic series data...
-$sql="SELECT SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$Name=$row["SeriesName"];
-$Day=$DayName[$row["SeriesWeekday"]];
-$Time=substr($row["SeriesTime"],0,5);
 echo "<h2>",$Name,"</h2>\n";
 echo "<p>New fixture defaults to ",$Day," at ",$Time,"</p>\n";
 
@@ -96,7 +104,6 @@ if ($result->num_rows > 0) {
 else {
     echo "<p><b>No fixtures</b></p>\n";
 }
-
 
 $conn->close();
 ?>

@@ -1,3 +1,17 @@
+<?php
+// Edit basic series data
+$Seriesid=$_GET["Seriesid"];
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$SeriesName=$row['SeriesName'];
+$SeriesWeekday=$row['SeriesWeekday'];
+$Time=substr($row['SeriesTime'],0,5);
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -10,37 +24,12 @@
 </head>
 <body>
 
-<form class="pure-form pure-form-stacked" action="UpdateSeries.php" method="post"> 
-<fieldset>
-        
-<?php
-// Edit basic series data
-$Seriesid=$_GET["Seriesid"];
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$SeriesName=$row['SeriesName'];
-$SeriesWeekday=$row['SeriesWeekday'];
-$Time=substr($row['SeriesTime'],0,5);
-
-$conn->close();
-?>
-
 <form class="pure-form pure-form-stacked" action="UpdateSeries.php" method="post">
 <fieldset>
-
-<?php
-echo "<legend>Edit series $Seriesid</legend>\n";
-echo "<input type=\"hidden\" name=\"Seriesid\" value=\"$Seriesid\">\n";
-?>
+<legend>Edit series <?php echo $Seriesid;?></legend>
+<input type="hidden" name="Seriesid" value="<?php echo $Seriesid;?>">
 <label for="sname">Series name</label>
-<?php
-echo "<input type=\"text\" name=\"sname\" id=\"sname\" value=\"$SeriesName\"/>\n";
-?>
+<input type="text" name="sname" id="sname" value="<?php echo $SeriesName;?>">
 <label for="day">Day</label>
 <select name="day" id="day">
 <option value="0">Monday</option>
@@ -71,19 +60,16 @@ echo "<input type=\"text\" name=\"sname\" id=\"sname\" value=\"$SeriesName\"/>\n
 <br>
 
 <script>
-<?php
-echo "document.getElementById(\"day\").value=\"$SeriesWeekday\"\n";
-echo "document.getElementById(\"time\").value=\"$Time\"\n";
-?>
+document.getElementById("day").value="<?php echo $SeriesWeekday;?>"
+document.getElementById("time").value="<?php echo $Time;?>"
 </script>
 
 <button type="submit" class="pure-button pure-button-primary">Update</button>
 </fieldset>
 </form>
+
 <br>
-<?php
-echo "<a class=\"pure-button\" href=\"Series.php?Seriesid=$Seriesid\">Cancel</a>\n";
-?>
+<a class="pure-button" href="Series.php?Seriesid=<?php echo $Seriesid;?>">Cancel</a>
 
 </fieldset>
 </form>

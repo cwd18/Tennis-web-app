@@ -1,5 +1,13 @@
+<?php
+// List all the series
+$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries;";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
-<!-- List all users from Users Table-->
 <html>
 <head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -31,23 +39,12 @@
 <tbody>
 
 <?php
-$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime 
-FROM FixtureSeries";
-
-$result = $conn->query($sql);
-
 while ($row = $result->fetch_assoc()) {
     $Name="<a href=\"Series.php?Seriesid={$row["Seriesid"]}\">{$row["SeriesName"]}</a>";
     $Day=$DayName[$row["SeriesWeekday"]];
     $Time=substr($row["SeriesTime"],0,5);
     echo "<tr><td>{$Name}</td><td>{$Day}</td><td>{$Time}</td></tr>\n";
 }
-
 $conn->close();
 ?>
 

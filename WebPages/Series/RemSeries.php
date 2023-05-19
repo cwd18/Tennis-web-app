@@ -1,3 +1,17 @@
+<?php
+// Remove the specified fixture series 
+// The SQL DELETE FROM will fail if the series is referenced by any invitees or fixtures
+$Seriesid=$_GET['Seriesid'];
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+
+$sql="SELECT  SeriesName FROM FixtureSeries WHERE Seriesid = $Seriesid;";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$SeriesName=$row['SeriesName'];
+$sql="DELETE FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+$result = $conn->query($sql);
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,38 +25,19 @@
 </head>
 <body>
 
+<form class="pure-form pure-form-aligned" action="ListSeries.php" method="post">
+<fieldset>
+<legend>Remove fixture series</legend>
+
 <?php
-// This PHP script removes the specified fixture series by Seriesid
-// The SQL DELETE FROM will fail if the series is referenced by any invitees or fixtures
-// Pressing the "Done" button hyperlinks to ListSeries.php
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-$Seriesid=$_GET['Seriesid']; // The Seriesid to delete
-
-echo "<form class=\"pure-form pure-form-aligned\" action=\"ListSeries.php\" method=\"post\">\n";
-echo "<fieldset>\n<legend>Remove fixture series</legend>\n"; 
-
-$sql="SELECT  SeriesName FROM FixtureSeries WHERE Seriesid = $Seriesid;";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$SeriesName=$row['SeriesName'];
-$sql="DELETE FROM FixtureSeries WHERE Seriesid=$Seriesid;";
-try {
-$result = $conn->query($sql);
 if ($result === TRUE) {
     echo "<p>Removed the fixture series \"$SeriesName\"</p>\n";
   } else {
     echo "<p>Couldn't delete the fixture series \"$SeriesName\": " , $conn->error, "</p>\n";
   }
-} catch (Exception $e) {
-    echo "<p>Couldn't delete the fixture series \"$SeriesName\":<br>" , $e->getMessage(), "</p>\n";
-}
-  
-echo "<br>\n";
 ?>
 
+<br>
 <button type="submit" class="pure-button pure-button-primary">Done</button>
 
 </fieldset>

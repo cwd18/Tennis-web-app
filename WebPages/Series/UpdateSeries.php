@@ -1,3 +1,20 @@
+<?php
+// Update fixture series from passed parameters
+$Seriesid=$_POST['Seriesid'];
+$NewSeriesName=$_POST['sname'];
+$NewSeriesWeekday=$_POST['day'];
+$NewSeriesTime=$_POST['time'];
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+$sql="SELECT SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$SeriesName=$row["SeriesName"];
+$SeriesWeekday=$row["SeriesWeekday"];
+$SeriesTime=substr($row["SeriesTime"],0,5);
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,26 +27,9 @@
 </head>
 <body>
 
-
 <p><b>Update series</b></p> 
 
 <?php
-// Update fixture series from passed parameters
-$Seriesid=$_POST['Seriesid'];
-$NewSeriesName=$_POST['sname'];
-$NewSeriesWeekday=$_POST['day'];
-$NewSeriesTime=$_POST['time'];
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-$sql="SELECT SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$SeriesName=$row["SeriesName"];
-$SeriesWeekday=$row["SeriesWeekday"];
-$SeriesTime=substr($row["SeriesTime"],0,5);
-
 // Update if any changes
 if ($NewSeriesName!=$SeriesName or $NewSeriesWeekday!=$SeriesWeekday or $NewSeriesTime!=$SeriesTime) {
     $sql="UPDATE FixtureSeries 
@@ -42,11 +42,10 @@ if ($NewSeriesName!=$SeriesName or $NewSeriesWeekday!=$SeriesWeekday or $NewSeri
 } else {
     echo "<p>No changes made</p>\n";
 }
-
 $conn->close();
-
-echo "<a class=\"pure-button pure-button-primary\" href=\"Series.php?Seriesid=$Seriesid\">Done</a>\n";
 ?>
+
+<a class="pure-button pure-button-primary" href="Series.php?Seriesid=<?php echo $Seriesid;?>">Done</a>
 
 </body>
 </html>
