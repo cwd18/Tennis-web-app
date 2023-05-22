@@ -1,16 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-.custom-restricted-width {display: inline-block;}
-* {margin-left: 2px;}
-</style>
-</head>
-<body>
-
 <?php
 // Remove the specified fixture by Fixtureid
 // The SQL DELETE FROM will fail if the fixture is referenced by any participants or bookings
@@ -32,17 +19,31 @@ $sql="DELETE FROM Fixtures WHERE Fixtureid=$Fixtureid;";
 try {
 $result = $conn->query($sql);
 if ($result === TRUE) {
-    echo "<p>Removed the fixture on $dstr</p>\n";
+    $echotext="<p>Removed the fixture on $dstr</p>\n";
   } else {
-    echo "<p>Couldn't delete the fixture on $dstr: " , $conn->error, "</p>\n";
+    $echotext="<p>Couldn't delete the fixture on $dstr: $conn->error</p>\n";
   }
 } catch (Exception $e) {
-    echo "<p>Couldn't delete the fixture on $dstr:<br>" , $e->getMessage(), "</p>\n";
+    $echotext="<p>Couldn't delete the fixture on $dstr:<br>{$e->getMessage()}</p>\n";
 }
-  
-echo "<br>\n";
-echo "<a class=\"pure-button pure-button-primary\" href=\"Series.php?Seriesid=$Seriesid\">Done</a>\n";
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.custom-restricted-width {display: inline-block;}
+* {margin-left: 2px;}
+</style>
+</head>
+<body>
+
+<?=$echotext?>
+<br>
+<a class="pure-button pure-button-primary" href="Series.php?Seriesid=<?=$Seriesid?>">Done</a>
 
 </body>
 </html>

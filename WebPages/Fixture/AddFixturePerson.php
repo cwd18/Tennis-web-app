@@ -1,3 +1,17 @@
+<?php
+// Select one or more candidates to be added to the specified fixture
+$Fixtureid=$_GET["Fixtureid"];
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+
+// Retrieve list of possible candidates to add, which excludes existing candidates
+$sql="SELECT Userid, FirstName, LastName FROM Users
+WHERE Users.Userid NOT IN (SELECT Userid FROM FixtureParticipants WHERE Fixtureid=$Fixtureid)
+ORDER BY LastName;";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -12,37 +26,21 @@
 
 <form class="pure-form pure-form-aligned" action="AddFixturePerson1.php" method="post"> 
 <fieldset>
-   
-        
+<legend>Select users to add to fixture</legend>
+<input type="hidden" name="Fixtureid" value="<?=$Fixtureid?>">
+
 <?php
-// Select one or more candidates to be added to the specified fixture
-$Fixtureid=$_GET["Fixtureid"];
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-// Retrieve list of possible candidates to add, which excludes existing candidates
-$sql="SELECT Userid, FirstName, LastName 
-FROM Users
-WHERE Users.Userid NOT IN (SELECT Userid FROM FixtureParticipants WHERE Fixtureid=$Fixtureid)
-ORDER BY LastName;";
-$result = $conn->query($sql);
-
 // Create checkbox for each possible candidate
-echo "<legend>Select users to add to fixture</legend>\n";
-echo "<input type=\"hidden\" name=\"Fixtureid\" value=\"$Fixtureid\">\n";
-
 $n=1;
 while ($row = $result->fetch_assoc()) {
-    $Userid=(string)($row["Userid"]);
-    $Name="{$row["FirstName"]} {$row["LastName"]}";
+    $Userid=(string)($row['Userid']);
+    $Name="{$row['FirstName']} {$row['LastName']}";
     echo "<div class=\"pure-control-group\">";
     echo "<label class=\"pure-checkbox\">\n";
     echo "<input type=\"checkbox\" name=\"User_$n\" value=\"$Userid\">\n";
     echo "$Name</label></div>\n";
     $n++;
   }
-
 
 $conn->close();
 ?>

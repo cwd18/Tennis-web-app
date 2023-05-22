@@ -1,3 +1,28 @@
+<?php
+// Lists the specified fixture, showing any invitees, participant, and court bookings
+// Includes a menu of commands to manage a series 
+$Fixtureid=$_GET['Fixtureid'];
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+
+// Get Fixture data
+$sql="SELECT Seriesid, FixtureDate, FixtureTime FROM Fixtures
+WHERE Fixtureid=$Fixtureid;";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$Seriesid=$row['Seriesid'];
+$FixtureDate=$row['FixtureDate'];
+$FixtureTime=substr($row['FixtureTime'],0,5);
+
+// Get basic series data...
+$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
+FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$Name=$row["SeriesName"];
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,65 +40,38 @@
 </head>
 <body>
 
-<?php
-// Lists the specified fixture, showing any invitees, participant, and court bookings
-// Includes a menu of commands to manage a series 
-$Fixtureid=$_GET['Fixtureid'];
-
-// Get Fixture data
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-$sql="SELECT Seriesid, FixtureDate, FixtureTime FROM Fixtures
-WHERE Fixtureid=$Fixtureid;";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$Seriesid=$row['Seriesid'];
-$FixtureDate=$row['FixtureDate'];
-$FixtureTime=$row['FixtureTime'];
-
-?>
-
 <div class="pure-menu pure-menu-scrollable custom-restricted">
-    <a href="ListSeries.php" class="pure-menu-heading pure-menu-link">Fixture</a>
+    <a href="Series.php?Seriesid=<?=$Seriesid?>" class="pure-menu-heading pure-menu-link">Fixture</a>
     <ul class="pure-menu-list">
 
+
+<li class="pure-menu-item">
+<a href="AddFixturePerson.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Add people</a>
+</li>
+<li class="pure-menu-item">
+<a href="RemFixturePerson.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Remove people</a>
+</li>
+<li class="pure-menu-item">
+<a href="RemFixture.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Remove fixture</a>
+</li>
+</ul>
+</div>
+
+<h2><?=$Name?></h2>
+
 <?php
-
-
-// Menu of commands...
-echo "<li class=\"pure-menu-item\">
-<a href=\"AddFixturePerson.php?Fixtureid=$Fixtureid\" class=\"pure-menu-link\">Add people</a></li>\n";
-echo "<li class=\"pure-menu-item\">
-<a href=\"RemFixturePerson.php?Fixtureid=$Fixtureid\" class=\"pure-menu-link\">Remove people</a></li>\n";
-echo "<li class=\"pure-menu-item\">
-<a href=\"RemFixture.php?Fixtureid=$Fixtureid\" class=\"pure-menu-link\">Remove fixture</a></li>\n";
-echo "</ul>\n</div>\n";
-
-$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
-
-
-// Display basic series data...
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
-FROM FixtureSeries WHERE Seriesid=$Seriesid;";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$Name=$row["SeriesName"];
-$Day=$DayName[$row["SeriesWeekday"]];
-$Time=substr($row["SeriesTime"],0,5);
-echo "<h2>",$Name,"</h2>\n";
-echo "<p>Fixture is on ",$Day," at ",$Time,"</p>\n";
-
+$d=strtotime($FixtureDate);
+$dstr=date("l jS \of F Y",$d);
+echo "<p>Fixture $Fixtureid is on ",$dstr," at ",$FixtureTime,"</p>\n";
 
 // List participants...
-$sql="SELECT FirstName, LastName, EmailAddress 
-FROM Users, FixtureParticipants
+$sql="SELECT FirstName, LastName, EmailAddress FROM Users, FixtureParticipants
 WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
 ORDER BY LastName;";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     echo "<p><b>Fixture participants:</b></p>\n";
-    echo '<table class="pure-table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>',"\n";
+    echo "<table class=\"pure-table\"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>\n";
 
     while ($row = $result->fetch_assoc()) {
         $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);

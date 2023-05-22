@@ -1,6 +1,6 @@
 <?php
 // Add the next fixture to the specified series
-$Seriesid=$_GET["Seriesid"];
+$Seriesid=$_GET['Seriesid'];
 
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
 
@@ -21,6 +21,8 @@ $Day=$DayName[$Weekday];
 $d0=strtotime("+6 Days");
 $d=strtotime("next ".$Day,$d0);
 $FixtureDate=date("y-m-d",$d);
+$d=strtotime($FixtureDate);
+$dstr=date("l jS \of F Y",$d);
 
 // Insert next fixture
 $sql="INSERT INTO Fixtures (Seriesid, FixtureDate, FixtureTime)
@@ -30,7 +32,7 @@ $Fixtureid=$conn->insert_id;
 
 // Initialise participants from series candidates
 $sql="INSERT INTO FixtureParticipants (Fixtureid, Userid)
-SELECT '$Fixtureid', Userid FROM SeriesCandidates WHERE Seriesid='$Seriesid';";
+SELECT '$Fixtureid', Userid FROM SeriesCandidates WHERE Seriesid=$Seriesid;";
 $result = $conn->query($sql);
 
 $conn->close();
@@ -48,15 +50,11 @@ $conn->close();
 </head>
 <body>
 
-<form class="pure-form pure-form-aligned" action="Series.php?Seriesid=<?php echo $Seriesid;?>" method="post"> 
+<form class="pure-form pure-form-aligned" action="Fixture.php?Fixtureid=<?=$Fixtureid?>" method="post"> 
 <fieldset>
 <legend>Add new fixture</legend>
-<?php
-$d=strtotime($FixtureDate);
-$dstr=date("l jS \of F Y",$d);
-echo "Added fixture $Fixtureid on $dstr at $Time<br>\n";
-?>
-<br>
+<p>Added fixture <?=$Fixtureid?> on <?=$dstr?> at <?=$Time?></p>
+<br><br>
 <button type="submit" class="pure-button pure-button-primary">Done</button>
 
 </fieldset>

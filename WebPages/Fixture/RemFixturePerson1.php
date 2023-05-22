@@ -1,3 +1,25 @@
+<?php
+// Remove specified fixture participants
+$Fixtureid=$_POST['Fixtureid'];
+
+require_once('ConnectDB.php');
+$conn = ConnectDB();
+
+foreach($_POST as $x => $x_value) {
+    if ($x!="Fixtureid") {
+        $Userid=$x_value;
+        $sql="SELECT  FirstName, LastName FROM Users WHERE Userid = $Userid;";
+        $result = $conn->query($sql);
+        $row = $result->fetch_assoc();
+        $FirstName=$row['FirstName'];
+        $LastName=$row['LastName'];
+        $echostr[$Userid]="<p>Removed $FirstName $LastName</p>\n";
+        $sql="DELETE FROM FixtureParticipants WHERE Fixtureid=$Fixtureid AND Userid=$Userid;";
+        $result = $conn->query($sql);
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,32 +32,16 @@
 </head>
 <body>
 
+<p>Remove people from fixture</p>
+
 <?php
-// Remove specified fixture participants
-$Fixtureid=$_POST['Fixtureid'];
-
-require_once('ConnectDB.php');
-$conn = ConnectDB();
-
-echo "<p>Remove people</p>\n"; 
-
-foreach($_POST as $x => $x_value) {
-    if ($x!="Fixtureid") {
-        $Userid=$x_value;
-        $sql="SELECT  FirstName, LastName FROM Users WHERE Userid = $Userid;";
-        $result = $conn->query($sql);
-        $row = $result->fetch_assoc();
-        $FirstName=$row['FirstName'];
-        $LastName=$row['LastName'];
-        echo "<p>Removing $FirstName $LastName</p>\n";
-        $sql="DELETE FROM FixtureParticipants WHERE Fixtureid=$Fixtureid AND Userid=$Userid;";
-        $result = $conn->query($sql);
-    }
+foreach($echostr as $x => $x_value) {
+    echo $x_value;
 }
-
-echo "<br><br>\n";
-echo "<a class=\"pure-button pure-button-primary\" href=\"Fixture.php?Fixtureid=$Fixtureid\">Done</a>\n";
 ?>
+
+<br><br>
+<a class="pure-button pure-button-primary" href="Fixture.php?Fixtureid=<?=$Fixtureid?>">Done</a>
 
 </body>
 </html>
