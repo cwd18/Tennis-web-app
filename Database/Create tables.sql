@@ -9,11 +9,13 @@ PRIMARY KEY (Userid)
 );
 CREATE TABLE FixtureSeries (
 Seriesid INT(8) not null auto_increment,
+SeriesOwner INT(8) not null,
 SeriesName varchar (50) not null,
 SeriesWeekday INT(8) not null,
 SeriesTime TIME not null,
 SeriesDuration INT(3) not null DEFAULT 2,
-PRIMARY KEY (Seriesid)
+PRIMARY KEY (Seriesid),
+FOREIGN KEY (SeriesOwner) REFERENCES Users(Userid)
 );
 CREATE TABLE SeriesCandidates (
 Seriesid INT(8) not null,
@@ -24,11 +26,13 @@ FOREIGN KEY (Userid) REFERENCES Users(Userid)
 CREATE TABLE Fixtures (
 Fixtureid INT(8) not null auto_increment,
 Seriesid INT(8) not null,
+FixtureOwner INT(8) not null,
 FixtureDate DATE not null,
 FixtureTime TIME not null,
 FixtureDuration INT(3) not null DEFAULT 2,
 PRIMARY KEY (Fixtureid),
-FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid)
+FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),
+FOREIGN KEY (FixtureOwner) REFERENCES Users(Userid)
 );
 CREATE TABLE CourtBookings (
 Fixtureid INT(8) not null,
