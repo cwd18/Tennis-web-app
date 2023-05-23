@@ -3,12 +3,21 @@
 $Seriesid=$_GET["Seriesid"];
 require_once('ConnectDB.php');
 $conn = ConnectDB();
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+
+$sql="SELECT FirstName, LastName, SeriesName, SeriesWeekday, SeriesTime 
+FROM Users, FixtureSeries WHERE Seriesid=$Seriesid AND Users.Userid=FixtureSeries.SeriesOwner;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
+$OwnerName=$row['FirstName']." ".$row['LastName'];
 $SeriesName=$row['SeriesName'];
 $SeriesWeekday=$row['SeriesWeekday'];
 $Time=substr($row['SeriesTime'],0,5);
+
+$sql="SELECT Userid, FirstName, LastName FROM Users;";
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    $OwnerList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
+}
 $conn->close();
 ?>
 
@@ -26,10 +35,21 @@ $conn->close();
 
 <form class="pure-form pure-form-stacked" action="UpdateSeries.php" method="post">
 <fieldset>
-<legend>Edit series <?php echo $Seriesid;?></legend>
-<input type="hidden" name="Seriesid" value="<?php echo $Seriesid;?>">
+<legend>Edit series <?=$Seriesid?></legend>
+<input type="hidden" name="Seriesid" value="<?=$Seriesid?>">
+
+<label for="owner">Series Owner</label>
+<select name="owner" id="owner">
+<?php
+foreach($OwnerList as $id => $name) {
+    echo "<option value=\"$id\">$name</option>\n";
+}
+?>
+</select>
+
 <label for="sname">Series name</label>
-<input type="text" name="sname" id="sname" value="<?php echo $SeriesName;?>">
+<input type="text" name="sname" id="sname" value="<?=$SeriesName?>">
+
 <label for="day">Day</label>
 <select name="day" id="day">
 <option value="0">Monday</option>
@@ -60,8 +80,8 @@ $conn->close();
 <br>
 
 <script>
-document.getElementById("day").value="<?php echo $SeriesWeekday;?>"
-document.getElementById("time").value="<?php echo $Time;?>"
+document.getElementById("day").value="<?=$SeriesWeekday?>"
+document.getElementById("time").value="<?=$Time?>"
 </script>
 
 <button type="submit" class="pure-button pure-button-primary">Update</button>
@@ -69,7 +89,7 @@ document.getElementById("time").value="<?php echo $Time;?>"
 </form>
 
 <br>
-<a class="pure-button" href="Series.php?Seriesid=<?php echo $Seriesid;?>">Cancel</a>
+<a class="pure-button" href="Series.php?Seriesid=<?=$Seriesid?>">Cancel</a>
 
 </fieldset>
 </form>

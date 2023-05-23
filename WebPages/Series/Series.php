@@ -9,12 +9,14 @@ require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Retrieve basic series data...
-$sql="SELECT SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+$sql="SELECT FirstName, LastName, SeriesName, SeriesWeekday, SeriesTime 
+FROM Users, FixtureSeries WHERE Seriesid=$Seriesid AND Users.Userid=FixtureSeries.SeriesOwner;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
-$Name=$row["SeriesName"];
-$Day=$DayName[$row["SeriesWeekday"]];
-$Time=substr($row["SeriesTime"],0,5);
+$SeriesName=$row['SeriesName'];
+$Day=$DayName[$row['SeriesWeekday']];
+$Time=substr($row['SeriesTime'],0,5);
+$OwnerName=$row['FirstName']." ".$row['LastName'];
 ?>
 
 <!DOCTYPE html>
@@ -38,31 +40,30 @@ $Time=substr($row["SeriesTime"],0,5);
 <a href="ListSeries.php" class="pure-menu-heading pure-menu-link">Series</a>
 <ul class="pure-menu-list">
 <li class="pure-menu-item">
-<a href="AddFixture.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Add fixture</a>
+<a href="AddFixture.php?Seriesid=<?=$Seriesid?>" class="pure-menu-link">Add fixture</a>
 </li>
 <li class="pure-menu-item">
-<a href="AddSeriesCandidates.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Add people</a>
+<a href="AddSeriesCandidates.php?Seriesid=<?=$Seriesid?>" class="pure-menu-link">Add people</a>
 </li>
 <li class="pure-menu-item">
-<a href="RemSeriesCandidates.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Remove people</a>
+<a href="RemSeriesCandidates.php?Seriesid=<?=$Seriesid?>" class="pure-menu-link">Remove people</a>
 </li>
 <li class="pure-menu-item">
-<a href="EditSeries.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Edit series data</a>
+<a href="EditSeries.php?Seriesid=<?=$Seriesid?>" class="pure-menu-link">Edit series data</a>
 </li>
 <li class="pure-menu-item">
-<a href="RemSeries.php?Seriesid=<?php echo $Seriesid;?>" class="pure-menu-link">Remove series</a>
+<a href="RemSeries.php?Seriesid=<?=$Seriesid?>" class="pure-menu-link">Remove series</a>
 </li>
 </ul>
 </div>
 
+<h2><?=$SeriesName?></h2>
+<p>Series owner: <?=$OwnerName?></p> 
+<p>New fixture defaults to <?=$Day?> at <?=$Time?></p>
 
 <?php
-echo "<h2>",$Name,"</h2>\n";
-echo "<p>New fixture defaults to ",$Day," at ",$Time,"</p>\n";
-
-// List default attendees...
-$sql="SELECT FirstName, LastName, EmailAddress 
-FROM Users, SeriesCandidates
+// Get default fixture attendees...
+$sql="SELECT FirstName, LastName, EmailAddress FROM Users, SeriesCandidates
 WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
 ORDER BY LastName;";
 
