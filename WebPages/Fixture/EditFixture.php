@@ -1,18 +1,24 @@
 <?php
-// Edit basic series data
-$Seriesid=$_GET["Seriesid"];
+// Edit basic fixture data
+$Fixtureid=$_GET['Fixtureid'];
+
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
-$sql="SELECT SeriesOwner, FirstName, LastName, SeriesName, SeriesWeekday, SeriesTime 
-FROM Users, FixtureSeries WHERE Seriesid=$Seriesid AND Users.Userid=FixtureSeries.SeriesOwner;";
+// Get Fixture data
+$sql="SELECT Fixtures.Seriesid, SeriesName, FixtureOwner, FirstName, LastName, FixtureDate, FixtureTime
+FROM Fixtures, Users, FixtureSeries
+WHERE Fixtureid=$Fixtureid 
+AND Fixtures.FixtureOwner=Users.Userid AND Fixtures.Seriesid=FixtureSeries.Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
-$SeriesOwner=$row['SeriesOwner'];
-$OwnerName=$row['FirstName']." ".$row['LastName'];
 $SeriesName=$row['SeriesName'];
-$SeriesWeekday=$row['SeriesWeekday'];
-$Time=substr($row['SeriesTime'],0,5);
+$FixtureOwner=$row['FixtureOwner'];
+$OwnerName=$row['FirstName']." ".$row['LastName'];
+$FixtureDate=$row['FixtureDate'];
+$FixtureTime=substr($row['FixtureTime'],0,5);
+$d=strtotime($FixtureDate);
+$dstr=date("l jS \of F Y",$d);
 
 $sql="SELECT Userid, FirstName, LastName FROM Users;";
 $result = $conn->query($sql);
@@ -34,12 +40,12 @@ $conn->close();
 </head>
 <body>
 
-<form class="pure-form pure-form-stacked" action="UpdateSeries.php" method="post">
+<form class="pure-form pure-form-stacked" action="UpdateFixture.php" method="post">
 <fieldset>
-<legend>Edit series <?=$Seriesid?></legend>
-<input type="hidden" name="Seriesid" value="<?=$Seriesid?>">
+<legend>Edit fixture <?=$Fixtureid?> from <?=$SeriesName?></legend>
+<input type="hidden" name="Fixtureid" value="<?=$Fixtureid?>">
 
-<label for="owner">Series Owner</label>
+<label for="owner">Fixture Owner</label>
 <select name="owner" id="owner">
 <?php
 foreach($OwnerList as $id => $name) {
@@ -48,19 +54,8 @@ foreach($OwnerList as $id => $name) {
 ?>
 </select>
 
-<label for="sname">Series name</label>
-<input type="text" name="sname" id="sname" value="<?=$SeriesName?>">
-
-<label for="day">Day</label>
-<select name="day" id="day">
-<option value="0">Monday</option>
-<option value="1">Tuesday</option>
-<option value="2">Wednesday</option>
-<option value="3">Thursday</option>
-<option value="4">Friday</option>
-<option value="5">Saturday</option>
-<option value="6">Sunday</option>
-</select>
+<label for="day">Date</label>
+<input type="date" name="date" id="date" value=<?=$FixtureDate?>>
 
 <label for="time">Start time</label>
 <select name="time" id="time">
@@ -81,9 +76,8 @@ foreach($OwnerList as $id => $name) {
 <br>
 
 <script>
-document.getElementById("owner").value="<?=$SeriesOwner?>"
-document.getElementById("day").value="<?=$SeriesWeekday?>"
-document.getElementById("time").value="<?=$Time?>"
+document.getElementById("owner").value="<?=$FixtureOwner?>"
+document.getElementById("time").value="<?=$FixtureTime?>"
 </script>
 
 <button type="submit" class="pure-button pure-button-primary">Update</button>
@@ -91,7 +85,7 @@ document.getElementById("time").value="<?=$Time?>"
 </form>
 
 <br>
-<a class="pure-button" href="Series.php?Seriesid=<?=$Seriesid?>">Cancel</a>
+<a class="pure-button" href="Fixture.php?Fixtureid=<?=$Fixtureid?>">Cancel</a>
 
 </fieldset>
 </form>

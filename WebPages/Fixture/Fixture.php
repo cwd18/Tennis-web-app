@@ -1,26 +1,39 @@
 <?php
 // Lists the specified fixture, showing any invitees, participant, and court bookings
-// Includes a menu of commands to manage a series 
+// Includes a menu of commands to manage a fixture 
 $Fixtureid=$_GET['Fixtureid'];
 
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Get Fixture data
-$sql="SELECT Seriesid, FixtureDate, FixtureTime FROM Fixtures
-WHERE Fixtureid=$Fixtureid;";
+$sql="SELECT Fixtures.Seriesid, SeriesName, FirstName, LastName, FixtureDate, FixtureTime
+FROM Fixtures, Users, FixtureSeries
+WHERE Fixtureid=$Fixtureid 
+AND Fixtures.FixtureOwner=Users.Userid AND Fixtures.Seriesid=FixtureSeries.Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $Seriesid=$row['Seriesid'];
+$SeriesName=$row['SeriesName'];
+$OwnerName=$row['FirstName']." ".$row['LastName'];
 $FixtureDate=$row['FixtureDate'];
 $FixtureTime=substr($row['FixtureTime'],0,5);
+$d=strtotime($FixtureDate);
+$dstr=date("l jS \of F Y",$d);
 
-// Get basic series data...
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
-FROM FixtureSeries WHERE Seriesid=$Seriesid;";
+// Get participants...
+$sql="SELECT Users.Userid, FirstName, LastName, EmailAddress FROM Users, FixtureParticipants
+WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
+ORDER BY LastName;";
 $result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$Name=$row["SeriesName"];
+while ($row = $result->fetch_assoc()) {
+    $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);
+    $EmailAddress=str_replace("-","&#8209",$EmailAddress);
+    $ParticipantList[$row['Userid']]['Name']=$row['FirstName']." ".$row['LastName'];
+    $ParticipantList[$row['Userid']]['Email']=$EmailAddress;
+}
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -52,41 +65,30 @@ $Name=$row["SeriesName"];
 <a href="RemFixturePerson.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Remove people</a>
 </li>
 <li class="pure-menu-item">
+<a href="EditFixture.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Edit fixture data</a>
+</li>
+<li class="pure-menu-item">
 <a href="RemFixture.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Remove fixture</a>
 </li>
 </ul>
 </div>
 
-<h2><?=$Name?></h2>
+<h2><?=$SeriesName?></h2>
+<p>Fixture owner: <?=$OwnerName?></p> 
+<p>Fixture <?=$Fixtureid?> is on <?=$dstr?> at <?=$FixtureTime?></p>
+<p><b>Fixture participants:</b></p>
+<table class="pure-table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>
 
 <?php
-$d=strtotime($FixtureDate);
-$dstr=date("l jS \of F Y",$d);
-echo "<p>Fixture $Fixtureid is on ",$dstr," at ",$FixtureTime,"</p>\n";
-
-// List participants...
-$sql="SELECT FirstName, LastName, EmailAddress FROM Users, FixtureParticipants
-WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
-ORDER BY LastName;";
-$result = $conn->query($sql);
-if ($result->num_rows > 0) {
-    echo "<p><b>Fixture participants:</b></p>\n";
-    echo "<table class=\"pure-table\"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>\n";
-
-    while ($row = $result->fetch_assoc()) {
-        $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);
-        $EmailAddress=str_replace("-","&#8209",$EmailAddress);
-        echo "<tr><td>{$row["FirstName"]} {$row["LastName"]}</td><td>{$EmailAddress}</td></tr>\n";
+// List any participants...
+if (isset($ParticipantList)) {
+    foreach ($ParticipantList as $x => $x_value) {
+        echo "<tr><td>{$x_value['Name']}</td><td>{$x_value['Email']}</td></tr>\n";
     }
-    echo "</tbody></table>\n";
 }
-else {
-    echo "<p><b>No fixture participants</b></p>\n";
-}
-
-$conn->close();
 ?>
 
+</tbody></table>
 <br>
 
 </body>

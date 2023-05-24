@@ -8,13 +8,13 @@ require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Get basic series data...
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime
+$sql="SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime
 FROM FixtureSeries WHERE Seriesid=$Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
-$Name=$row["SeriesName"];
-$Weekday=$row["SeriesWeekday"];
-$Time=substr($row["SeriesTime"],0,5);
+$FixtureOwner=$row['SeriesOwner'];
+$Weekday=$row['SeriesWeekday'];
+$Time=substr($row['SeriesTime'],0,5);
 
 // Calculate the date of the next fixture
 $Day=$DayName[$Weekday];
@@ -25,8 +25,8 @@ $d=strtotime($FixtureDate);
 $dstr=date("l jS \of F Y",$d);
 
 // Insert next fixture
-$sql="INSERT INTO Fixtures (Seriesid, FixtureDate, FixtureTime)
-VALUES ('$Seriesid', '$FixtureDate', '$Time');";
+$sql="INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime)
+VALUES ('$Seriesid', '$FixtureOwner', '$FixtureDate', '$Time');";
 $result=$conn->query($sql);
 $Fixtureid=$conn->insert_id;
 

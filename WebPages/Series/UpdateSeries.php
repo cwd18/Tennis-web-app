@@ -53,7 +53,7 @@ if ($NewSeriesOwner!=$SeriesOwner or
 $conn->close();
 ?>
 
-<a class="pure-button pure-button-primary" href="Series.php?Seriesid=<?php echo $Seriesid;?>">Done</a>
+<a class="pure-button pure-button-primary" href="Series.php?Seriesid=<?=$Seriesid?>">Done</a>
 
 </body>
 </html>
