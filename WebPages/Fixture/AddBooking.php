@@ -1,27 +1,31 @@
 <?php
-// Edit basic fixture data
+// Add one or more bookings
 $Fixtureid=$_GET['Fixtureid'];
 
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Get Fixture data
-$sql="SELECT SeriesName, FixtureOwner, FirstName, LastName, FixtureDate, FixtureTime
+$sql="SELECT Fixtures.Seriesid, SeriesName, FirstName, LastName, FixtureDate, FixtureTime
 FROM Fixtures, Users, FixtureSeries
 WHERE Fixtureid=$Fixtureid 
 AND Fixtures.FixtureOwner=Users.Userid AND Fixtures.Seriesid=FixtureSeries.Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
+$Seriesid=$row['Seriesid'];
 $SeriesName=$row['SeriesName'];
-$FixtureOwner=$row['FixtureOwner'];
 $OwnerName=$row['FirstName']." ".$row['LastName'];
 $FixtureDate=$row['FixtureDate'];
 $FixtureTime=substr($row['FixtureTime'],0,5);
+$d=strtotime($FixtureDate);
+$dstr=date("l jS \of F Y",$d);
 
-$sql="SELECT Userid, FirstName, LastName FROM Users;";
+$sql="SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
+WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
+ORDER BY LastName;";
 $result = $conn->query($sql);
 while ($row = $result->fetch_assoc()) {
-    $OwnerList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
+    $ParticipantList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
 }
 $conn->close();
 ?>
@@ -38,25 +42,35 @@ $conn->close();
 </head>
 <body>
 
-<form class="pure-form pure-form-stacked" action="UpdateFixture.php" method="post">
+<h2><?=$dstr?> at <?=$FixtureTime?></h2>
+<p>Fixture owner: <?=$OwnerName?></p> 
+
+<form class="pure-form pure-form-stacked" action="AddBooking1.php" method="post">
 <fieldset>
-<legend>Edit fixture <?=$Fixtureid?> from <?=$SeriesName?></legend>
+<legend>Add booking(s)</legend>
 <input type="hidden" name="Fixtureid" value="<?=$Fixtureid?>">
 
-<label for="owner">Fixture Owner</label>
-<select name="owner" id="owner">
+
+
+<div class="pure-u-1 pure-u-md-1-1">
+<label for="booker">Booker</label>
+<select name="booker" id="booker">
 <?php
-foreach($OwnerList as $id => $name) {
+foreach($ParticipantList as $id => $name) {
     echo "<option value=\"$id\">$name</option>\n";
 }
 ?>
 </select>
 
-<label for="day">Date</label>
-<input type="date" name="date" id="date" value=<?=$FixtureDate?>>
+<div class="pure-g">
+<div class="pure-u-1-2">
+<label for="court1">Court number</label>
+<input type="number" id="court1" name="court1" min="1" max="23">
+</div>
 
-<label for="time">Start time</label>
-<select name="time" id="time">
+<div class="pure-u-2-2">
+<label for="time1">Court time</label>
+<select name="time1" id="time1">
 <option>07:30</option>
 <option>08:30</option>
 <option>09:30</option>
@@ -71,6 +85,32 @@ foreach($OwnerList as $id => $name) {
 <option>18:30</option>
 <option>19:30</option>
 </select>
+</div>
+
+<div class="pure-u-1-2">
+<input type="number" id="court2" name="court2" min="1" max="23">
+</div>
+
+<div class="pure-u-2-2">
+<select name="time2" id="time2">
+<option>07:30</option>
+<option>08:30</option>
+<option>09:30</option>
+<option>10:30</option>
+<option>11:30</option>
+<option>12:30</option>
+<option>13:30</option>
+<option>14:30</option>
+<option>15:30</option>
+<option>16:30</option>
+<option>17:30</option>
+<option>18:30</option>
+<option>19:30</option>
+</select>
+</div>
+
+</div>
+
 <br>
 
 <script>
@@ -78,7 +118,7 @@ document.getElementById("owner").value="<?=$FixtureOwner?>"
 document.getElementById("time").value="<?=$FixtureTime?>"
 </script>
 
-<button type="submit" class="pure-button pure-button-primary">Update</button>
+<button type="submit" class="pure-button pure-button-primary">Add</button>
 </fieldset>
 </form>
 

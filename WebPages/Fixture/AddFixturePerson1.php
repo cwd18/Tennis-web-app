@@ -12,15 +12,16 @@ if (count($_POST)>1) {
             $row = $result->fetch_assoc();
             $FirstName=$row['FirstName'];
             $LastName=$row['LastName'];
-            $echostr[$Userid]="<p>Added $FirstName $LastName</p>\n";
+            $echostr[$Userid]="Added $FirstName $LastName";
             $sql="INSERT INTO FixtureParticipants (Fixtureid, Userid, RequestTime)
             VALUES ($Fixtureid, $Userid, null);";
             $result = $conn->query($sql);
         }
     }
 } else {
-    $echostr[0]="<p>No user selected</p>\n";
+    $echostr[0]="No user selected";
 }
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -42,7 +43,7 @@ if (count($_POST)>1) {
 
 <?php
 foreach($echostr as $x => $x_value) {
-    echo $x_value;
+    echo "<p>$x_value</p>\n";
 }
 ?>
 

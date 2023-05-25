@@ -18,6 +18,7 @@ foreach($_POST as $x => $x_value) {
         $result = $conn->query($sql);
     }
 }
+$conn->close();
 ?>
 
 <!DOCTYPE html>

@@ -33,6 +33,17 @@ while ($row = $result->fetch_assoc()) {
     $ParticipantList[$row['Userid']]['Email']=$EmailAddress;
 }
 
+// Get court bookings
+$sql="SELECT FirstName, LastName, CourtNumber, BookingTime FROM Users, CourtBookings
+WHERE Fixtureid=$Fixtureid and Users.Userid=CourtBookings.Userid;";
+$result = $conn->query($sql);
+$n=0;
+while ($row = $result->fetch_assoc()) {
+    $Bookings[$n]['Name']=$row['FirstName']." ".$row['LastName'];
+    $Bookings[$n]['Court']=$row['CourtNumber'];
+    $Bookings[$n]['Time']=substr($row['BookingTime'],0,5);
+    $n++;
+}
 $conn->close();
 ?>
 
@@ -54,10 +65,11 @@ $conn->close();
 <body>
 
 <div class="pure-menu pure-menu-scrollable custom-restricted">
-    <a href="Series.php?Seriesid=<?=$Seriesid?>" class="pure-menu-heading pure-menu-link">Fixture</a>
-    <ul class="pure-menu-list">
-
-
+<a href="Series.php?Seriesid=<?=$Seriesid?>" class="pure-menu-heading pure-menu-link">Fixture</a>
+<ul class="pure-menu-list">
+<li class="pure-menu-item">
+<a href="AddBooking.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Add booking</a>
+</li>
 <li class="pure-menu-item">
 <a href="AddFixturePerson.php?Fixtureid=<?=$Fixtureid?>" class="pure-menu-link">Add people</a>
 </li>
@@ -80,16 +92,26 @@ $conn->close();
 <table class="pure-table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>
 
 <?php
-// List any participants...
+// List participants...
 if (isset($ParticipantList)) {
     foreach ($ParticipantList as $x => $x_value) {
         echo "<tr><td>{$x_value['Name']}</td><td>{$x_value['Email']}</td></tr>\n";
     }
 }
 ?>
-
 </tbody></table>
+
 <br>
+<p><b>Fixture bookings:</b></p>
+
+<?php
+// List bookings
+if (isset($Bookings)) {
+    foreach ($Bookings as $value) {
+        echo "<p>{$value['Name']}: court {$value['Court']} at {$value['Time']}\n";
+    }
+}
+?>
 
 </body>
 </html>
