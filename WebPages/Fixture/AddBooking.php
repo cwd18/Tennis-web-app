@@ -20,6 +20,24 @@ $FixtureTime=substr($row['FixtureTime'],0,5);
 $d=strtotime($FixtureDate);
 $dstr=date("l jS \of F Y",$d);
 
+$BookingBase=$FixtureTime;
+$BookingRange=2;
+if ($BookingBase=='08:30') {
+    $BookingBase='07:30';
+    $BookingRange=3;
+}
+for ($n=0; $n<$BookingRange; $n++) {
+    $t=strtotime($BookingBase)+$n*3600;
+    $tstr[$n]=date("H:i",$t);
+}
+$tselect[0]=$tstr[0];
+$tselect[1]=$tstr[1];
+if ($BookingRange==3) {
+    $tselect[0]=$tstr[1];
+    $tselect[1]=$tstr[2];
+}
+
+
 $sql="SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
 WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
 ORDER BY LastName;";
@@ -71,19 +89,11 @@ foreach($ParticipantList as $id => $name) {
 <div class="pure-u-2-2">
 <label for="time1">Court time</label>
 <select name="time1" id="time1">
-<option>07:30</option>
-<option>08:30</option>
-<option>09:30</option>
-<option>10:30</option>
-<option>11:30</option>
-<option>12:30</option>
-<option>13:30</option>
-<option>14:30</option>
-<option>15:30</option>
-<option>16:30</option>
-<option>17:30</option>
-<option>18:30</option>
-<option>19:30</option>
+<?php
+for ($n=0; $n<$BookingRange; $n++) {
+    echo "<option>$tstr[$n]</option>\n";
+}
+?>
 </select>
 </div>
 
@@ -93,19 +103,11 @@ foreach($ParticipantList as $id => $name) {
 
 <div class="pure-u-2-2">
 <select name="time2" id="time2">
-<option>07:30</option>
-<option>08:30</option>
-<option>09:30</option>
-<option>10:30</option>
-<option>11:30</option>
-<option>12:30</option>
-<option>13:30</option>
-<option>14:30</option>
-<option>15:30</option>
-<option>16:30</option>
-<option>17:30</option>
-<option>18:30</option>
-<option>19:30</option>
+<?php
+for ($n=0; $n<$BookingRange; $n++) {
+    echo "<option>$tstr[$n]</option>\n";
+}
+?>
 </select>
 </div>
 
@@ -114,8 +116,9 @@ foreach($ParticipantList as $id => $name) {
 <br>
 
 <script>
-document.getElementById("owner").value="<?=$FixtureOwner?>"
-document.getElementById("time").value="<?=$FixtureTime?>"
+document.getElementById("time1").value="<?=$tselect[0]?>"
+document.getElementById("time2").value="<?=$tselect[1]?>"
+
 </script>
 
 <button type="submit" class="pure-button pure-button-primary">Add</button>

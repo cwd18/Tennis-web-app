@@ -22,16 +22,13 @@ $d=strtotime($FixtureDate);
 $dstr=date("l jS \of F Y",$d);
 
 // Get participants...
-$sql="SELECT Users.Userid, FirstName, LastName, EmailAddress FROM Users, FixtureParticipants
+$sql="SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
 WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
 ORDER BY LastName;";
 $result = $conn->query($sql);
 while ($row = $result->fetch_assoc()) {
-    $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);
-    $EmailAddress=str_replace("-","&#8209",$EmailAddress);
-    $ParticipantList[$row['Userid']]['Name']=$row['FirstName']." ".$row['LastName'];
-    $ParticipantList[$row['Userid']]['Email']=$EmailAddress;
-}
+    $ParticipantList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
+    }
 
 // Get court bookings
 $sql="SELECT FirstName, LastName, CourtNumber, BookingTime FROM Users, CourtBookings
@@ -88,22 +85,19 @@ $conn->close();
 <h2><?=$SeriesName?></h2>
 <p>Fixture owner: <?=$OwnerName?></p> 
 <p>Fixture <?=$Fixtureid?> is on <?=$dstr?> at <?=$FixtureTime?></p>
-<p><b>Fixture participants:</b></p>
-<table class="pure-table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>
 
+<p><b>Fixture participants:</b></p>
 <?php
 // List participants...
 if (isset($ParticipantList)) {
     foreach ($ParticipantList as $x => $x_value) {
-        echo "<tr><td>{$x_value['Name']}</td><td>{$x_value['Email']}</td></tr>\n";
+        echo "$x_value<br>\n";
     }
 }
 ?>
-</tbody></table>
 
 <br>
 <p><b>Fixture bookings:</b></p>
-
 <?php
 // List bookings
 if (isset($Bookings)) {
