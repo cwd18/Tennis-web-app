@@ -17,6 +17,31 @@ $SeriesName=$row['SeriesName'];
 $Day=$DayName[$row['SeriesWeekday']];
 $Time=substr($row['SeriesTime'],0,5);
 $OwnerName=$row['FirstName']." ".$row['LastName'];
+
+// Get default fixture attendees...
+$sql="SELECT Users.Userid, FirstName, LastName FROM Users, SeriesCandidates
+WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
+ORDER BY FirstName, LastName;";
+$result = $conn->query($sql);
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    $ParticipantList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
+    }
+
+// Get most recent fixtures for this series...
+$sql="SELECT Fixtureid, FixtureDate, FixtureTime FROM Fixtures 
+WHERE Seriesid=$Seriesid ORDER BY FixtureDate DESC LIMIT 5;";
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    $Fixtureid=$row['Fixtureid'];
+    $FixtureDate=$row["FixtureDate"];
+    $d=strtotime($FixtureDate);
+    $dstr=date("l jS \of F Y",$d);
+    $FixtureList[$Fixtureid]['dstr']=$dstr;
+    $FixtureList[$Fixtureid]['time']=substr($row["FixtureTime"],0,5);
+}
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -61,53 +86,32 @@ $OwnerName=$row['FirstName']." ".$row['LastName'];
 <p>Series owner: <?=$OwnerName?></p> 
 <p>New fixture defaults to <?=$Day?> at <?=$Time?></p>
 
+<p><b>Default fixture invitees:</b></p>
 <?php
-// Get default fixture attendees...
-$sql="SELECT FirstName, LastName, EmailAddress FROM Users, SeriesCandidates
-WHERE Seriesid=$Seriesid AND Users.Userid=SeriesCandidates.Userid
-ORDER BY LastName;";
-
-$result = $conn->query($sql);
-if ($result->num_rows > 0) {
-    echo "<p><b>Default fixture invitees:</b></p>\n";
-    echo '<table class="pure-table"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>',"\n";
-
-    while ($row = $result->fetch_assoc()) {
-        $EmailAddress=str_replace("@","<wbr>@",$row["EmailAddress"]);
-        $EmailAddress=str_replace("-","&#8209",$EmailAddress);
-        echo "<tr><td>{$row["FirstName"]} {$row["LastName"]}</td><td>{$EmailAddress}</td></tr>\n";
-    }
-    echo "</tbody></table>\n";
+if (isset($ParticipantList)) {
+    echo "<ol>\n";
+    foreach ($ParticipantList as $x => $x_value) {
+        echo "<li>$x_value</li>\n";
+        }
+    echo "</ol>\n";
 }
 else {
     echo "<p><b>No fixture invitees</b></p>\n";
 }
-
-// List fixtures for this series...
-$sql="SELECT Fixtureid, FixtureDate, FixtureTime FROM Fixtures 
-WHERE Seriesid=$Seriesid ORDER BY FixtureDate DESC;";
-$result = $conn->query($sql);
-if ($result->num_rows > 0) {
-    echo "<p><b>Fixtures (most recent first):</b></p>\n";
-    echo '<table class="pure-table"><thead><tr><th>Date</th><th>Time</th></tr></thead><tbody>',"\n";
-
-    while ($row = $result->fetch_assoc()) {
-        $Fixtureid=$row["Fixtureid"];
-        $FixtureDate=$row["FixtureDate"];
-        $d=strtotime($FixtureDate);
-        $dstr=date("l jS \of F Y",$d);
-        $FixtureTime=substr($row["FixtureTime"],0,5);
-        echo "<tr><td><a href=\"Fixture.php?Fixtureid=$Fixtureid\">$dstr</a></td>
-        <td>$FixtureTime</td></tr>\n";
-    }
-    echo "</tbody></table>\n";
-}
-else {
-    echo "<p><b>No fixtures</b></p>\n";
-}
-
-$conn->close();
 ?>
+
+<p><b>Fixtures (most recent first):</b></p>
+<table class="pure-table"><thead><tr><th>Date</th><th>Time</th></tr></thead><tbody>
+<?php
+if (isset($FixtureList)) {
+    foreach ($FixtureList as $x => $x_value) {
+        echo "<tr><td><a href=\"Fixture.php?Fixtureid=$x\">{$x_value['dstr']}</a></td>
+        <td>{$x_value['time']}</td></tr>\n";
+    }
+}
+?>
+
+</tbody></table>
 
 <br>
 

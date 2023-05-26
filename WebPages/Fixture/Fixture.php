@@ -24,7 +24,7 @@ $dstr=date("l jS \of F Y",$d);
 // Get participants...
 $sql="SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
 WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
-ORDER BY LastName;";
+ORDER BY FirstName, LastName;";
 $result = $conn->query($sql);
 while ($row = $result->fetch_assoc()) {
     $ParticipantList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
@@ -83,20 +83,22 @@ $conn->close();
 </div>
 
 <h2><?=$SeriesName?></h2>
+<p>On <?=$dstr?> at <?=$FixtureTime?></p>
 <p>Fixture owner: <?=$OwnerName?></p> 
-<p>Fixture <?=$Fixtureid?> is on <?=$dstr?> at <?=$FixtureTime?></p>
 
-<p><b>Fixture participants:</b></p>
+
+<b>Fixture participants:</b>
+<ol>
 <?php
 // List participants...
 if (isset($ParticipantList)) {
     foreach ($ParticipantList as $x => $x_value) {
-        echo "$x_value<br>\n";
+        echo "<li>$x_value</li>\n";
     }
 }
 ?>
+</ol>
 
-<br>
 <p><b>Fixture bookings:</b></p>
 <?php
 // List bookings
