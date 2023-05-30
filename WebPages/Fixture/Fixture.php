@@ -30,16 +30,43 @@ while ($row = $result->fetch_assoc()) {
     $ParticipantList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
     }
 
-// Get court bookings
+// Get court bookings into grid with columns (court, booking time, bookers)
+$Grid[0][0]="Court";
+$sql="SELECT DISTINCT BookingTime FROM CourtBookings WHERE Fixtureid=$Fixtureid;";
+$result = $conn->query($sql);
+$c=1;
+while ($row = $result->fetch_assoc()) {
+    $Grid[0][$c]=substr($row['BookingTime'],0,5);
+    $c++;
+}
+$BookersColumn=$c;
+$Grid[0][$BookersColumn]="Bookers";
+
+$sql="SELECT DISTINCT CourtNumber FROM CourtBookings WHERE Fixtureid=$Fixtureid;";
+$result = $conn->query($sql);
+$r=1;
+while ($row = $result->fetch_assoc()) {
+    $Grid[$r][0]=$row['CourtNumber'];
+    for ($c=1;$c<=$BookersColumn;$c++) {$Grid[$r][$c]="-";}
+    $r++;
+}
+$GridRows=$r;
+
 $sql="SELECT FirstName, LastName, CourtNumber, BookingTime FROM Users, CourtBookings
-WHERE Fixtureid=$Fixtureid and Users.Userid=CourtBookings.Userid;";
+WHERE Fixtureid=$Fixtureid and Users.Userid=CourtBookings.Userid
+ORDER BY CourtNumber, BookingTime;";
 $result = $conn->query($sql);
 $n=0;
 while ($row = $result->fetch_assoc()) {
-    $Bookings[$n]['Name']=$row['FirstName']." ".$row['LastName'];
-    $Bookings[$n]['Court']=$row['CourtNumber'];
-    $Bookings[$n]['Time']=substr($row['BookingTime'],0,5);
-    $n++;
+    $Name=$row['FirstName']." ".$row['LastName'];
+    for ($r=1;$Grid[$r][0]!=$row['CourtNumber'];$r++) {} // match grid row
+    for ($c=1;$Grid[0][$c]!=substr($row['BookingTime'],0,5);$c++) {} // match grid column
+    $Grid[$r][$c]=$row['CourtNumber'];
+    if ($Grid[$r][$BookersColumn]=="-") {
+        $Grid[$r][$BookersColumn]=$Name;
+    } else if ($Grid[$r][$BookersColumn]!=$Name) {
+        $Grid[$r][$BookersColumn]=$Grid[$r][$BookersColumn].", ".$Name;
+    }
 }
 $conn->close();
 ?>
@@ -101,11 +128,18 @@ if (isset($ParticipantList)) {
 
 <p><b>Fixture bookings:</b></p>
 <?php
-// List bookings
-if (isset($Bookings)) {
-    foreach ($Bookings as $value) {
-        echo "<p>{$value['Name']}: court {$value['Court']} at {$value['Time']}\n";
+if ($BookersColumn>1) {
+    echo "<table><tr>\n";
+    for ($c=1;$c<=$BookersColumn;$c++) {echo "<th>{$Grid[0][$c]}</th>\n";}
+    echo "</tr>\n";
+    for ($r=1;$r<$GridRows;$r++) {
+        echo "<tr>\n";
+        for ($c=1;$c<=$BookersColumn;$c++) {echo "<td>{$Grid[$r][$c]}</td>\n";}
+        echo "</tr>\n";
     }
+    echo "</table>\n";
+} else {
+    echo "<p>No bookings yet</p>\n";
 }
 ?>
 
