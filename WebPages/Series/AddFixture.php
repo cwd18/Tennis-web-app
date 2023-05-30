@@ -53,7 +53,7 @@ $conn->close();
 <form class="pure-form pure-form-aligned" action="Fixture.php?Fixtureid=<?=$Fixtureid?>" method="post"> 
 <fieldset>
 <legend>Add new fixture</legend>
-<p>Added fixture <?=$Fixtureid?> on <?=$dstr?> at <?=$Time?></p>
+<p>Added fixture on <?=$dstr?> at <?=$Time?></p>
 <br><br>
 <button type="submit" class="pure-button pure-button-primary">Done</button>
 

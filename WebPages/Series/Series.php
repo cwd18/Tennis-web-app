@@ -9,11 +9,10 @@ require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Retrieve basic series data...
-$sql="SELECT FirstName, LastName, SeriesName, SeriesWeekday, SeriesTime 
+$sql="SELECT FirstName, LastName, SeriesWeekday, SeriesTime 
 FROM Users, FixtureSeries WHERE Seriesid=$Seriesid AND Users.Userid=FixtureSeries.SeriesOwner;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
-$SeriesName=$row['SeriesName'];
 $Day=$DayName[$row['SeriesWeekday']];
 $Time=substr($row['SeriesTime'],0,5);
 $OwnerName=$row['FirstName']." ".$row['LastName'];
@@ -82,9 +81,8 @@ $conn->close();
 </ul>
 </div>
 
-<h2><?=$SeriesName?></h2>
-<p>Series owner: <?=$OwnerName?></p> 
-<p>New fixture defaults to <?=$Day?> at <?=$Time?></p>
+<h2><?=$Day?> at <?=$Time?></h2>
+<p>Series owner: <?=$OwnerName?></p>
 
 <p><b>Default fixture invitees:</b></p>
 <?php

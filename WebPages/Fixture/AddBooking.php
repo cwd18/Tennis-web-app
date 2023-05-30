@@ -6,14 +6,13 @@ require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Get Fixture data
-$sql="SELECT Fixtures.Seriesid, SeriesName, FirstName, LastName, FixtureDate, FixtureTime
+$sql="SELECT Fixtures.Seriesid, FirstName, LastName, FixtureDate, FixtureTime
 FROM Fixtures, Users, FixtureSeries
 WHERE Fixtureid=$Fixtureid 
 AND Fixtures.FixtureOwner=Users.Userid AND Fixtures.Seriesid=FixtureSeries.Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $Seriesid=$row['Seriesid'];
-$SeriesName=$row['SeriesName'];
 $OwnerName=$row['FirstName']." ".$row['LastName'];
 $FixtureDate=$row['FixtureDate'];
 $FixtureTime=substr($row['FixtureTime'],0,5);
@@ -83,7 +82,7 @@ foreach($ParticipantList as $id => $name) {
 <div class="pure-g">
 <div class="pure-u-1-2">
 <label for="court1">Court number</label>
-<input type="number" id="court1" name="court1" min="1" max="23">
+<input type="number" id="court1" name="court1" min="1" max="26">
 </div>
 
 <div class="pure-u-2-2">
@@ -98,7 +97,7 @@ for ($n=0; $n<$BookingRange; $n++) {
 </div>
 
 <div class="pure-u-1-2">
-<input type="number" id="court2" name="court2" min="1" max="23">
+<input type="number" id="court2" name="court2" min="1" max="26">
 </div>
 
 <div class="pure-u-2-2">

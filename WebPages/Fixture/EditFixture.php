@@ -6,19 +6,18 @@ require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Get Fixture data
-$sql="SELECT SeriesName, FixtureOwner, FirstName, LastName, FixtureDate, FixtureTime
+$sql="SELECT FixtureOwner, FirstName, LastName, FixtureDate, FixtureTime
 FROM Fixtures, Users, FixtureSeries
 WHERE Fixtureid=$Fixtureid 
 AND Fixtures.FixtureOwner=Users.Userid AND Fixtures.Seriesid=FixtureSeries.Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
-$SeriesName=$row['SeriesName'];
 $FixtureOwner=$row['FixtureOwner'];
 $OwnerName=$row['FirstName']." ".$row['LastName'];
 $FixtureDate=$row['FixtureDate'];
 $FixtureTime=substr($row['FixtureTime'],0,5);
 
-$sql="SELECT Userid, FirstName, LastName FROM Users;";
+$sql="SELECT Userid, FirstName, LastName FROM Users ORDER BY FirstName, LastName;";
 $result = $conn->query($sql);
 while ($row = $result->fetch_assoc()) {
     $OwnerList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
@@ -40,7 +39,7 @@ $conn->close();
 
 <form class="pure-form pure-form-stacked" action="UpdateFixture.php" method="post">
 <fieldset>
-<legend>Edit fixture <?=$Fixtureid?> from <?=$SeriesName?></legend>
+<legend>Edit fixture on <?=$FixtureDate?> at <?=$FixtureTime?></legend>
 <input type="hidden" name="Fixtureid" value="<?=$Fixtureid?>">
 
 <label for="owner">Fixture Owner</label>

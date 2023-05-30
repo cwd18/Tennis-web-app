@@ -2,18 +2,16 @@
 // Update fixture series from passed parameters
 $Seriesid=$_POST['Seriesid'];
 $NewSeriesOwner=$_POST['owner'];
-$NewSeriesName=$_POST['sname'];
 $NewSeriesWeekday=$_POST['day'];
 $NewSeriesTime=$_POST['time'];
 
 require_once('ConnectDB.php');
 $conn = ConnectDB();
-$sql="SELECT SeriesOwner, SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries
+$sql="SELECT SeriesOwner, SeriesWeekday, SeriesTime FROM FixtureSeries
 WHERE Seriesid=$Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $SeriesOwner=$row['SeriesOwner'];
-$SeriesName=$row['SeriesName'];
 $SeriesWeekday=$row['SeriesWeekday'];
 $SeriesTime=substr($row['SeriesTime'],0,5);
 ?>
@@ -35,16 +33,13 @@ $SeriesTime=substr($row['SeriesTime'],0,5);
 <?php
 // Update if any changes
 if ($NewSeriesOwner!=$SeriesOwner or
-    $NewSeriesName!=$SeriesName or 
     $NewSeriesWeekday!=$SeriesWeekday or 
     $NewSeriesTime!=$SeriesTime) {
     $sql="UPDATE FixtureSeries 
-    SET SeriesOwner='$NewSeriesOwner', SeriesName='$NewSeriesName', 
-    SeriesWeekday='$NewSeriesWeekday', SeriesTime='$NewSeriesTime'
+    SET SeriesOwner='$NewSeriesOwner', SeriesWeekday='$NewSeriesWeekday', SeriesTime='$NewSeriesTime'
     WHERE Seriesid=$Seriesid;";
     $result=$conn->query($sql);
     if ($NewSeriesOwner!=$SeriesOwner) {echo "<p>Owner ID $SeriesOwner -> $NewSeriesOwner</p>\n";}
-    if ($NewSeriesName!=$SeriesName) {echo "<p>$SeriesName -> $NewSeriesName</p>\n";}
     if ($NewSeriesWeekday!=$SeriesWeekday) {echo "<p>$SeriesWeekday -> $NewSeriesWeekday</p>\n";}
     if ($NewSeriesTime!=$SeriesTime) {echo "<p>$SeriesTime -> $NewSeriesTime</p>\n";}
 } else {

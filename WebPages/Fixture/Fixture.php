@@ -7,14 +7,13 @@ require_once('ConnectDB.php');
 $conn = ConnectDB();
 
 // Get Fixture data
-$sql="SELECT Fixtures.Seriesid, SeriesName, FirstName, LastName, FixtureDate, FixtureTime
+$sql="SELECT Fixtures.Seriesid, FirstName, LastName, FixtureDate, FixtureTime
 FROM Fixtures, Users, FixtureSeries
 WHERE Fixtureid=$Fixtureid 
 AND Fixtures.FixtureOwner=Users.Userid AND Fixtures.Seriesid=FixtureSeries.Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $Seriesid=$row['Seriesid'];
-$SeriesName=$row['SeriesName'];
 $OwnerName=$row['FirstName']." ".$row['LastName'];
 $FixtureDate=$row['FixtureDate'];
 $FixtureTime=substr($row['FixtureTime'],0,5);
@@ -109,8 +108,7 @@ $conn->close();
 </ul>
 </div>
 
-<h2><?=$SeriesName?></h2>
-<p>On <?=$dstr?> at <?=$FixtureTime?></p>
+<h2><?=$dstr?> at <?=$FixtureTime?></h2>
 <p>Fixture owner: <?=$OwnerName?></p> 
 
 

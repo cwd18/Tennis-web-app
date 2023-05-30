@@ -4,13 +4,12 @@ $Seriesid=$_GET["Seriesid"];
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
-$sql="SELECT SeriesOwner, FirstName, LastName, SeriesName, SeriesWeekday, SeriesTime 
+$sql="SELECT SeriesOwner, FirstName, LastName, SeriesWeekday, SeriesTime 
 FROM Users, FixtureSeries WHERE Seriesid=$Seriesid AND Users.Userid=FixtureSeries.SeriesOwner;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $SeriesOwner=$row['SeriesOwner'];
 $OwnerName=$row['FirstName']." ".$row['LastName'];
-$SeriesName=$row['SeriesName'];
 $SeriesWeekday=$row['SeriesWeekday'];
 $Time=substr($row['SeriesTime'],0,5);
 
@@ -47,9 +46,6 @@ foreach($OwnerList as $id => $name) {
 }
 ?>
 </select>
-
-<label for="sname">Series name</label>
-<input type="text" name="sname" id="sname" value="<?=$SeriesName?>">
 
 <label for="day">Day</label>
 <select name="day" id="day">

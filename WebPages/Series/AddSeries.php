@@ -1,13 +1,17 @@
 <?php
-// Add a new fixture series from passed parameters
+// Add a new fixture series
 $sname=$_POST['sname'];
 $day=$_POST['day'];
 $time=$_POST['time'];
 require_once('ConnectDB.php');
 $conn = ConnectDB();
-$sql="INSERT INTO FixtureSeries (SeriesName, SeriesWeekday, SeriesTime)
-VALUES ('$sname', $day, '$time');";
-$result=$conn->query($sql);
+
+$sql="SELECT Userid, FirstName, LastName FROM Users ORDER BY FirstName;";
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    $OwnerList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];
+}
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -22,24 +26,49 @@ $result=$conn->query($sql);
 </head>
 <body>
 
-<form class="pure-form pure-form-aligned" action="ListSeries.php" method="post"> 
-<fieldset>
-<legend>Add new series</legend> 
-
-<?php
-if ($result === TRUE) {
-    echo "Added $sname <br>\n";
-  } else {
-    echo "Error: " . $sql . "<br>" . $conn->error, "<br>\n";
-  }
-$conn->close();
-?>
+<form class="pure-form pure-form-stacked" action="AddSeries1.php" method="post">
+    <fieldset>
+        <legend>Add Series</legend>        
+        <label for="owner">Fixture Owner</label>
+        <select name="owner" id="owner">
+        <?php
+        foreach($OwnerList as $id => $name) {
+            echo "<option value=\"$id\">$name</option>\n";
+        }
+        ?>
+        </select>
+        <label for="day">Day</label>
+        <select name="day" id="day">
+            <option value="0">Monday</option>
+            <option value="1">Tuesday</option>
+            <option value="2">Wednesday</option>
+            <option value="3">Thursday</option>
+            <option value="4">Friday</option>
+            <option value="5">Saturday</option>
+            <option value="6">Sunday</option>
+            </select>
+        <label for="time">Start time</label>
+        <select name="time" id="time">
+            <option>07:30</option>
+            <option>08:30</option>
+            <option>09:30</option>
+            <option>10:30</option>
+            <option>11:30</option>
+            <option>12:30</option>
+            <option>13:30</option>
+            <option>14:30</option>
+            <option>15:30</option>
+            <option>16:30</option>
+            <option>17:30</option>
+            <option>18:30</option>
+            <option>19:30</option>
+        </select>
+        <button type="submit" class="pure-button pure-button-primary">Add</button>
+    </fieldset>
+    </form>
 
 <br>
-<button type="submit" class="pure-button pure-button-primary">Done</button>
-
-</fieldset>
-</form>
+<a class="pure-button" href="ListSeries.php">Cancel</a>
 
 </body>
 </html>

@@ -5,10 +5,13 @@ $Seriesid=$_GET['Seriesid'];
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
-$sql="SELECT  SeriesName FROM FixtureSeries WHERE Seriesid = $Seriesid;";
+$sql="SELECT  SeriesDay, SeriesTime FROM FixtureSeries WHERE Seriesid = $Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
-$SeriesName=$row['SeriesName'];
+$Day=$DayName[$row['SeriesWeekday']];
+$Time=substr($row['SeriesTime'],0,5);
+$SeriesName=$Day." at ".$Time;
+
 $sql="DELETE FROM FixtureSeries WHERE Seriesid=$Seriesid;";
 $result = $conn->query($sql);
 ?>
@@ -35,6 +38,7 @@ if ($result === TRUE) {
   } else {
     echo "<p>Couldn't delete the fixture series \"$SeriesName\": " , $conn->error, "</p>\n";
   }
+$conn->close();
 ?>
 
 <br>

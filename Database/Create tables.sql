@@ -10,7 +10,6 @@ PRIMARY KEY (Userid)
 CREATE TABLE FixtureSeries (
 Seriesid INT(8) not null auto_increment,
 SeriesOwner INT(8) not null,
-SeriesName varchar (50) not null,
 SeriesWeekday INT(8) not null,
 SeriesTime TIME not null,
 SeriesDuration INT(3) not null DEFAULT 2,

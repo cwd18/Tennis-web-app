@@ -3,8 +3,16 @@
 $DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
 require_once('ConnectDB.php');
 $conn = ConnectDB();
-$sql="SELECT Seriesid, SeriesName, SeriesWeekday, SeriesTime FROM FixtureSeries;";
+$sql="SELECT Seriesid, SeriesWeekday, SeriesTime FROM FixtureSeries;";
 $result = $conn->query($sql);
+$n=0;
+while ($row = $result->fetch_assoc()) {
+    $Day=$DayName[$row["SeriesWeekday"]];
+    $Time=substr($row["SeriesTime"],0,5);
+    $Series[$row["Seriesid"]]=$Day." at ".$Time;
+}
+$SeriesCount=$n;
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -23,33 +31,16 @@ $result = $conn->query($sql);
     <a href="Home.html" class="pure-menu-heading pure-menu-link">Series List</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
-            <a href="AddSeries.html" class="pure-menu-link">Add Series</a>
+            <a href="AddSeries.php" class="pure-menu-link">Add Series</a>
         </li>
     </ul>
 </div>
 
-<table class="pure-table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Day</th>
-            <th>Time</th>
-        </tr>
-    </thead>
-<tbody>
-
 <?php
-while ($row = $result->fetch_assoc()) {
-    $Name="<a href=\"Series.php?Seriesid={$row["Seriesid"]}\">{$row["SeriesName"]}</a>";
-    $Day=$DayName[$row["SeriesWeekday"]];
-    $Time=substr($row["SeriesTime"],0,5);
-    echo "<tr><td>{$Name}</td><td>{$Day}</td><td>{$Time}</td></tr>\n";
+foreach ($Series as $x => $x_value) {
+    echo "<p><a href=\"Series.php?Seriesid=$x\">$x_value</a></p>\n";
 }
-$conn->close();
 ?>
-
-</tbody>
-</table>
 
 </body>
 </html>
