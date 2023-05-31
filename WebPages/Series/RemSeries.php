@@ -1,11 +1,14 @@
 <?php
 // Remove the specified fixture series 
 // The SQL DELETE FROM will fail if the series is referenced by any invitees or fixtures
+$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
+
 $Seriesid=$_GET['Seriesid'];
+
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 
-$sql="SELECT  SeriesDay, SeriesTime FROM FixtureSeries WHERE Seriesid = $Seriesid;";
+$sql="SELECT  SeriesWeekday, SeriesTime FROM FixtureSeries WHERE Seriesid = $Seriesid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $Day=$DayName[$row['SeriesWeekday']];

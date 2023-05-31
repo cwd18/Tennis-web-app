@@ -1,12 +1,16 @@
 <?php
 // Add a new fixture series from passed parameters
+$DayName=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
 $owner=$_POST['owner'];
 $day=$_POST['day'];
-$time=$_POST['time'];
+$Day=$DayName[$day];
+$Time=substr($_POST['time'],0,5);
+$sname=$Day." at ".$Time;
+
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 $sql="INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime)
-VALUES ('$owner', $day, '$time');";
+VALUES ('$owner', $day, '$Time');";
 $result=$conn->query($sql);
 ?>
 

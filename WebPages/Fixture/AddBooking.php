@@ -39,7 +39,7 @@ if ($BookingRange==3) {
 
 $sql="SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
 WHERE Fixtureid=$Fixtureid AND Users.Userid=FixtureParticipants.Userid
-ORDER BY LastName;";
+ORDER BY FirstName, LastName;";
 $result = $conn->query($sql);
 while ($row = $result->fetch_assoc()) {
     $ParticipantList[$row['Userid']]=$row['FirstName']." ".$row['LastName'];

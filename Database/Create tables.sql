@@ -1,51 +1,53 @@
 -- Tennis web app schema
 USE Tennis;
-CREATE TABLE Users (
-Userid int(8) not null auto_increment,
-LastName varchar (50) not null,
-FirstName varchar (50) not null,
-EmailAddress varchar (50) not null unique,
+CREATE OR REPLACE TABLE Users (
+Userid int(8) NOT NULL auto_increment,
+LastName varchar (50) NOT NULL,
+FirstName varchar (50) NOT NULL,
+EmailAddress varchar (50) NOT NULL unique,
 PRIMARY KEY (Userid)
 );
-CREATE TABLE FixtureSeries (
-Seriesid INT(8) not null auto_increment,
-SeriesOwner INT(8) not null,
-SeriesWeekday INT(8) not null,
-SeriesTime TIME not null,
-SeriesDuration INT(3) not null DEFAULT 2,
+CREATE OR REPLACE TABLE FixtureSeries (
+Seriesid INT(8) NOT NULL auto_increment,
+SeriesOwner INT(8) NOT NULL,
+SeriesWeekday INT(8) NOT NULL,
+SeriesTime TIME NOT NULL DEFAULT '07:30',
+SeriesDuration INT(3) NOT NULL DEFAULT 2,
 PRIMARY KEY (Seriesid),
 FOREIGN KEY (SeriesOwner) REFERENCES Users(Userid)
 );
-CREATE TABLE SeriesCandidates (
-Seriesid INT(8) not null,
-Userid INT (8) not null,
+CREATE OR REPLACE TABLE SeriesCandidates (
+Seriesid INT(8) NOT NULL,
+Userid INT (8) NOT NULL,
 FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );
-CREATE TABLE Fixtures (
-Fixtureid INT(8) not null auto_increment,
-Seriesid INT(8) not null,
-FixtureOwner INT(8) not null,
-FixtureDate DATE not null,
-FixtureTime TIME not null,
-FixtureDuration INT(3) not null DEFAULT 2,
+CREATE OR REPLACE TABLE Fixtures (
+Fixtureid INT(8) NOT NULL auto_increment,
+Seriesid INT(8) NOT NULL,
+FixtureOwner INT(8) NOT NULL,
+FixtureDate DATE NOT NULL,
+FixtureTime TIME NOT NULL,
+FixtureDuration INT(3) NOT NULL DEFAULT 2,
 PRIMARY KEY (Fixtureid),
 FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),
 FOREIGN KEY (FixtureOwner) REFERENCES Users(Userid)
 );
-CREATE TABLE CourtBookings (
-Fixtureid INT(8) not null,
-Userid INT(8) not null,
-BookingTime TIME not null,
-CourtNumber INT(3) not null,
+CREATE OR REPLACE TABLE CourtBookings (
+Fixtureid INT(8) NOT NULL,
+Userid INT(8) NOT NULL,
+BookingTime TIME NOT NULL,
+CourtNumber INT(3) NOT NULL,
 PRIMARY KEY (Fixtureid, Userid, BookingTime, CourtNumber),
 FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );
-CREATE TABLE FixtureParticipants (
+CREATE OR REPLACE TABLE FixtureParticipants (
 Fixtureid INT(8),
 Userid INT(8),
+WantsToPlay BOOLEAN NOT NULL DEFAULT FALSE,
 RequestTime TIMESTAMP,
+IsPlaying BOOLEAN NOT NULL DEFAULT FALSE,
 FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );

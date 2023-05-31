@@ -1,8 +1,5 @@
 <?php
 // Add a new fixture series
-$sname=$_POST['sname'];
-$day=$_POST['day'];
-$time=$_POST['time'];
 require_once('ConnectDB.php');
 $conn = ConnectDB();
 

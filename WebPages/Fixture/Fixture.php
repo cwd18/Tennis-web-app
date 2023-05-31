@@ -117,8 +117,8 @@ $conn->close();
 <?php
 // List participants...
 if (isset($ParticipantList)) {
-    foreach ($ParticipantList as $x => $x_value) {
-        echo "<li>$x_value</li>\n";
+    foreach ($ParticipantList as $id => $name) {
+        echo "<li><a href=\"Participant.php?Fixtureid=$Fixtureid&Userid=$id\">$name</li>\n";
     }
 }
 ?>
