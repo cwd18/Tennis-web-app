@@ -41,7 +41,7 @@ while ($row = $result->fetch_assoc()) {
 $BookersColumn=$c;
 $Grid[0][$BookersColumn]="Bookers";
 
-$sql="SELECT DISTINCT CourtNumber FROM CourtBookings WHERE Fixtureid=$Fixtureid;";
+$sql="SELECT DISTINCT CourtNumber FROM CourtBookings WHERE Fixtureid=$Fixtureid ORDER BY CourtNumber;";
 $result = $conn->query($sql);
 $r=1;
 while ($row = $result->fetch_assoc()) {
@@ -111,20 +111,18 @@ $conn->close();
 <h2><?=$dstr?> at <?=$FixtureTime?></h2>
 <p>Fixture owner: <?=$OwnerName?></p> 
 
-
-<b>Fixture participants:</b>
 <ol>
 <?php
 // List participants...
 if (isset($ParticipantList)) {
     foreach ($ParticipantList as $id => $name) {
-        echo "<li><a href=\"Participant.php?Fixtureid=$Fixtureid&Userid=$id\">$name</li>\n";
+        echo "<li><a href=\"Participant.php?Fixtureid=$Fixtureid&Userid=$id\">$name</a></li>\n";
     }
 }
 ?>
 </ol>
 
-<p><b>Fixture bookings:</b></p>
+<b>Courts...</b><br>
 <?php
 if ($BookersColumn>1) {
     echo "<table><tr>\n";

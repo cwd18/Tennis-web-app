@@ -27,8 +27,18 @@ AND Users.Userid=FixtureParticipants.Userid;";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $UserName=$row['FirstName']." ".$row['LastName'];
-$WantsToPlay=$row['WantsToPlay']?"Yes":"No";
 $IsPlaying=$row['IsPlaying']?"Yes":"No";
+switch ($row['WantsToPlay']) {
+    case null:
+        $WantsToPlay="Unknown";
+        break;
+    case TRUE:
+        $WantsToPlay="Yes";
+        break;
+    case FALSE:
+        $WantsToPlay="No";
+        break;
+}
 
 // Get user bookings
 $sql="SELECT CourtNumber, BookingTime FROM CourtBookings
