@@ -100,11 +100,12 @@ $app->get('/series', function (Request $request, Response $response, $args) {
     $series = new Series($pdo);
     $params = $request->getQueryParams();
     $view = Twig::fromRequest($request);
-    $header = $series->getSeries($params['seriesid']);
+    $s = $series->getSeries($params['seriesid']);
     return $view->render($response, 'series.html', [
-        'description' => $header['description'],
-        'owner' => $header['owner']
+        'description' => $s['description'],
+        'owner' => $s['owner'],
+        'participants' => $s['participants']
         ]);
-})->setName('serieslist');
+})->setName('series');
 
 $app->run();

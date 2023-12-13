@@ -42,7 +42,17 @@ class Series
     $row = $statement->fetch(\PDO::FETCH_ASSOC);
     $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
     $ownerName = $row['FirstName']." ".$row['LastName'];
-    $heading = ['description' => $description, 'owner' => $ownerName];
-    return $heading;
+    // Get default fixture attendees...
+    $sql = "SELECT FirstName, LastName FROM Users, SeriesCandidates
+    WHERE Seriesid=$seriesid AND Users.Userid=SeriesCandidates.Userid
+    ORDER BY FirstName, LastName;";
+    $statement = $this->pdo->prepare($sql);
+    $statement->execute();
+    $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+    foreach ($rows as $row) {
+        $ParticipantList[] = $row['FirstName']." ".$row['LastName'];
+    }
+    $series = ['description' => $description, 'owner' => $ownerName, 'participants' => $ParticipantList];
+    return $series;
     }
 }
