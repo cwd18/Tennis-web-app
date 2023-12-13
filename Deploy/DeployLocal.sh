@@ -1,4 +1,4 @@
-cd "/Users/charlesdavies/documents/tennis web app/WebPages"
+cd "/Users/charlesdavies/documents/tennis web app/src"
 TARGET="/opt/homebrew/var/www/Tennis"
 cp -v -p Home/Home.html $TARGET
 cp -v -p Series/*.php $TARGET

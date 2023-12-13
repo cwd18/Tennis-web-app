@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {margin-left: 2px;}
+</style>
+</head>
+<body>
+
+<form class="pure-form pure-form-stacked" action="updateuser" method="post">
+<fieldset>
+<legend>User ID: {{ Userid }}</legend>
+<input type="hidden" name="Userid" value={{ Userid }}>
+<label for="fname">First Name</label>
+<input type="text" name="fname" id="fname" value="{{ FirstName }}"/>
+<label for="lname">Last Name</label>
+<input type="text" name="lname" id="lname" value="{{ LastName }}"/>
+<label for="email">Email</label>
+<input style="width: 300px;" type="email" name="email" id="email" value="{{ EmailAddress }}"/>
+
+<button type="submit" class="pure-button pure-button-primary">Update user data</button>
+
+</fieldset>
+</form>
+
+<a class="pure-button" href="users">Exit without any edits</a>
+<br><br>
+
+<a class="pure-button" href="deleteuser?Userid={{ Userid }}">Delete this user</a>
+
+</body>
+</html>

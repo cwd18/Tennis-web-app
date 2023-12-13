@@ -1,5 +1,5 @@
 sftp Charles@192.168.68.2 <<EOT
-lcd "/Users/charlesdavies/documents/tennis web app/WebPages"
+lcd "/Users/charlesdavies/documents/tennis web app/src"
 cd /web/tennis
 put Home/Home.html 
 put Series/*.php

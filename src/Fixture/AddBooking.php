@@ -117,7 +117,6 @@ for ($n=0; $n<$BookingRange; $n++) {
 <script>
 document.getElementById("time1").value="<?=$tselect[0]?>"
 document.getElementById("time2").value="<?=$tselect[1]?>"
-
 </script>
 
 <button type="submit" class="pure-button pure-button-primary">Add</button>
