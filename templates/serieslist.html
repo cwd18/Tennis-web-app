@@ -11,7 +11,7 @@
 <body>
 <h2>Tennis fixture series</h2>
 {% for series in serieslist %}
-<p><a href=series?seriesid={{ series.seriesid }}>{{ series.description }}</a></p>
+<p><a href="series?seriesid={{ series.seriesid }}">{{ series.description }}</a></p>
 {% endfor %}
 <br>
 <a class="pure-button" href="addseriesform">Add a series</a>

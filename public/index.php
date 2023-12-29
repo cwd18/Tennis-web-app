@@ -8,10 +8,9 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use TennisApp\Users;
 use TennisApp\Series;
+use TennisApp\Fixtures;
 
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../src/users.php';
-require __DIR__ . '/../src/series.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 include('../settings.php');
 
@@ -45,12 +44,12 @@ $app->get('/userlist', function (Request $request, Response $response, $args) {
     $view = Twig::fromRequest($request);
     $allUsers = $users->getAllUsers();
     return $view->render($response, 'userlist.html', ['userlist' => $allUsers]);
-})->setName('userlist');
+});
 
 $app->get('/adduserform', function (Request $request, Response $response, $args) {
     $view = Twig::fromRequest($request);
     return $view->render($response, 'adduserform.html', ['input' => 'none']);
-})->setName('adduserform');
+});
 
 $app->post('/adduser', function (Request $request, Response $response, $args) {
     global $pdo;
@@ -59,7 +58,7 @@ $app->post('/adduser', function (Request $request, Response $response, $args) {
     $row = $users->addUser($params['fname'], $params['lname'], $params['email']);
     $view = Twig::fromRequest($request);
     return $view->render($response, 'edituser.html', $row);
-})->setName('edituser');
+});
 
 $app->get('/edituser', function (Request $request, Response $response, $args) {
     global $pdo;
@@ -68,7 +67,7 @@ $app->get('/edituser', function (Request $request, Response $response, $args) {
     $row = $users->getUser($params['Userid']);
     $view = Twig::fromRequest($request);
     return $view->render($response, 'edituser.html', $row);
-})->setName('edituser');
+});
 
 $app->get('/deleteuser', function (Request $request, Response $response, $args) {
     global $pdo;
@@ -77,7 +76,7 @@ $app->get('/deleteuser', function (Request $request, Response $response, $args) 
     $users->deleteUser($params['Userid']);
     $view = Twig::fromRequest($request);
     return $view->render($response, 'users.html', ['users' => $users->getAllUsers()]);
-})->setName('users');
+});
 
 $app->post('/updateuser', function (Request $request, Response $response, $args) {
     global $pdo;
@@ -86,26 +85,49 @@ $app->post('/updateuser', function (Request $request, Response $response, $args)
     $users->updateUser($params['Userid'], $params['fname'], $params['lname'], $params['email']);
     $view = Twig::fromRequest($request);
     return $view->render($response, 'users.html', ['users' => $users->getAllUsers()]);
-})->setName('users');
+});
 
 $app->get('/serieslist', function (Request $request, Response $response, $args) {
     global $pdo;
     $series = new Series($pdo);
     $view = Twig::fromRequest($request);
     return $view->render($response, 'serieslist.html', ['serieslist' => $series->getAllSeries()]);
-})->setName('serieslist');
+});
 
 $app->get('/series', function (Request $request, Response $response, $args) {
     global $pdo;
-    $series = new Series($pdo);
     $params = $request->getQueryParams();
+    $seriesId = $params['seriesid'];
+    $series = new Series($pdo);
     $view = Twig::fromRequest($request);
-    $s = $series->getSeries($params['seriesid']);
+    $s = $series->getSeries($seriesId);
     return $view->render($response, 'series.html', [
+        'seriesid' => $seriesId,
         'description' => $s['description'],
         'owner' => $s['owner'],
-        'participants' => $s['participants']
+        'participants' => $s['participants'],
+        'fixtures' => $s['fixtures']
         ]);
-})->setName('series');
+});
+
+$app->get('/addfixture', function (Request $request, Response $response, $args) {
+    global $pdo;
+    $params = $request->getQueryParams();
+    $seriesId = $params['seriesid'];
+    $fixtures = new Fixtures($pdo);
+    $fixtures->addNextFixtureToSeries($seriesId);
+    $series = new Series($pdo);
+    $view = Twig::fromRequest($request);
+    $s = $series->getSeries($seriesId);
+    return $view->render($response, 'series.html', [
+        'seriesid' => $seriesId,
+        'description' => $s['description'],
+        'owner' => $s['owner'],
+        'participants' => $s['participants'],
+        'fixtures' => $s['fixtures']
+        ]);
+});
+
+
 
 $app->run();
