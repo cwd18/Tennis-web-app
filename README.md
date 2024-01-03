@@ -18,4 +18,9 @@ The design is "old school" using server side scripting alone (not AJAX).
 
 The backend uses MariaDB, Apache, and PHP.
 
+The application uses the [Slim framework](https://www.slimframework.com/), which uses a front controller design and supports autoloading of classes.
+
+The HTML in the HTTP response is created using the [Twig template engine for PHP](https://twig.symfony.com/), via the slim/twig-view component.
+
 The frontend uses the [Pure CSS library](https://purecss.io/) and is designed to work well on a mobile browser but also on a PC browser.
+

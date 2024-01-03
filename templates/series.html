@@ -22,8 +22,10 @@
 <p><b>Fixtures (most recent first):</b></p>
 <table class="pure-table"><thead><tr><th>Date</th><th>Time</th></tr></thead><tbody>
     {% for n in fixtures %}
-        <tr><td><a href="fixture?{{ n.fixtureid}}">{{ n.description }}</a>
-        <td>{{ n.time }}</td></tr>
+        <tr>
+            <td><a href="fixture?{{ n.fixtureid}}">{{ n.description }}</a></td>
+            <td>{{ n.time }}</td>
+        </tr>
     {% else %}
         No fixtures in this series
     {% endfor %}

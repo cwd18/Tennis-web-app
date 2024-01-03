@@ -6,7 +6,8 @@
     },
     "autoload": {
         "psr-4": {
-        "TennisApp\\": "src/classes"
+        "TennisApp\\": "src/classes",
+        "TennisApp\\Action\\": "src/actions"
         }
     }
 }

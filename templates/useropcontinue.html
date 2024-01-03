@@ -9,11 +9,17 @@
 </style>
 </head>
 <body>
-<h2>Tennis users</h2>
-{% for user in userlist %}
-<p><a href=useredit?Userid={{ user.Userid }}>{{ user.FirstName }} {{ user.LastName }}</a></p>
-{% endfor %}
+<h2>{{ op }}</h2>
+<table class="pure-table">
+    <tbody>
+    <tr><td>Id</td><td>{{ user.Userid }}</td></tr>
+    <tr><td>First name</td><td>{{ user.FirstName }}</td></tr>
+    <tr><td>Last name</td><td>{{ user.LastName }}</td></tr>
+    <tr><td>Email</td><td>{{ user.EmailAddress }}</td></tr>
+    </tbody>
+</table>
 <br>
-<a class="pure-button" href="useraddform">Add a user</a>
+<br>
+<a class="pure-button" href="userlist">Continue</a>
 </body>
 </html>

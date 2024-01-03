@@ -39,11 +39,15 @@ class Users
         return $row;
     }
 
-    public function deleteUser($userid)
+    public function deleteUser($userid) : array
     {
-        $sql = "DELETE FROM Users WHERE Userid = $userid;";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute();
+        $row = $this->getUser($userid);
+        if ( ! empty($row )) {
+            $sql = "DELETE FROM Users WHERE Userid = $userid;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+        }
+        return $row;
     }
 
     public function updateUser($userid, $fname, $lname, $email) : array

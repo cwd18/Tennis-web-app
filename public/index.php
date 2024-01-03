@@ -25,6 +25,7 @@ $pdo = new PDO(
     $settings['username'],
     $settings['password']
 );
+$GLOBALS['pdo']=$pdo;
 
 $app = AppFactory::create();
 
@@ -38,47 +39,20 @@ $twig->addExtension(new \Twig\Extension\DebugExtension());
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
 
-$app->get('/userlist', function (Request $request, Response $response, $args) {
-    global $pdo;
-    $users = new Users($pdo);
+$app->get('/userlist', \TennisApp\Action\UserList::class);
+
+$app->get('/useraddform', function (Request $request, Response $response, $args) {
     $view = Twig::fromRequest($request);
-    $allUsers = $users->getAllUsers();
-    return $view->render($response, 'userlist.html', ['userlist' => $allUsers]);
+    return $view->render($response, 'useraddform.html', ['input' => 'none']);
 });
 
-$app->get('/adduserform', function (Request $request, Response $response, $args) {
-    $view = Twig::fromRequest($request);
-    return $view->render($response, 'adduserform.html', ['input' => 'none']);
-});
+$app->post('/adduser', \TennisApp\Action\UserAdd::class);
 
-$app->post('/adduser', function (Request $request, Response $response, $args) {
-    global $pdo;
-    $users = new Users($pdo);
-    $params = $request->getParsedBody();
-    $row = $users->addUser($params['fname'], $params['lname'], $params['email']);
-    $view = Twig::fromRequest($request);
-    return $view->render($response, 'edituser.html', $row);
-});
+$app->get('/useredit', \TennisApp\Action\UserEdit::class);
 
-$app->get('/edituser', function (Request $request, Response $response, $args) {
-    global $pdo;
-    $users = new Users($pdo);
-    $params = $request->getQueryParams();
-    $row = $users->getUser($params['Userid']);
-    $view = Twig::fromRequest($request);
-    return $view->render($response, 'edituser.html', $row);
-});
+$app->get('/userdelete', \TennisApp\Action\UserDelete::class);
 
-$app->get('/deleteuser', function (Request $request, Response $response, $args) {
-    global $pdo;
-    $users = new Users($pdo);
-    $params = $request->getQueryParams();
-    $users->deleteUser($params['Userid']);
-    $view = Twig::fromRequest($request);
-    return $view->render($response, 'users.html', ['users' => $users->getAllUsers()]);
-});
-
-$app->post('/updateuser', function (Request $request, Response $response, $args) {
+$app->post('/userupdate', function (Request $request, Response $response, $args) {
     global $pdo;
     $users = new Users($pdo);
     $params = $request->getParsedBody();
