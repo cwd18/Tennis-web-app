@@ -52,7 +52,7 @@ class Users
 
     public function updateUser($userid, $fname, $lname, $email) : array
     {
-        $sql = "SELECT FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userid;";
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userid;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
