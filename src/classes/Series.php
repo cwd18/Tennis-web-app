@@ -49,6 +49,7 @@ class Series
     $statement = $this->pdo->prepare($sql);
     $statement->execute();
     $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+    $ParticipantList = NULL;
     foreach ($rows as $row) {
         $ParticipantList[] = $row['FirstName']." ".$row['LastName'];
     }
@@ -57,7 +58,7 @@ class Series
     $fixtureList = $fixtures->getRecentFixtures($seriesId);
 
     // return all series data
-    $series = ['description' => $description, 'owner' => $ownerName, 
+    $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $ownerName, 
     'participants' => $ParticipantList, 'fixtures' => $fixtureList];
     return $series;
     }
@@ -70,5 +71,15 @@ class Series
     $statement->execute();
     $row = $statement->fetch(\PDO::FETCH_ASSOC);
     return $row;
+    }
+
+    public function deleteSeries($seriesId)
+    {
+    // only works if no participants or fixtures
+    $series = $this->getSeries($seriesId);
+    $sql = "DELETE FROM FixtureSeries WHERE Seriesid=$seriesId;";
+    $statement = $this->pdo->prepare($sql);
+    $statement->execute();
+    return $series;
     }
 }

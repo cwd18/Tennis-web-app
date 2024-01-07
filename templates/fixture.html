@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.custom-restricted-width {display: inline-block;}
+* {margin-left: 2px;}
+</style>
+</head>
+<body>
+
+<h2>{{ description }} at {{ time }}</h2>
+<p>Fixture owner: {{ owner }}</p>
+
+{% if participants|length >0 %}
+    <ol>
+    {% for n in participants %}
+    <li>{{ n }}</li>
+    {% endfor %}
+    </ol>
+{% else %}
+    <p>No participants</p>
+{% endif %}
+
+{% if bookings|length >1 %}
+    <b>Courts...</b><br>
+    <table class="pure-table">
+    {% for key, r in bookings %}
+    {% if key == 0 %}<thead>{% endif %}
+    <tr>
+    {% for c in r %}
+    {% if key == 0 %}
+        <th>{{ c }}</th>
+    {% else %}
+        <td>{{ c }}</td>
+    {% endif %}
+    {% endfor %}
+    {% if key == 0 %}</thead>{% endif %}
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No bookings</p>
+{% endif %}
+
+<br><br>
+<a class="pure-button" href="series?seriesid={{ seriesid }}">Back to series</a>
+
+<br><br>
+{% if participants|length < 1 and bookings|length < 2 %}
+<a class="pure-button" href="fixturedelete?fixtureid={{ fixtureid }}">Delete fixture</a>
+{% endif %}
+
+</body>
+</html>
+
+
+

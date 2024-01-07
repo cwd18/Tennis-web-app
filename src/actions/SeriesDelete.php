@@ -1,5 +1,5 @@
 <?php
-# View specified series
+# Delete the specified series
 
 namespace TennisApp\Action;
 
@@ -7,15 +7,16 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class SeriesView
+final class SeriesDelete
 {
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $series = new \TennisApp\Series($GLOBALS['pdo']);
+        $pdo = $GLOBALS['pdo'];
+        $fixtures = new \TennisApp\Series($pdo);
+        $s = $fixtures->deleteSeries($seriesId);
         $view = Twig::fromRequest($request);
-        $s = $series->getSeries($seriesId);
-        return $view->render($response, 'series.html', $s);
+        return $view->render($response, 'seriesdeleted.html', $s);   
     }
 }

@@ -49,7 +49,9 @@ $app->post('/userupdate', \TennisApp\Action\UserUpdate::class);
 // Create series routes
 $app->get('/serieslist', \TennisApp\Action\SeriesList::class);
 $app->get('/series', \TennisApp\Action\SeriesView::class);
+$app->get('/seriesdelete', \TennisApp\Action\SeriesDelete::class);
 $app->get('/addfixture', \TennisApp\Action\FixtureAdd::class);
-
+$app->get('/fixture', \TennisApp\Action\FixtureView::class);
+$app->get('/fixturedelete', \TennisApp\Action\FixtureDelete::class);
 
 $app->run();
