@@ -60,13 +60,25 @@ class Series
         return $series;
     }
 
-    public function getBasicSeriesData($seriesId)
+    public function getBasicSeriesData($seriesId) : array
     {
         $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime
         FROM FixtureSeries WHERE Seriesid=$seriesId;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        return $row;
+    }
+
+    public function updateBasicSeriesData($seriesId, $owner, $day, $time) : array
+    {
+        $row = $this->getBasicSeriesData($seriesId);
+        if ($owner != $row['SeriesOwner'] or $day != $row['SeriesWeekday'] or $time != substr($row['SeriesTime'],0,5)) {
+            $sql = "UPDATE FixtureSeries SET SeriesOwner='$owner', SeriesWeekday='$day', SeriesTime='$time'
+            WHERE Seriesid=$seriesId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+        }
         return $row;
     }
 

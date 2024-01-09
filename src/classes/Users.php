@@ -15,8 +15,8 @@ class Users
         $sql = "SELECT Userid, FirstName, LastName FROM Users ORDER BY LastName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
-        $list = $statement->fetchall(\PDO::FETCH_ASSOC);
-        return $list;
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
     }
 
     public function addUser($fname, $lname, $email) : array
@@ -52,10 +52,7 @@ class Users
 
     public function updateUser($userid, $fname, $lname, $email) : array
     {
-        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userid;";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute();
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $this->getUser($userid);
         if ($fname != $row['FirstName'] or $lname != $row['LastName'] or $email != $row['EmailAddress']){
             $sql = "UPDATE Users SET FirstName='$fname', LastName='$lname', EmailAddress='$email'
             WHERE Userid=$userid;";
