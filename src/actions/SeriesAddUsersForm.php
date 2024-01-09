@@ -1,5 +1,5 @@
 <?php
-# Delete the specified series
+# Present form for users to be added to the specified series
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class SeriesDelete
+final class SeriesAddUsersForm
 {
     public function __invoke(Request $request, Response $response): Response
     {
@@ -15,8 +15,11 @@ final class SeriesDelete
         $seriesId = $params['seriesid'];
         $pdo = $GLOBALS['pdo'];
         $series = new \TennisApp\Series($pdo);
-        $s = $series->deleteSeries($seriesId);
+        $users = $series->getSeriesCandidates($seriesId);
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'seriesdeleted.html', $s);   
+        return $view->render($response, 'usersselectform.html', 
+        ['seriesid' => $seriesId, 'users' => $users, 
+        'legend' => 'Select users to add to series',
+        'link' => 'seriesaddusers']);   
     }
 }

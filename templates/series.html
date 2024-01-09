@@ -18,9 +18,14 @@
     <li>{{ n }}</li>
     {% endfor %}
 </ol>
+<a class="pure-button" href="seriesdelusersform?seriesid={{ seriesid }}">Remove users</a>
+<br><br>
 {% else %}
 <p>No default fixture invitees in this series</p>
 {% endif %}
+
+<a class="pure-button" href="seriesaddusersform?seriesid={{ seriesid }}">Add users</a>
+<br><br>
 
 {% if fixtures|length >0 %}
 <p><b>Fixtures (most recent first):</b></p>

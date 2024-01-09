@@ -53,5 +53,9 @@ $app->get('/seriesdelete', \TennisApp\Action\SeriesDelete::class);
 $app->get('/addfixture', \TennisApp\Action\FixtureAdd::class);
 $app->get('/fixture', \TennisApp\Action\FixtureView::class);
 $app->get('/fixturedelete', \TennisApp\Action\FixtureDelete::class);
+$app->get('/seriesaddusersform', \TennisApp\Action\SeriesAddUsersForm::class);
+$app->post('/seriesaddusers', \TennisApp\Action\SeriesAddUsers::class);
+$app->get('/seriesdelusersform', \TennisApp\Action\SeriesDelUsersForm::class);
+$app->post('/seriesdelusers', \TennisApp\Action\SeriesDelUsers::class);
 
 $app->run();

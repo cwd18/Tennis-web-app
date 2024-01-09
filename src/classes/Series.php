@@ -34,52 +34,94 @@ class Series
 
     public function getSeries($seriesId) : array
     {
-    // Retrieve basic series data...
-    $sql = "SELECT FirstName, LastName, SeriesWeekday, SeriesTime 
-    FROM Users, FixtureSeries WHERE Seriesid=$seriesId AND Users.Userid=FixtureSeries.SeriesOwner;";
-    $statement = $this->pdo->prepare($sql);
-    $statement->execute();
-    $row = $statement->fetch(\PDO::FETCH_ASSOC);
-    $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
-    $ownerName = $row['FirstName']." ".$row['LastName'];
-    // Get default fixture attendees...
-    $sql = "SELECT FirstName, LastName FROM Users, SeriesCandidates
-    WHERE Seriesid=$seriesId AND Users.Userid=SeriesCandidates.Userid
-    ORDER BY FirstName, LastName;";
-    $statement = $this->pdo->prepare($sql);
-    $statement->execute();
-    $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
-    $ParticipantList = NULL;
-    foreach ($rows as $row) {
-        $ParticipantList[] = $row['FirstName']." ".$row['LastName'];
-    }
-    // Get recent fixtures...
-    $fixtures = new Fixtures($this->pdo);
-    $fixtureList = $fixtures->getRecentFixtures($seriesId);
+        // Retrieve basic series data...
+        $sql = "SELECT FirstName, LastName, SeriesWeekday, SeriesTime 
+        FROM Users, FixtureSeries WHERE Seriesid=$seriesId AND Users.Userid=FixtureSeries.SeriesOwner;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
+        $ownerName = $row['FirstName']." ".$row['LastName'];
+        
+        // Get default fixture attendees...
+        $users = $this->getSeriesUsers($seriesId);
+        $ParticipantList = NULL;
+        foreach ($users as $user) {
+            $ParticipantList[] = $user['FirstName']." ".$user['LastName'];
+        }
 
-    // return all series data
-    $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $ownerName, 
-    'participants' => $ParticipantList, 'fixtures' => $fixtureList];
-    return $series;
+        // Get recent fixtures...
+        $fixtures = new Fixtures($this->pdo);
+        $fixtureList = $fixtures->getRecentFixtures($seriesId);
+
+        // return all series data
+        $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $ownerName, 
+        'participants' => $ParticipantList, 'fixtures' => $fixtureList];
+        return $series;
     }
 
     public function getBasicSeriesData($seriesId)
     {
-    $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime
-    FROM FixtureSeries WHERE Seriesid=$seriesId;";
-    $statement = $this->pdo->prepare($sql);
-    $statement->execute();
-    $row = $statement->fetch(\PDO::FETCH_ASSOC);
-    return $row;
+        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime
+        FROM FixtureSeries WHERE Seriesid=$seriesId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        return $row;
     }
 
     public function deleteSeries($seriesId)
     {
-    // only works if no participants or fixtures
-    $series = $this->getSeries($seriesId);
-    $sql = "DELETE FROM FixtureSeries WHERE Seriesid=$seriesId;";
-    $statement = $this->pdo->prepare($sql);
-    $statement->execute();
-    return $series;
+        // only works (and should only be called) if no participants or fixtures
+        $series = $this->getSeries($seriesId);
+        $sql = "DELETE FROM FixtureSeries WHERE Seriesid=$seriesId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        return $series;
+    }
+
+    public function getSeriesUsers($seriesId)
+    {
+        // Return list of users for this series 
+        $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, SeriesCandidates
+        WHERE Seriesid=$seriesId AND Users.Userid=SeriesCandidates.Userid
+        ORDER BY FirstName, LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+    
+    public function deleteSeriesUsers($seriesId, $userIds)
+    {
+        // Delete specified users from this series 
+        foreach ($userIds as $userId) {
+            $sql = "DELETE FROM SeriesCandidates WHERE Seriesid=$seriesId AND Userid=$userId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+            }
+    }
+    
+    public function getSeriesCandidates($seriesId)
+    {
+        // Return list of possible candidate participants to add to the series, 
+        // which excludes existing participants
+        $sql = "SELECT Userid, FirstName, LastName FROM Users
+        WHERE Users.Userid NOT IN (SELECT Userid FROM SeriesCandidates WHERE Seriesid=$seriesId)
+        ORDER BY LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+
+    public function addUsers($seriesId, $userIds)
+    {
+        // Add users to the series
+        foreach ($userIds as $userId) {
+            $sql = "INSERT INTO SeriesCandidates (Seriesid, Userid) VALUES ($seriesId, $userId);";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+            }
     }
 }

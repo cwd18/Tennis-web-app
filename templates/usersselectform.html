@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.custom-restricted-width {display: inline-block;}
+* {margin-left: 2px;}
+</style>
+</head>
+<body>
+
+<form class="pure-form pure-form-stacked" action="{{ link }}" method="post">
+<fieldset>
+<legend>{{ legend }}</legend>
+<input type="hidden" name="seriesid" value="{{ seriesid }}">
+{% for u in users %}
+<div class="pure-control-group">
+<label class="pure-checkbox">
+<input type="checkbox" name="user_{{ u.Userid }}" 
+value={{ u.Userid }}>{{ u.FirstName }} {{ u.LastName }}
+</label></div>
+{% endfor %}
+
+<button type="submit" class="pure-button pure-button-primary">Select</button>
+<br><br>
+<a class="pure-button" href="series?seriesid={{ seriesid }}">Cancel any input</a>
+
+</body>
+</html>
