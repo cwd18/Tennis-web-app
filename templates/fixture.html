@@ -14,14 +14,18 @@
 <p>Fixture owner: {{ owner }}</p>
 
 {% if participants|length >0 %}
-    <ol>
+<ol>
     {% for n in participants %}
     <li>{{ n }}</li>
     {% endfor %}
-    </ol>
+</ol>
+<a class="pure-button" href="fixturedelusersform?fixtureid={{ fixtureid }}">Remove</a>
 {% else %}
-    <p>No participants</p>
+<p>No participants</p>
 {% endif %}
+<a class="pure-button" href="fixtureaddusersform?fixtureid={{ fixtureid }}">Add</a>
+<br><br>
+
 
 {% if bookings|length >1 %}
     <b>Courts...</b><br>

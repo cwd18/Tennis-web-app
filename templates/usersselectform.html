@@ -10,10 +10,10 @@
 </head>
 <body>
 
-<form class="pure-form pure-form-stacked" action="{{ link }}" method="post">
+<form class="pure-form pure-form-stacked" action="{{ formlink }}" method="post">
 <fieldset>
 <legend>{{ legend }}</legend>
-<input type="hidden" name="seriesid" value="{{ seriesid }}">
+<input type="hidden" name="{{ sfidname }}" value="{{ sfidvalue }}">
 {% for u in users %}
 <div class="pure-control-group">
 <label class="pure-checkbox">
@@ -24,7 +24,7 @@ value={{ u.Userid }}>{{ u.FirstName }} {{ u.LastName }}
 
 <button type="submit" class="pure-button pure-button-primary">Select</button>
 <br><br>
-<a class="pure-button" href="series?seriesid={{ seriesid }}">Cancel any input</a>
+<a class="pure-button" href="{{ cancellink }}">Cancel any input</a>
 
 </body>
 </html>

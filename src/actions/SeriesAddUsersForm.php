@@ -18,8 +18,11 @@ final class SeriesAddUsersForm
         $users = $series->getSeriesCandidates($seriesId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
-        ['seriesid' => $seriesId, 'users' => $users, 
+        ['users' => $users, 
         'legend' => 'Select users to add to series',
-        'link' => 'seriesaddusers']);   
+        'formlink' => 'seriesaddusers',
+        'sfidname' => 'seriesid',
+        'sfidvalue' => $seriesId,
+        'cancellink' => "series?seriesid=" . $seriesId]);   
     }
 }

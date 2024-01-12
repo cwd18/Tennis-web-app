@@ -60,4 +60,10 @@ $app->post('/seriesdelusers', \TennisApp\Action\SeriesDelUsers::class);
 $app->get('/serieseditform', \TennisApp\Action\SeriesEditForm::class);
 $app->post('/seriesedit', \TennisApp\Action\SeriesEdit::class);
 
+// Create fixture routes
+$app->get('/fixtureaddusersform', \TennisApp\Action\FixtureAddUsersForm::class);
+$app->post('/fixtureaddusers', \TennisApp\Action\FixtureAddUsers::class);
+$app->get('/fixturedelusersform', \TennisApp\Action\FixtureDelUsersForm::class);
+$app->post('/fixturedelusers', \TennisApp\Action\FixtureDelUsers::class);
+
 $app->run();

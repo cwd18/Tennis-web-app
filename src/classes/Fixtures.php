@@ -69,6 +69,51 @@ class Fixtures
         return $fixture;
     }
 
+    public function getFixtureCandidates($fixtureId) : array
+    {
+        // Return list of possible candidate participants to add to the fixture, 
+        // which excludes existing participants
+        $sql = "SELECT Userid, FirstName, LastName FROM Users
+        WHERE Users.Userid NOT IN (SELECT Userid FROM FixtureParticipants WHERE Fixtureid=$fixtureId)
+        ORDER BY LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+
+    public function addUsers($fixtureId, $userIds)
+    {
+        // Add users to the fixture
+        foreach ($userIds as $userId) {
+            $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid) VALUES ($fixtureId, $userId);";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+            }
+    }
+
+    public function getFixtureUsers($fixtureId) : array
+    {
+        // Return list of existing participants
+        $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
+        WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
+        ORDER BY LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+
+    public function deleteFixtureUsers($fixtureId, $userIds)
+    {
+        // Delete specified users from this fixture 
+        foreach ($userIds as $userId) {
+            $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid=$fixtureId AND Userid=$userId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+            }
+    }
+
     public function getFixture($fixtureId)
     {
         // Get Fixture data
