@@ -30,14 +30,26 @@ class Users
         return $row;
     }
 
-    public function getUser($userid) : array
+    public function getUser($userId) : array
     {
-        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userid;";
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userId;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row;
     }
+
+    public function getUsers($userIds) : array
+    {
+        foreach ($userIds as $userId) {
+            $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+            $rows[] = $statement->fetch(\PDO::FETCH_ASSOC);
+            }
+        return $rows;
+    }
+
 
     public function deleteUser($userid) : array
     {

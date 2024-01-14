@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace TennisApp;
 
 use TennisApp\Fixtures;
+use TennisApp\Users;
 
 class Series
 {
@@ -104,17 +105,20 @@ class Series
         return $users;
     }
     
-    public function deleteSeriesUsers($seriesId, $userIds)
+    public function deleteSeriesUsers($seriesId, $userIds) : array
     {
         // Delete specified users from this series 
+        $u = new Users($this->pdo);
+        $users = $u->getUsers($userIds);
         foreach ($userIds as $userId) {
             $sql = "DELETE FROM SeriesCandidates WHERE Seriesid=$seriesId AND Userid=$userId;";
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
             }
+        return $users;
     }
     
-    public function getSeriesCandidates($seriesId)
+    public function getSeriesCandidates($seriesId) : array
     {
         // Return list of possible candidate participants to add to the series, 
         // which excludes existing participants
@@ -127,7 +131,7 @@ class Series
         return $users;
     }
 
-    public function addUsers($seriesId, $userIds)
+    public function addUsers($seriesId, $userIds) : array
     {
         // Add users to the series
         foreach ($userIds as $userId) {
@@ -135,5 +139,8 @@ class Series
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
             }
+        $u = new Users($this->pdo);
+        $users = $u->getUsers($userIds);
+        return $users;
     }
 }

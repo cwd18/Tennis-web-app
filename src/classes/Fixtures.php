@@ -82,7 +82,7 @@ class Fixtures
         return $users;
     }
 
-    public function addUsers($fixtureId, $userIds)
+    public function addUsers($fixtureId, $userIds) : array
     {
         // Add users to the fixture
         foreach ($userIds as $userId) {
@@ -90,6 +90,9 @@ class Fixtures
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
             }
+        $u = new Users($this->pdo);
+        $users = $u->getUsers($userIds);
+        return $users;
     }
 
     public function getFixtureUsers($fixtureId) : array
@@ -104,15 +107,18 @@ class Fixtures
         return $users;
     }
 
-    public function deleteFixtureUsers($fixtureId, $userIds)
+    public function deleteFixtureUsers($fixtureId, $userIds) : array
     {
         // Delete specified users from this fixture 
+        $u = new Users($this->pdo);
+        $users = $u->getUsers($userIds);
         foreach ($userIds as $userId) {
             $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid=$fixtureId AND Userid=$userId;";
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
             }
-    }
+        return $users;
+        }
 
     public function getFixture($fixtureId)
     {

@@ -19,10 +19,10 @@ final class FixtureDelUsers
             }
         }
         $pdo = $GLOBALS['pdo'];
-        $fixture = new \TennisApp\Fixtures($pdo);
-        $fixture->deleteFixtureUsers($fixtureId, $userIds);
-        $f = $fixture->getFixture($fixtureId);
+        $f = new \TennisApp\Fixtures($pdo);
+        $users = $f->deleteFixtureUsers($fixtureId, $userIds);
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'fixture.html', $f);
+        return $view->render($response, 'useraddremcontinue.html', ['op' => 'Users deleted from fixture',
+        'link' => 'fixture?fixtureid=' . $fixtureId, 'users' => $users]);
       }
 }
