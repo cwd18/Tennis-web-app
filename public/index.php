@@ -65,5 +65,7 @@ $app->get('/fixtureaddusersform', \TennisApp\Action\FixtureAddUsersForm::class);
 $app->post('/fixtureaddusers', \TennisApp\Action\FixtureAddUsers::class);
 $app->get('/fixturedelusersform', \TennisApp\Action\FixtureDelUsersForm::class);
 $app->post('/fixturedelusers', \TennisApp\Action\FixtureDelUsers::class);
+$app->get('/fixtureeditform', \TennisApp\Action\FixtureEditForm::class);
+$app->post('/fixtureedit', \TennisApp\Action\FixtureEdit::class);
 
 $app->run();

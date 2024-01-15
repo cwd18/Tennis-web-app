@@ -12,6 +12,8 @@
 
 <h2>{{ description }} at {{ time }}</h2>
 <p>Fixture owner: {{ owner }}</p>
+<a class="pure-button" href="fixtureeditform?fixtureid={{ fixtureid }}">Edit fixture data</a>
+<br>
 
 {% if participants|length >0 %}
 <ol>
@@ -25,7 +27,6 @@
 {% endif %}
 <a class="pure-button" href="fixtureaddusersform?fixtureid={{ fixtureid }}">Add</a>
 <br><br>
-
 
 {% if bookings|length >1 %}
     <b>Courts...</b><br>

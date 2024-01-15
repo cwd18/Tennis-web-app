@@ -118,9 +118,31 @@ class Fixtures
             $statement->execute();
             }
         return $users;
-        }
+    }
 
-    public function getFixture($fixtureId)
+    public function getBasicFixtureData($fixtureId) : array
+    {
+        $sql = "SELECT Fixtureid, FixtureOwner, FixtureDate, FixtureTime
+        FROM Fixtures WHERE Fixtureid=$fixtureId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        return $row;
+    }
+
+    public function updateBasicFixtureData($fixtureId, $owner, $date, $time) : array
+    {
+        $row = $this->getBasicFixtureData($fixtureId);
+        if ($owner != $row['FixtureOwner'] or $date != $row['FixtureDate'] or $time != substr($row['FixtureTime'],0,5)) {
+            $sql = "UPDATE Fixtures SET FixtureOwner='$owner', FixtureDate='$date', FixtureTime='$time'
+            WHERE Fixtureid=$fixtureId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+            }
+        return $row;
+    }
+
+    public function getFixture($fixtureId) : array
     {
         // Get Fixture data
         $sql="SELECT Fixtures.Seriesid, FirstName, LastName, FixtureDate, FixtureTime

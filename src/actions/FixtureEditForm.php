@@ -1,5 +1,5 @@
 <?php
-# Present form for editing basic series data
+# Present form for editing basic fixture data
 
 namespace TennisApp\Action;
 
@@ -7,21 +7,21 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class SeriesEditForm
+final class FixtureEditForm
 {
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $seriesId = $params['seriesid'];
+        $fixtureId = $params['fixtureid'];
         $pdo = $GLOBALS['pdo'];
         $u = new \TennisApp\Users($pdo);
         $users = $u->getAllUsers();
-        $s = new \TennisApp\Series($pdo);
-        $series = $s->getBasicSeriesData($seriesId);
+        $f = new \TennisApp\Fixtures($pdo);
+        $fixture = $f->getBasicFixtureData($fixtureId);
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'serieseditform.html', 
-        ['seriesid' => $seriesId, 'owner' => $series['SeriesOwner'],
-        'day' => $series['SeriesWeekday'], 'time' => substr($series['SeriesTime'],0,5),
+        return $view->render($response, 'fixtureeditform.html', 
+        ['fixtureid' => $fixtureId, 'owner' => $fixture['FixtureOwner'],
+        'date' => $fixture['FixtureDate'], 'time' => substr($fixture['FixtureTime'],0,5),
         'users' => $users
         ]);   
     }
