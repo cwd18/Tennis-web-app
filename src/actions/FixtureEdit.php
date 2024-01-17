@@ -27,7 +27,7 @@ final class FixtureEdit
         if ($time0 != $time) { $changes[] = "Time: $time0 -> $time"; }
         if (empty($changes)) { $changes[] = "Nothing changed"; }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'sfeditcontinue.html', ['op' => 'Fixture data edits', 
-        'link' => "fixture?fixtureid=$fixtureId", 'changes' => $changes]);
+        return $view->render($response, 'opcontinue.html', ['op' => 'Fixture data edits', 
+        'link' => "fixture?fixtureid=$fixtureId", 'lines' => $changes]);
       }
 }

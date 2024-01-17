@@ -142,6 +142,14 @@ class Fixtures
         return $row;
     }
 
+    public function addCourtBooking($fixtureId, $bookerId, $court, $time)
+    {
+        $sql="INSERT INTO CourtBookings (Fixtureid, Userid, CourtNumber, BookingTime)
+        VALUES ($fixtureId, $bookerId, $court, '$time');";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+    }
+
     public function getFixture($fixtureId) : array
     {
         // Get Fixture data
@@ -157,6 +165,23 @@ class Fixtures
         $description = $this->fixtureDescription($row['FixtureDate']);
         $fixtureTime=substr($row['FixtureTime'],0,5);
 
+        // Calculate booking time slots
+        $bookingBase = $fixtureTime;
+        $bookingRange = 2;
+        if ($bookingBase=='08:30') {
+            $bookingBase = '07:30';
+            $bookingRange =3 ;
+        }
+        for ($n=0; $n<$bookingRange; $n++) {
+            $bookingTimes[$n] = date("H:i",strtotime($bookingBase)+$n*3600);
+        }
+        $bookingTime1 = $bookingTimes[0];
+        $bookingTime2 = $bookingTimes[1];
+        if ($bookingRange==3) {
+            $bookingTime1 = $bookingTimes[1];
+            $bookingTime2 = $bookingTimes[2];
+        }
+        
         // Get participants...
         $sql="SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
         WHERE Fixtureid=$fixtureId AND Users.Userid=FixtureParticipants.Userid
@@ -166,7 +191,7 @@ class Fixtures
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
         $participantList=Null;
         foreach ($rows as $row) {
-            $participantList[] = $row['FirstName']." ".$row['LastName'];
+            $participantList[$row['Userid']] = $row['FirstName']." ".$row['LastName'];
             }
 
         // Get court bookings into grid with columns (court, booking time, bookers)
@@ -227,7 +252,33 @@ class Fixtures
         // return all fixture data
         $fixture = ['seriesid' => $seriesId, 'fixtureid' => $fixtureId,
         'description' => $description, 'time' => $fixtureTime,
-        'owner' => $ownerName, 'participants' => $participantList, 'bookings' => $bookingViewGrid];
+        'owner' => $ownerName, 'participants' => $participantList, 
+        'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
+        'bookings' => $bookingViewGrid];
         return $fixture;
     }
+
+    public function getParticipantData($fixtureId, $userId) : array
+    {
+        $sql="SELECT Users.Userid, FirstName, LastName, WantsToPlay, IsPlaying FROM Users, FixtureParticipants
+        WHERE Fixtureid=$fixtureId AND FixtureParticipants.Userid=$userId 
+        AND Users.Userid=FixtureParticipants.Userid;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        return $row;
+    }
+
+    public function getParticipantBookings($fixtureId, $userId) : array
+    {
+        $sql = "SELECT CourtNumber, BookingTime FROM CourtBookings
+        WHERE Fixtureid=$fixtureId AND Userid=$userId
+        ORDER BY BookingTime;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $rows;
+    }
+
+
 }

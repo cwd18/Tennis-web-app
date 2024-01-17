@@ -27,7 +27,7 @@ final class SeriesEdit
         if ($time0 != $time) { $changes[] = "Time: $time0 -> $time"; }
         if (empty($changes)) { $changes[] = "Nothing changed"; }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'sfeditcontinue.html', ['op' => 'Series data edits', 
-        'link' => "series?seriesid=$seriesId", 'changes' => $changes]);
+        return $view->render($response, 'opcontinue.html', ['op' => 'Series data edits', 
+        'link' => "series?seriesid=$seriesId", 'lines' => $changes]);
       }
 }
