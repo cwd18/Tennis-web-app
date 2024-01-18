@@ -32,7 +32,7 @@ $app = AppFactory::create();
 $app->addErrorMiddleware(true, true, true);
 
 // Create Twig
-$twig = Twig::create(__DIR__ . '/../templates', ['cache' => false, 'debug' => true]);
+$twig = Twig::create(__DIR__ . '/../src/templates', ['cache' => false, 'debug' => true]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 
 // Add Twig-View Middleware
