@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<h2>{{ participant.FirstName }} {{ participant.LastName }}</h2> 
+<p>For {{ fixture.description }} at {{ fixture.time }}</p>
+
+<p>Is playing: {{ isplaying }}</p>
+
+<p>Wants to play: {{ wantstoplay }}</p>
+
+{% if wantstoplay == "Unknown" or wantstoplay == "No" %}
+<a class="pure-button" 
+    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=1">
+    Wants to play</a>
+{% endif %}
+
+{% if wantstoplay == "Unknown" or wantstoplay == "Yes" %}
+<a class="pure-button" 
+    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=0">
+    Doesn't want to play</a>
+    <br>
+{% endif %}
+
+<br><br><b>Courts booked</b><br>
+{% if bookings|length >0 %}
+{% for bk, b in bookings %}
+{{ b.time }}: court {{ b.court }} 
+<a href="participantDelBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&time={{ b.time }}&court={{ b.court }}">
+delete</a>
+<br>
+{% endfor %}
+{% else %}
+None<br>
+{% endif %}
+
+{% if bookings|length <2 %}
+<br>
+<a class="pure-button" 
+    href="participantAddBookingForm?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
+    Add booking</a>
+    <br>
+{% endif %}
+
+<br><br>
+<a class="pure-button" href="fixture?fixtureid={{ fixture.fixtureid }}">Back to fixture</a>
+
+</body>
+</html>

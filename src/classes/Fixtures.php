@@ -142,10 +142,18 @@ class Fixtures
         return $row;
     }
 
-    public function addCourtBooking($fixtureId, $bookerId, $court, $time)
+    public function addCourtBooking($fixtureId, $bookerId, $time, $court)
     {
-        $sql="INSERT INTO CourtBookings (Fixtureid, Userid, CourtNumber, BookingTime)
-        VALUES ($fixtureId, $bookerId, $court, '$time');";
+        $sql="INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber)
+        VALUES ($fixtureId, $bookerId, '$time', $court);";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+    }
+
+    public function deleteCourtBooking($fixtureId, $userId, $time, $court)
+    {
+        $sql = "DELETE FROM CourtBookings WHERE Fixtureid=$fixtureId AND Userid=$userId
+        AND BookingTime='$time' AND CourtNumber=$court;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
     }
@@ -196,7 +204,7 @@ class Fixtures
 
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";
-        $sql = "SELECT DISTINCT BookingTime FROM CourtBookings WHERE Fixtureid=$fixtureId;";
+        $sql = "SELECT DISTINCT BookingTime FROM CourtBookings WHERE Fixtureid=$fixtureId ORDER BY BookingTime;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -269,6 +277,27 @@ class Fixtures
         return $row;
     }
 
+    public function updateParticipantData($fixtureId, $userId, $wantsToPlay, $isPlaying) : array
+    {
+        $row = $this->getParticipantData($fixtureId, $userId);
+        if ($wantsToPlay != $row['WantsToPlay'] or $isPlaying != $row['IsPlaying']) {
+            $wantsToPlay = var_export($wantsToPlay, true);
+            $isPlaying = var_export($isPlaying, true);
+            $sql = "UPDATE FixtureParticipants SET WantsToPlay=$wantsToPlay, IsPlaying=$isPlaying
+            WHERE Fixtureid=$fixtureId AND Userid=$userId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+            }
+        return $row;
+    }
+
+    public function setParticipantWantsToPlay($fixtureId, $userId, $wantsToPlay)
+    {
+        $sql = "UPDATE FixtureParticipants SET WantsToPlay=$wantsToPlay WHERE Fixtureid=$fixtureId AND Userid=$userId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+    }
+
     public function getParticipantBookings($fixtureId, $userId) : array
     {
         $sql = "SELECT CourtNumber, BookingTime FROM CourtBookings
@@ -279,6 +308,5 @@ class Fixtures
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
         return $rows;
     }
-
 
 }

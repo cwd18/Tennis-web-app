@@ -1,5 +1,5 @@
 <?php
-# Present form for editing participant data
+# Present form to add booking
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class FixtureParticipantEditForm
+final class ParticipantAddBookingForm
 {
     public function __invoke(Request $request, Response $response): Response
     {
@@ -26,22 +26,14 @@ final class FixtureParticipantEditForm
             $bookings[$n]['time'] = substr($b['BookingTime'],0,5);
             $n++;
         }
+        if (sizeof($bookings)==1) { $usedBookingTime = $bookings[0]['time']; }
         $isPlaying = $u['IsPlaying']?"Yes":"No";
-        switch ($u['WantsToPlay']) {
-            case null:
-                $wantsToPlay = "Unknown";
-                break;
-            case TRUE:
-                $wantsToPlay = "Yes";
-                break;
-            case FALSE:
-                $wantsToPlay = "No";
-                break;
-        }
+        if (is_null($u['WantsToPlay'])) { $wantsToPlay = "Unknown"; }
+        else { $wantsToPlay = $u['WantsToPlay']?"Yes":"No"; }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'fixtureparticipantform.html', 
+        return $view->render($response, 'participantAddBookingForm.html', 
         ['fixture' => $fixture, 'participant' => $u,
         'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
-        'bookings' => $bookings]);   
+        'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime]);   
     }
 }

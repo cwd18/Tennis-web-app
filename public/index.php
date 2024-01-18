@@ -67,9 +67,12 @@ $app->get('/fixturedelusersform', \TennisApp\Action\FixtureDelUsersForm::class);
 $app->post('/fixturedelusers', \TennisApp\Action\FixtureDelUsers::class);
 $app->get('/fixtureeditform', \TennisApp\Action\FixtureEditForm::class);
 $app->post('/fixtureedit', \TennisApp\Action\FixtureEdit::class);
-$app->get('/fixtureaddbookingform', \TennisApp\Action\FixtureAddBookingForm::class);
-$app->post('/fixtureaddbooking', \TennisApp\Action\FixtureAddBooking::class);
-$app->get('/fixtureparticipantform', \TennisApp\Action\FixtureParticipantEditForm::class);
 
+// Create participant routes
+$app->get('/participant', \TennisApp\Action\ParticipantView::class);
+$app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
+$app->get('/participantAddBookingForm', \TennisApp\Action\ParticipantAddBookingForm::class);
+$app->post('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
+$app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::class);
 
 $app->run();

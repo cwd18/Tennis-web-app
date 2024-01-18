@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<h2>{{ participant.FirstName }} {{ participant.LastName }}</h2> 
+<p>For {{ fixture.description }} at {{ fixture.time }}</p>
+
+<p>Is playing: {{ isplaying }}</p>
+
+<p>Wants to play: {{ wantstoplay }}</p>
+
+<br><br><b>Courts booked</b><br>
+{% if bookings|length >0 %}
+{% for bk, b in bookings %}
+{{ b.time }}: court {{ b.court }}<br>
+{% endfor %}
+{% else %}
+None<br>
+{% endif %}
+
+<form class="pure-form pure-form-stacked" action="participantAddBooking" method="post">
+<fieldset>
+<legend>Add booking</legend>
+<input type="hidden" name="fixtureid" value="{{ fixture.fixtureid }}">
+<input type="hidden" name="userid" value="{{ participant.Userid }}">
+
+<label for="time">Court time</label>
+<select name="time" id="time">
+{% for time in fixture.bookingtimes %}
+{% if time != usedBookingTime %}
+<option>{{ time }}</option>
+{% endif %}
+{% endfor %}
+</select>
+
+<label for="court1">Court number</label>
+<input type="number" id="court" name="court" min="1" max="26">
+
+<button type="submit" class="pure-button pure-button-primary">Add booking</button>
+</fieldset>
+</form>
+
+<br><br>
+<a class="pure-button" href="fixture?fixtureid={{ fixture.fixtureid }}">Cancel</a>
+
+</body>
+</html>

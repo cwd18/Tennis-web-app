@@ -18,7 +18,7 @@
 {% if participants|length >0 %}
 <ol>
     {% for id, n in participants %}
-    <li><a href="fixtureparticipantform?fixtureid={{ fixtureid }}&userid={{ id }}">{{ n }}</a></li>
+    <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ id }}">{{ n }}</a></li>
     {% endfor %}
 </ol>
 <a class="pure-button" href="fixturedelusersform?fixtureid={{ fixtureid }}">Remove</a>
@@ -47,9 +47,6 @@
 {% else %}
     No bookings<br>
 {% endif %}
-
-<br>
-<a class="pure-button" href="fixtureaddbookingform?fixtureid={{ fixtureid }}">Add booking</a>
 
 <br><br>
 <a class="pure-button" href="series?seriesid={{ seriesid }}">Back to series</a>
