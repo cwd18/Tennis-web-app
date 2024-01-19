@@ -1,29 +1,25 @@
 <?php
 declare(strict_types=1);
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
-use TennisApp\Series;
-use TennisApp\Fixtures;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 include('../settings.php');
 
-$pdo = new PDO(
-    sprintf(
-        'mysql:host=%s;dbname=%s;port=%s;charset=%s',
-        $settings['host'],
-        $settings['name'],
-        $settings['port'],
-        $settings['charset']
-    ),
+try {
+    $pdo = new PDO(
+    sprintf('mysql:host=%s;dbname=%s;port=%s;charset=%s',
+        $settings['host'], $settings['name'], $settings['port'], $settings['charset']),
     $settings['username'],
-    $settings['password']
-);
+    $settings['password']);
+} catch (Exception $e) {
+    echo 'Failed to connect to database: ', $e->getMessage(), "\n";
+    exit;
+}
+   
 $GLOBALS['pdo']=$pdo;
 
 $app = AppFactory::create();

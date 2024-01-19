@@ -5,8 +5,11 @@ namespace TennisApp;
 
 class Fixtures
 {
-    public function __construct(protected $pdo)
+    public $pdo;
+
+    public function __construct($pdo)
     {
+        $this->pdo = $pdo;
     }
 
     public function fixtureDescription($datestr)

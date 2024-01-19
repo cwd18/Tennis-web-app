@@ -8,8 +8,11 @@ use TennisApp\Users;
 
 class Series
 {
-    public function __construct(protected $pdo)
+    public $pdo;
+
+    public function __construct($pdo)
     {
+        $this->pdo = $pdo;
     }
 
     public function seriesDescription($weekday, $time)
