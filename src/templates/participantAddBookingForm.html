@@ -22,27 +22,21 @@
 None<br>
 {% endif %}
 
-<form class="pure-form pure-form-stacked" action="participantAddBooking" method="post">
-<fieldset>
-<legend>Add booking</legend>
-<input type="hidden" name="fixtureid" value="{{ fixture.fixtureid }}">
-<input type="hidden" name="userid" value="{{ participant.Userid }}">
+{% set href = 'participantAddBooking?fixtureid='~fixture.fixtureid~'&userid='~participant.Userid %}
 
-<label for="time">Court time</label>
-<select name="time" id="time">
 {% for time in fixture.bookingtimes %}
+{% set guard = true %}
 {% if time != usedBookingTime %}
-<option>{{ time }}</option>
+<br><br><b>{{ time }}</b><br>
+{% for court in attribute (courts, time) %}
+    {% if court > 12 and guard %}
+    <br>
+    {% set guard = false %}
+    {% endif %}
+<a class="pure-button" href="{{ href }}&time={{ time }}&court={{ court }}">{{ court }}</a>
+{% endfor %}
 {% endif %}
 {% endfor %}
-</select>
-
-<label for="court1">Court number</label>
-<input type="number" id="court" name="court" min="1" max="26">
-
-<button type="submit" class="pure-button pure-button-primary">Add booking</button>
-</fieldset>
-</form>
 
 <br><br>
 <a class="pure-button" href="fixture?fixtureid={{ fixture.fixtureid }}">Cancel</a>

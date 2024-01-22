@@ -26,7 +26,18 @@ final class ParticipantAddBookingForm
             $bookings[$n]['time'] = substr($b['BookingTime'],0,5);
             $n++;
         }
-        if (sizeof($bookings)==1) { $usedBookingTime = $bookings[0]['time']; }
+
+        foreach ($fixture['bookingtimes'] as $time) {
+            $courts[$time] = $f->getAvailableCourts($fixtureId, $time);
+        }
+
+        $usedBookingTime = "";
+        $usedCourt = 0;
+        if (is_null($bookings)===false and sizeof($bookings)==1) {
+            $usedBookingTime = $bookings[0]['time'];
+            $usedCourt = $bookings[0]['court'];
+        }
+
         $isPlaying = $u['IsPlaying']?"Yes":"No";
         if (is_null($u['WantsToPlay'])) { $wantsToPlay = "Unknown"; }
         else { $wantsToPlay = $u['WantsToPlay']?"Yes":"No"; }
@@ -34,6 +45,7 @@ final class ParticipantAddBookingForm
         return $view->render($response, 'participantAddBookingForm.html', 
         ['fixture' => $fixture, 'participant' => $u,
         'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
-        'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime]);   
+        'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime, 
+        'courts' => $courts]);   
     }
 }

@@ -68,7 +68,7 @@ $app->post('/fixtureedit', \TennisApp\Action\FixtureEdit::class);
 $app->get('/participant', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
 $app->get('/participantAddBookingForm', \TennisApp\Action\ParticipantAddBookingForm::class);
-$app->post('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
+$app->get('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
 $app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::class);
 
 $app->run();

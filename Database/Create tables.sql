@@ -35,10 +35,10 @@ FOREIGN KEY (FixtureOwner) REFERENCES Users(Userid)
 );
 CREATE OR REPLACE TABLE CourtBookings (
 Fixtureid INT(8) NOT NULL,
-Userid INT(8) NOT NULL,
 BookingTime TIME NOT NULL,
 CourtNumber INT(3) NOT NULL,
-PRIMARY KEY (Fixtureid, Userid, BookingTime, CourtNumber),
+Userid INT(8) NOT NULL,
+PRIMARY KEY (Fixtureid, BookingTime, CourtNumber),
 FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );

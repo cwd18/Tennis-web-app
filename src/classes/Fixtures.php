@@ -161,6 +161,38 @@ class Fixtures
         $statement->execute();
     }
 
+    public function getAvailableCourts($fixtureId, $time) : array
+    {
+        $sql = "SELECT CourtNumber FROM CourtBookings 
+        WHERE Fixtureid=$fixtureId AND BookingTime='$time'
+        ORDER BY CourtNumber;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        if (count($rows) > 0)
+            {
+            $n=1;
+            foreach ($rows as $row) {
+                while ($n < $row['CourtNumber']) {
+                    if ($n <18 or $n >19) { $courts[] = $n; }
+                    $n++;
+                }
+                $n++; // skip already booked court
+            } 
+            while ($n <= 26) {
+                if ($n <18 or $n >19) { $courts[] = $n; }
+                $n++;
+            }
+        }
+        else { 
+            for ($n=1;$n<27;$n++) { 
+                if ($n <18 or $n >19) { $courts[] = $n; }
+            } 
+        
+        }
+        return $courts;
+    }
+
     public function getFixture($fixtureId) : array
     {
         // Get Fixture data
