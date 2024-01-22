@@ -1,13 +1,13 @@
 -- Tennis web app schema
 USE Tennis;
-CREATE OR REPLACE TABLE Users (
+CREATE TABLE Users (
 Userid int(8) NOT NULL auto_increment,
 LastName varchar (50) NOT NULL,
 FirstName varchar (50) NOT NULL,
 EmailAddress varchar (50) NOT NULL unique,
 PRIMARY KEY (Userid)
 );
-CREATE OR REPLACE TABLE FixtureSeries (
+CREATE TABLE FixtureSeries (
 Seriesid INT(8) NOT NULL auto_increment,
 SeriesOwner INT(8) NOT NULL,
 SeriesWeekday INT(8) NOT NULL,
@@ -16,13 +16,13 @@ SeriesDuration INT(3) NOT NULL DEFAULT 2,
 PRIMARY KEY (Seriesid),
 FOREIGN KEY (SeriesOwner) REFERENCES Users(Userid)
 );
-CREATE OR REPLACE TABLE SeriesCandidates (
+CREATE TABLE SeriesCandidates (
 Seriesid INT(8) NOT NULL,
 Userid INT (8) NOT NULL,
 FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );
-CREATE OR REPLACE TABLE Fixtures (
+CREATE TABLE Fixtures (
 Fixtureid INT(8) NOT NULL auto_increment,
 Seriesid INT(8) NOT NULL,
 FixtureOwner INT(8) NOT NULL,
@@ -33,7 +33,7 @@ PRIMARY KEY (Fixtureid),
 FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),
 FOREIGN KEY (FixtureOwner) REFERENCES Users(Userid)
 );
-CREATE OR REPLACE TABLE CourtBookings (
+CREATE TABLE CourtBookings (
 Fixtureid INT(8) NOT NULL,
 BookingTime TIME NOT NULL,
 CourtNumber INT(3) NOT NULL,
@@ -42,7 +42,7 @@ PRIMARY KEY (Fixtureid, BookingTime, CourtNumber),
 FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );
-CREATE OR REPLACE TABLE FixtureParticipants (
+CREATE TABLE FixtureParticipants (
 Fixtureid INT(8),
 Userid INT(8),
 WantsToPlay BOOLEAN,

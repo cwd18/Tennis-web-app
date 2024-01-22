@@ -28,8 +28,9 @@ class Series
         $sql = "SELECT Seriesid, SeriesWeekday, SeriesTime FROM FixtureSeries;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
-        $result = $statement->fetchall(\PDO::FETCH_ASSOC);
-        foreach ($result as $row) {
+        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $series = (array) null;
+        foreach ($rows as $row) {
             $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
             $series[] = ['seriesid' => $row['Seriesid'], 'description' => $description];
         }
@@ -72,6 +73,16 @@ class Series
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row;
+    }
+
+    public function addSeries($owner, $day, $time)
+    {
+        $sql = "INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime) 
+        VALUES ($owner, $day, '$time');";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $seriesId = $this->pdo->lastInsertId();
+        return $seriesId;
     }
 
     public function updateBasicSeriesData($seriesId, $owner, $day, $time) : array
