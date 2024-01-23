@@ -18,10 +18,24 @@ class Fixtures
         return date("l jS \of F Y",$date);
     }
     
-    public function getRecentFixtures($seriesId)
+    public function CheckFixtureExists($seriesId, $fixtureDate) : int
+    {
+        $sql = "SELECT Fixtureid FROM Fixtures 
+        WHERE Seriesid=$seriesId AND FixtureDate='$fixtureDate';";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        var_dump($row);
+        if ($row == false) {
+            return (int)null;
+        }
+        return $row['Fixtureid'];
+    }
+    
+    public function getRecentFixtures($seriesId, $count = 5) : array
     {
         $sql = "SELECT Fixtureid, FixtureDate, FixtureTime FROM Fixtures 
-        WHERE Seriesid=$seriesId ORDER BY FixtureDate DESC LIMIT 5;";
+        WHERE Seriesid=$seriesId ORDER BY FixtureDate DESC LIMIT $count;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $result = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -31,12 +45,12 @@ class Fixtures
         foreach ($result as $row) {
             $description = $this->fixtureDescription($row['FixtureDate']);
             $time = substr($row['FixtureTime'],0,5);
-            $series[] = ['fixtureid' => $row['Fixtureid'], 'description' => $description, 'time' => $time];
+            $fixtures[] = ['fixtureid' => $row['Fixtureid'], 'description' => $description, 'time' => $time];
         }
-        return $series;
+        return $fixtures;
     }
 
-    public function addNextFixtureToSeries($seriesId)
+    public function addNextFixtureToSeries($seriesId, $offset = 6)
     {
         // Get basic series data
         $series = new Series($this->pdo);
@@ -46,8 +60,12 @@ class Fixtures
         $fixtureWeekDay = $seriesRow['SeriesWeekday'];
         // Calculate the date of the next fixture
         $dayname = date('l', strtotime("Monday +$fixtureWeekDay days"));
-        $fixtureDateInt=strtotime("next ".$dayname,strtotime("+6 Days"));
-        $fixtureDate=date("y-m-d",$fixtureDateInt);
+        $fixtureDateInt = strtotime("next ".$dayname, strtotime("+$offset Days"));
+        $fixtureDate = date("y-m-d", $fixtureDateInt);
+        $fixtureId = $this->checkFixtureExists($seriesId, $fixtureDate);
+        if ($fixtureId != null) {
+            return $fixtureId;
+        }
         // Add fixture
         $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime)
         VALUES ('$seriesId', '$fixtureOwner', '$fixtureDate', '$fixtureTime');";
@@ -64,8 +82,13 @@ class Fixtures
 
     public function deleteFixture($fixtureId)
     {
-        // only works if no participants or bookings
         $fixture = $this->getFixture($fixtureId);
+        $sql = "DELETE FROM CourtBookings WHERE Fixtureid=$fixtureId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid=$fixtureId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
         $sql = "DELETE FROM Fixtures WHERE Fixtureid=$fixtureId;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();

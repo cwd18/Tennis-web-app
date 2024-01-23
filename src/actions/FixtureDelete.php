@@ -13,10 +13,13 @@ final class FixtureDelete
     {
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
+        $seriesId = $params['seriesid'];
         $pdo = $GLOBALS['pdo'];
-        $fixtures = new \TennisApp\Fixtures($pdo);
-        $f = $fixtures->deleteFixture($fixtureId);
+        $f = new \TennisApp\Fixtures($pdo);
+        $f->deleteFixture($fixtureId);
+        $lines[] = "Fixture id: $fixtureId";
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'fixturedeleted.html', $f);   
+        return $view->render($response, 'opcontinue.html', ['op' => "Fixture deleted", 
+        'link' => "series?seriesid=$seriesId", 'lines' => $lines]);
     }
 }

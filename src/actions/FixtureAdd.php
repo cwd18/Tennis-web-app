@@ -14,17 +14,12 @@ final class FixtureAdd
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
         $pdo = $GLOBALS['pdo'];
-        $fixtures = new \TennisApp\Fixtures($pdo);
-        $fixtures->addNextFixtureToSeries($seriesId);
-        $series = new \TennisApp\Series($pdo);
+        $f = new \TennisApp\Fixtures($pdo);
+        $fixtureId = $f->addNextFixtureToSeries($seriesId,3);
+        $row = $f->getBasicFixtureData($fixtureId);
+        $lines[] = $f->fixtureDescription($row['FixtureDate']);
         $view = Twig::fromRequest($request);
-        $s = $series->getSeries($seriesId);
-        return $view->render($response, 'series.html', [
-            'seriesid' => $seriesId,
-            'description' => $s['description'],
-            'owner' => $s['owner'],
-            'participants' => $s['participants'],
-            'fixtures' => $s['fixtures']
-            ]);   
+        return $view->render($response, 'opcontinue.html', ['op' => 'Added fixture', 
+        'link' => "series?seriesid=$seriesId", 'lines' => $lines]);
     }
 }

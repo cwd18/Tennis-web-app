@@ -52,12 +52,8 @@
 <a class="pure-button" href="series?seriesid={{ seriesid }}">Back to series</a>
 
 <br><br>
-{% if participants|length < 1 and bookings|length < 2 %}
-<a class="pure-button" href="fixturedelete?fixtureid={{ fixtureid }}">Delete fixture</a>
-{% endif %}
+<a class="pure-button" 
+href="fixturedelete?seriesid={{ seriesid }}&fixtureid={{ fixtureid }}">Delete fixture</a>
 
 </body>
 </html>
-
-
-
