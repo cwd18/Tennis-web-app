@@ -12,9 +12,13 @@ final class UserDelete
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $users = new \TennisApp\Users($GLOBALS['pdo']);
-        $row = $users->deleteUser($params['Userid']);
+        $userId = $params['Userid'];
+        $u = new \TennisApp\Users($GLOBALS['pdo']);
+        $row = $u->deleteUser($userId);
+        $lines[] = $row['FirstName'] . ' ' . $row['LastName'];
+        $lines[] = $row['EmailAddress'];
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'useropcontinue.html', ['op' => 'User deleted', 'user' => $row]);
+        return $view->render($response, 'opcontinue.html', ['op' => "User $userId deleted", 
+        'link' => "userlist", 'lines' => $lines]);
     }
 }

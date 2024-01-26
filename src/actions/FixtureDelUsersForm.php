@@ -15,7 +15,7 @@ final class FixtureDelUsersForm
         $fixtureId = $params['fixtureid'];
         $pdo = $GLOBALS['pdo'];
         $f = new \TennisApp\Fixtures($pdo);
-        $users = $f->getFixtureUsers($fixtureId);
+        $users = $f->getFixtureNonBookers($fixtureId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 

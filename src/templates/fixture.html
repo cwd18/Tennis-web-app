@@ -16,21 +16,36 @@
 <br><br>
 
 {% if participants|length >0 %}
-<table class="pure-table">
-    <thead>
-        <th>Name</th><th>Wants to Play</th><th>Is Playing</th>
-    </thead>
-    <tbody>
-        {% for n in participants %}
-        <tr>
-            <td><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
-            {{ n.FirstName }} {{ n.LastName }}</a></td>
-            <td>{{ n.WantsToPlay is null ? "Unknown" : (n.WantsToPlay ? 'Yes' : 'No') }}</td>
-            <td>{{ n.IsPlaying ? 'Yes': 'No' }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<p><b>Playing:</b></p>
+<ol>
+    {% for n in participants %}
+    {% if n.IsPlaying %}
+    <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
+        {{ n.FirstName }} {{ n.LastName }}</a></li>
+    {% endif %}
+    {% endfor %}
+</ol>
+
+<p><b>On the bench:</b></p>
+<ol>
+    {% for n in participants %}
+    {% if not n.IsPlaying and n.WantsToPlay %}
+    <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
+        {{ n.FirstName }} {{ n.LastName }}</a></li>
+    {% endif %}
+    {% endfor %}
+</ol>
+
+<p><b>Doesn't want to play or hasn't declared:</b></p>
+<ol>
+    {% for n in participants %}
+    {% if not n.IsPlaying and (not n.WantsToPlay or n.WantsToPlay is null) %}
+    <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
+        {{ n.FirstName }} {{ n.LastName }}</a></li>
+    {% endif %}
+    {% endfor %}
+</ol>
+
 <br>
 
 <a class="pure-button" href="fixturesetbookersplaying?fixtureid={{ fixtureid }}">Set bookers playing</a>

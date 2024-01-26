@@ -21,8 +21,11 @@ final class SeriesDelUsers
         $pdo = $GLOBALS['pdo'];
         $s = new \TennisApp\Series($pdo);
         $users = $s->deleteSeriesUsers($seriesId, $userIds);
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'useraddremcontinue.html', ['op' => 'Users deleted from series',
-        'link' => 'series?seriesid=' . $seriesId, 'users' => $users]);
+        foreach ($users as $user) {
+            $lines[] = $user['FirstName'] . ' ' . $user['LastName'];
+        }
+$view = Twig::fromRequest($request);
+        return $view->render($response, 'opcontinue.html', ['op' => 'Users deleted from series',
+        'link' => "series?seriesid=$seriesId", 'lines' => $lines]);
       }
 }

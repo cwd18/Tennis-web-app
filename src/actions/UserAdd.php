@@ -12,9 +12,14 @@ final class UserAdd
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
-        $users = new \TennisApp\Users($GLOBALS['pdo']);
-        $row = $users->addUser($params['fname'], $params['lname'], $params['email']);
+        $u = new \TennisApp\Users($GLOBALS['pdo']);
+        $userId = $u->addUser($params['fname'], $params['lname'], $params['email']);
+        $row = $u->getUser($userId);
+        $lines[] = $row['FirstName'] . ' ' . $row['LastName'];
+        $lines[] = $row['EmailAddress'];
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'useropcontinue.html', ['op' => 'User added', 'user' => $row]);
-      }
+        return $view->render($response, 'opcontinue.html', ['op' => "User $userId added", 
+        'link' => "userlist", 'lines' => $lines]);
+    }
+
 }

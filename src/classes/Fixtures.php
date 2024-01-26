@@ -25,7 +25,6 @@ class Fixtures
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        var_dump($row);
         if ($row == false) {
             return (int)null;
         }
@@ -169,6 +168,19 @@ class Fixtures
         // Return list of existing participants
         $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
+        ORDER BY LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+
+    public function getFixtureNonBookers($fixtureId) : array
+    {
+        // Return list of existing participants that have not booked
+        $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
+        WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
+        AND Users.Userid NOT IN (SELECT Userid FROM CourtBookings WHERE Fixtureid=$fixtureId)
         ORDER BY LastName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();

@@ -11,9 +11,10 @@
 <body>
 <h2>Tennis users</h2>
 {% for user in userlist %}
-<p><a href=useredit?Userid={{ user.Userid }}>{{ user.FirstName }} {{ user.LastName }}</a></p>
+<a href=useredit?Userid={{ user.Userid }}>{{ user.FirstName }} {{ user.LastName }}</a><br>
 {% endfor %}
 <br>
 <a class="pure-button" href="useraddform">Add a user</a>
+<a class="pure-button" href="serieslist">Series list</a>
 </body>
 </html>

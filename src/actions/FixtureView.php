@@ -14,9 +14,9 @@ final class FixtureView
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $pdo = $GLOBALS['pdo'];
-        $fixtures = new \TennisApp\Fixtures($pdo);
-        $f = $fixtures->getFixture($fixtureId);
+        $f = new \TennisApp\Fixtures($pdo);
+        $fixture = $f->getFixture($fixtureId);
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'fixture.html', $f);   
+        return $view->render($response, 'fixture.html', $fixture);   
     }
 }

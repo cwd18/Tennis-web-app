@@ -22,15 +22,13 @@ class Users
         return $users;
     }
 
-    public function addUser($fname, $lname, $email) : array
+    public function addUser($fname, $lname, $email)
     {
         $sql = "INSERT INTO Users (FirstName, LastName, EmailAddress)
-        VALUES ('$fname', '$lname', '$email')
-        RETURNING Userid, FirstName, LastName, EmailAddress;";
+        VALUES ('$fname', '$lname', '$email');";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        return $row;
+        return $this->pdo->lastInsertId();
     }
 
     public function getUser($userId) : array

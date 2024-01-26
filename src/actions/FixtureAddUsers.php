@@ -21,8 +21,11 @@ final class FixtureAddUsers
         $pdo = $GLOBALS['pdo'];
         $f = new \TennisApp\Fixtures($pdo);
         $users = $f->addUsers($fixtureId, $userIds);
+        foreach ($users as $user) {
+            $lines[] = $user['FirstName'] . ' ' . $user['LastName'];
+        }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'useraddremcontinue.html', ['op' => 'Users added to fixture',
-        'link' => 'fixture?fixtureid=' . $fixtureId, 'users' => $users]);
+        return $view->render($response, 'opcontinue.html', ['op' => 'Users added to fixture',
+        'link' => "fixture?fixtureid=$fixtureId", 'lines' => $lines]);
       }
 }

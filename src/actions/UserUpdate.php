@@ -12,21 +12,24 @@ final class UserUpdate
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
-        $users = new \TennisApp\Users($GLOBALS['pdo']);
+        $userId = $params['Userid'];
         $fname = $params['fname'];
         $lname = $params['lname'];
         $email = $params['email'];
-        $row = $users->updateUser($params['Userid'], $fname, $lname, $email);
+        $u = new \TennisApp\Users($GLOBALS['pdo']);
+        $row = $u->updateUser($userId, $fname, $lname, $email);
         if ($row['FirstName'] != $fname) {
-            $row['FirstName'] .= " => $fname";
+            $lines[] = $row['FirstName'] . " => $fname";
         }
         if ($row['LastName'] != $lname) {
-            $row['LastName'] .= " => $lname";
+            $lines[] = $row['LastName'] . " => $lname";
         }
         if ($row['EmailAddress'] != $email) {
-            $row['EmailAddress'] .= " => $email";
+            $lines[] = $row['EmailAddress'] . " => $email";
         }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'useropcontinue.html', ['op' => 'User updated', 'user' => $row]);
+        return $view->render($response, 'opcontinue.html', ['op' => "User $userId updated", 
+        'link' => "userlist", 'lines' => $lines]);
+
       }
 }
