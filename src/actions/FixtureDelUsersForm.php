@@ -14,8 +14,8 @@ final class FixtureDelUsersForm
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $pdo = $GLOBALS['pdo'];
-        $fixture = new \TennisApp\Fixtures($pdo);
-        $users = $fixture->getFixtureUsers($fixtureId);
+        $f = new \TennisApp\Fixtures($pdo);
+        $users = $f->getFixtureUsers($fixtureId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 
@@ -23,6 +23,6 @@ final class FixtureDelUsersForm
         'formlink' => 'fixturedelusers',
         'sfidvalue' => $fixtureId,
         'sfidname' => 'fixtureid',
-        'cancellink' => "fixture?fixtureid=" . $fixtureId]);   
+        'cancellink' => "fixture?fixtureid=$fixtureId"]);   
     }
 }

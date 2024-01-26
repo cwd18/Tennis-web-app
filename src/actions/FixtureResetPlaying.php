@@ -1,5 +1,5 @@
 <?php
-# Present form for users to be added to the specified fixture
+# Set all fixture participants to not playing
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class FixtureAddUsersForm
+final class FixtureResetPlaying
 {
     public function __invoke(Request $request, Response $response): Response
     {
@@ -15,14 +15,9 @@ final class FixtureAddUsersForm
         $fixtureId = $params['fixtureid'];
         $pdo = $GLOBALS['pdo'];
         $f = new \TennisApp\Fixtures($pdo);
-        $users = $f->getFixtureCandidates($fixtureId);
+        $f->resetPlaying($fixtureId);
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'usersselectform.html', 
-        ['users' => $users, 
-        'legend' => 'Select users to add to fixture',
-        'formlink' => 'fixtureaddusers',
-        'sfidvalue' => $fixtureId,
-        'sfidname' => 'fixtureid',
-        'cancellink' => "fixture?fixtureid=$fixtureId"]);
+        return $view->render($response, 'opcontinue.html', ['op' => 'All set to not playing', 
+        'link' => "fixture?fixtureid=$fixtureId", 'lines' => ""]);
     }
 }

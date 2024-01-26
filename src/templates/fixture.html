@@ -13,14 +13,29 @@
 <h2>{{ description }} at {{ time }}</h2>
 <p>Fixture owner: {{ owner }}</p>
 <a class="pure-button" href="fixtureeditform?fixtureid={{ fixtureid }}">Edit fixture data</a>
-<br>
+<br><br>
 
 {% if participants|length >0 %}
-<ol>
-    {% for id, n in participants %}
-    <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ id }}">{{ n }}</a></li>
-    {% endfor %}
-</ol>
+<table class="pure-table">
+    <thead>
+        <th>Name</th><th>Wants to Play</th><th>Is Playing</th>
+    </thead>
+    <tbody>
+        {% for n in participants %}
+        <tr>
+            <td><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
+            {{ n.FirstName }} {{ n.LastName }}</a></td>
+            <td>{{ n.WantsToPlay is null ? "Unknown" : (n.WantsToPlay ? 'Yes' : 'No') }}</td>
+            <td>{{ n.IsPlaying ? 'Yes': 'No' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<br>
+
+<a class="pure-button" href="fixturesetbookersplaying?fixtureid={{ fixtureid }}">Set bookers playing</a>
+<a class="pure-button" href="fixturesetplayingform?fixtureid={{ fixtureid }}">Set playing</a>
+<a class="pure-button" href="fixtureresetplaying?fixtureid={{ fixtureid }}">Reset playing</a>
 <a class="pure-button" href="fixturedelusersform?fixtureid={{ fixtureid }}">Remove</a>
 {% else %}
 <p>No participants</p>

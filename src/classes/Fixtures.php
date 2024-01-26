@@ -108,6 +108,49 @@ class Fixtures
         return $users;
     }
 
+    public function getWantToPlay($fixtureId) : array
+    {
+        // Return list of users who want to play and are currently not playing
+        $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
+        WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
+        AND WantsToPlay=TRUE AND IsPlaying=FALSE
+        ORDER BY LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+
+    public function setBookersPlaying($fixtureId)
+    {
+        $sql = "UPDATE FixtureParticipants, CourtBookings
+        SET WantsToPlay=TRUE, IsPlaying=TRUE
+        WHERE FixtureParticipants.Fixtureid=$fixtureId        
+        AND FixtureParticipants.Fixtureid=CourtBookings.Fixtureid
+        AND FixtureParticipants.Userid=CourtBookings.UserId
+        AND WantsToPlay=TRUE AND IsPlaying=FALSE;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+    }
+
+    public function setPlaying($fixtureId, $userIds)
+    {
+        foreach ($userIds as $userId) {
+            $sql = "UPDATE FixtureParticipants SET IsPlaying=TRUE
+            WHERE Fixtureid=$fixtureId AND Userid=$userId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+        }
+    }
+
+    public function resetPlaying($fixtureId)
+    {
+        $sql = "UPDATE FixtureParticipants SET IsPlaying=FALSE
+        WHERE Fixtureid=$fixtureId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+    }
+
     public function addUsers($fixtureId, $userIds) : array
     {
         // Add users to the fixture
@@ -249,16 +292,13 @@ class Fixtures
         }
         
         // Get participants...
-        $sql="SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
+        $sql="SELECT Users.Userid, FirstName, LastName, WantsToPlay, IsPlaying 
+        FROM Users, FixtureParticipants
         WHERE Fixtureid=$fixtureId AND Users.Userid=FixtureParticipants.Userid
         ORDER BY FirstName, LastName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
-        $participantList=Null;
-        foreach ($rows as $row) {
-            $participantList[$row['Userid']] = $row['FirstName']." ".$row['LastName'];
-            }
+        $participantList = $statement->fetchall(\PDO::FETCH_ASSOC);
 
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";

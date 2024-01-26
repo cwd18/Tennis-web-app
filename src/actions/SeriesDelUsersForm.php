@@ -14,8 +14,8 @@ final class SeriesDelUsersForm
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
         $pdo = $GLOBALS['pdo'];
-        $series = new \TennisApp\Series($pdo);
-        $users = $series->getSeriesUsers($seriesId);
+        $s = new \TennisApp\Series($pdo);
+        $users = $s->getSeriesUsers($seriesId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 
@@ -23,6 +23,6 @@ final class SeriesDelUsersForm
         'formlink' => 'seriesdelusers',
         'sfidname' => 'seriesid',
         'sfidvalue' => $seriesId,
-        'cancellink' => "series?seriesid=" . $seriesId]);   
+        'cancellink' => "series?seriesid=$seriesId"]);   
     }
 }
