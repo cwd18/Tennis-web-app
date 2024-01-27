@@ -26,7 +26,7 @@
     {% endfor %}
 </ol>
 
-<p><b>On the bench:</b></p>
+<p><b>Wants to play:</b></p>
 <ol>
     {% for n in participants %}
     {% if not n.IsPlaying and n.WantsToPlay %}
@@ -51,6 +51,7 @@
 <a class="pure-button" href="fixturesetbookersplaying?fixtureid={{ fixtureid }}">Set bookers playing</a>
 <a class="pure-button" href="fixturesetplayingform?fixtureid={{ fixtureid }}">Set playing</a>
 <a class="pure-button" href="fixtureresetplaying?fixtureid={{ fixtureid }}">Reset playing</a>
+<br><br>
 <a class="pure-button" href="fixturedelusersform?fixtureid={{ fixtureid }}">Remove</a>
 {% else %}
 <p>No participants</p>
@@ -83,7 +84,7 @@
 
 <br><br>
 <a class="pure-button" 
-href="fixturedelete?seriesid={{ seriesid }}&fixtureid={{ fixtureid }}">Delete fixture</a>
+href="fixturedeleteform?seriesid={{ seriesid }}&fixtureid={{ fixtureid }}">Delete fixture</a>
 
 </body>
 </html>

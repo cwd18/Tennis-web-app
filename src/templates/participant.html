@@ -28,12 +28,18 @@
 
 <br><br><b>Courts booked</b><br>
 {% if bookings|length >0 %}
+<table class="pure-table"><thead><tr><th>Time</th><th>Court</th><th>Operation</th></tr></thead><tbody>
 {% for bk, b in bookings %}
-{{ b.time }}: court {{ b.court }} 
+<tr>
+<td>{{ b.time }}</td>
+<td>{{ b.court }}</td>
+<td>
 <a href="participantDelBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&time={{ b.time }}&court={{ b.court }}">
 delete</a>
-<br>
+</td>
+</tr>
 {% endfor %}
+</tbody></table>
 {% else %}
 None<br>
 {% endif %}

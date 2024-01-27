@@ -49,8 +49,6 @@ $app->post('/seriesadd', \TennisApp\Action\SeriesAdd::class);
 $app->get('/series', \TennisApp\Action\SeriesView::class);
 $app->get('/seriesdelete', \TennisApp\Action\SeriesDelete::class);
 $app->get('/addfixture', \TennisApp\Action\FixtureAdd::class);
-$app->get('/fixture', \TennisApp\Action\FixtureView::class);
-$app->get('/fixturedelete', \TennisApp\Action\FixtureDelete::class);
 $app->get('/seriesaddusersform', \TennisApp\Action\SeriesAddUsersForm::class);
 $app->post('/seriesaddusers', \TennisApp\Action\SeriesAddUsers::class);
 $app->get('/seriesdelusersform', \TennisApp\Action\SeriesDelUsersForm::class);
@@ -59,6 +57,9 @@ $app->get('/serieseditform', \TennisApp\Action\SeriesEditForm::class);
 $app->post('/seriesedit', \TennisApp\Action\SeriesEdit::class);
 
 // Create fixture routes
+$app->get('/fixture', \TennisApp\Action\FixtureView::class);
+$app->get('/fixturedeleteform', \TennisApp\Action\FixtureDeleteForm::class);
+$app->get('/fixturedelete', \TennisApp\Action\FixtureDelete::class);
 $app->get('/fixtureaddusersform', \TennisApp\Action\FixtureAddUsersForm::class);
 $app->post('/fixtureaddusers', \TennisApp\Action\FixtureAddUsers::class);
 $app->get('/fixturedelusersform', \TennisApp\Action\FixtureDelUsersForm::class);
