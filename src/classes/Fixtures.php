@@ -120,6 +120,19 @@ class Fixtures
         return $users;
     }
 
+    public function getWantToPlayCandidates($fixtureId) : array
+    {
+        // Return list of users who have not yet declared they want to play
+        $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
+        WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
+        AND WantsToPlay IS NULL
+        ORDER BY LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+
     public function setBookersPlaying($fixtureId)
     {
         $sql = "UPDATE FixtureParticipants, CourtBookings
@@ -136,6 +149,16 @@ class Fixtures
     {
         foreach ($userIds as $userId) {
             $sql = "UPDATE FixtureParticipants SET IsPlaying=TRUE
+            WHERE Fixtureid=$fixtureId AND Userid=$userId;";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+        }
+    }
+
+    public function setWantsToPlay($fixtureId, $userIds)
+    {
+        foreach ($userIds as $userId) {
+            $sql = "UPDATE FixtureParticipants SET WantsToPlay=TRUE
             WHERE Fixtureid=$fixtureId AND Userid=$userId;";
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
