@@ -100,7 +100,7 @@ class Fixtures
         // which excludes existing participants
         $sql = "SELECT Userid, FirstName, LastName FROM Users
         WHERE Users.Userid NOT IN (SELECT Userid FROM FixtureParticipants WHERE Fixtureid=$fixtureId)
-        ORDER BY LastName;";
+        ORDER BY FirstName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -113,7 +113,7 @@ class Fixtures
         $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
         AND WantsToPlay=TRUE AND IsPlaying=FALSE
-        ORDER BY LastName;";
+        ORDER BY FirstName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -126,7 +126,7 @@ class Fixtures
         $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
         AND WantsToPlay IS NULL
-        ORDER BY LastName;";
+        ORDER BY FirstName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -191,7 +191,7 @@ class Fixtures
         // Return list of existing participants
         $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
-        ORDER BY LastName;";
+        ORDER BY FirstName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -204,7 +204,7 @@ class Fixtures
         $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid=$fixtureId
         AND Users.Userid NOT IN (SELECT Userid FROM CourtBookings WHERE Fixtureid=$fixtureId)
-        ORDER BY LastName;";
+        ORDER BY FirstName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -337,7 +337,8 @@ class Fixtures
 
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";
-        $sql = "SELECT DISTINCT BookingTime FROM CourtBookings WHERE Fixtureid=$fixtureId ORDER BY BookingTime;";
+        $sql = "SELECT DISTINCT BookingTime FROM CourtBookings WHERE Fixtureid=$fixtureId 
+        ORDER BY BookingTime;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -426,7 +427,8 @@ class Fixtures
 
     public function setParticipantWantsToPlay($fixtureId, $userId, $wantsToPlay)
     {
-        $sql = "UPDATE FixtureParticipants SET WantsToPlay=$wantsToPlay WHERE Fixtureid=$fixtureId AND Userid=$userId;";
+        $sql = "UPDATE FixtureParticipants SET WantsToPlay=$wantsToPlay, IsPlaying=FALSE 
+        WHERE Fixtureid=$fixtureId AND Userid=$userId;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
     }

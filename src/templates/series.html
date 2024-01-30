@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-.custom-restricted-width {display: inline-block;}
-* {margin-left: 2px;}
-</style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
+
 <h2>{{ description }}</h2>
 <p>Series owner: {{ owner }}</p>
 <a class="pure-button" href="serieseditform?seriesid={{ seriesid }}">Edit series data</a>
@@ -52,5 +44,4 @@
 <a class="pure-button" href="seriesdelete?seriesid={{ seriesid }}">Delete series</a>
 {% endif %}
 
-</body>
-</html>
+{% endblock %}

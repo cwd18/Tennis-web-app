@@ -1,14 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-.custom-restricted-width {display: inline-block;}
-* {margin-left: 2px;}
-</style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
 
 <form class="pure-form pure-form-stacked" action="seriesedit" method="post">
 <fieldset>
@@ -65,5 +56,4 @@ document.getElementById("time").value="{{ time }}"
 <br><br>
 <a class="pure-button" href="series?seriesid={{ seriesid }}">Cancel any input</a>
 
-</body>
-</html>
+{% endblock %}
