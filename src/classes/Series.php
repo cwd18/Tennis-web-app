@@ -138,7 +138,7 @@ class Series
         // which excludes existing participants
         $sql = "SELECT Userid, FirstName, LastName FROM Users
         WHERE Users.Userid NOT IN (SELECT Userid FROM SeriesCandidates WHERE Seriesid=$seriesId)
-        ORDER BY LastName;";
+        ORDER BY FirstName, LastName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);

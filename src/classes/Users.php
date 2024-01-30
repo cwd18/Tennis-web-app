@@ -15,7 +15,7 @@ class Users
     public function getAllUsers() : array
     {
         $list = [];
-        $sql = "SELECT Userid, FirstName, LastName FROM Users ORDER BY LastName;";
+        $sql = "SELECT Userid, FirstName, LastName FROM Users ORDER BY FirstName, LastName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
