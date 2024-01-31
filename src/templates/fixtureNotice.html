@@ -3,29 +3,29 @@
 {% block content %}
 
 <h2>{{ description }}</h2>
-<h2>{{ time }} start</h2>
+<h2 style="color:red;">{{ time }} start</h2>
 
-{% if participants|length >0 %}
+{% if players|length >0 %}
 <p><b>Playing:</b></p>
 <ol>
-    {% for n in participants %}
-    {% if n.IsPlaying %}
+    {% for n in players %}
     <li>{{ n.FirstName }} {{ n.LastName }}</li>
-    {% endif %}
     {% endfor %}
 </ol>
+{% endif %}
 
+{% if reserves|length >0 %}
 <p><b>Reserve:</b></p>
-<ol>
-    {% for n in participants %}
-    {% if not n.IsPlaying and n.WantsToPlay %}
+<ul>
+    {% for n in reserves %}
     <li>{{ n.FirstName }} {{ n.LastName }}</li>
-    {% endif %}
     {% endfor %}
-</ol>
+</ul>
+{% endif %}
 
-{% else %}
-<p>No participants</p>
+
+{% if players|length == 0 and reserves|length == 0 %}
+<p>No players or reserves yet</p>
 {% endif %}
 
 {% if bookings|length >1 %}
@@ -45,11 +45,12 @@
     {% endfor %}
     </table>
 {% else %}
-    No bookings<br>
+    No bookings yet<br>
 {% endif %}
 
-<p>Regards</p>
+<p>Regards,</p>
+<p>{{ owner }}</p>
 
-<a class="pure-button" href="fixture?fixtureid={{ fixtureid }}">Back</a>
+<a class="pure-button" href="fixturenotice?fixtureid={{ fixtureid }}">Refresh</a>
 
 {% endblock %}

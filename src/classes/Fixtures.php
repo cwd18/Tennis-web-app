@@ -326,14 +326,36 @@ class Fixtures
             $bookingTime2 = $bookingTimes[2];
         }
         
-        // Get participants...
-        $sql="SELECT Users.Userid, FirstName, LastName, WantsToPlay, IsPlaying 
+        // Get players...
+        $sql="SELECT Users.Userid, FirstName, LastName
         FROM Users, FixtureParticipants
         WHERE Fixtureid=$fixtureId AND Users.Userid=FixtureParticipants.Userid
+        AND IsPlaying=TRUE
         ORDER BY FirstName, LastName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
-        $participantList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $playerList = $statement->fetchall(\PDO::FETCH_ASSOC);
+
+        // Get reserves...
+        $sql="SELECT Users.Userid, FirstName, LastName
+        FROM Users, FixtureParticipants
+        WHERE Fixtureid=$fixtureId AND Users.Userid=FixtureParticipants.Userid
+        AND IsPlaying=FALSE AND WantsToPlay=TRUE;
+        ORDER BY FirstName, LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $reserveList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        
+        // Get abstainers...
+        $sql="SELECT Users.Userid, FirstName, LastName
+        FROM Users, FixtureParticipants
+        WHERE Fixtureid=$fixtureId AND Users.Userid=FixtureParticipants.Userid
+        AND IsPlaying=FALSE AND (WantsToPlay=FALSE OR WantsToPlay IS NULL)
+        ORDER BY FirstName, LastName;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $abstainList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        
 
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";
@@ -394,7 +416,8 @@ class Fixtures
         // return all fixture data
         $fixture = ['seriesid' => $seriesId, 'fixtureid' => $fixtureId,
         'description' => $description, 'time' => $fixtureTime,
-        'owner' => $ownerName, 'participants' => $participantList, 
+        'owner' => $ownerName, 
+        'players' => $playerList, 'reserves' => $reserveList, 'abstainers' => $abstainList,
         'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
         'bookings' => $bookingViewGrid];
         return $fixture;
