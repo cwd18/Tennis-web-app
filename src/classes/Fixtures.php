@@ -26,7 +26,7 @@ class Fixtures
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row == false ? 0 : $row['Fixtureid'];
-    }ß
+    }
     
     public function CheckFixtureExists($seriesId, $fixtureDate) : int
     {
