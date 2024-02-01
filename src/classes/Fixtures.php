@@ -17,6 +17,16 @@ class Fixtures
         $date = strtotime($datestr);
         return date("l jS \of F Y",$date);
     }
+
+    public function latestFixture($seriesId) : int
+    {
+        $sql = "SELECT Fixtureid FROM Fixtures 
+        WHERE Seriesid=$seriesId ORDER BY FixtureDate DESC LIMIT 1;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        return $row == false ? 0 : $row['Fixtureid'];
+    }ß
     
     public function CheckFixtureExists($seriesId, $fixtureDate) : int
     {
