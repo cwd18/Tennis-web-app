@@ -19,8 +19,6 @@ final class FixtureNotice
         } else {
             $fixtureId = $f->latestFixture($params['seriesid']);
         }
-        $url = $request->getUri();
-        var_dump($url);
         $fixture = $f->getFixture($fixtureId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'fixtureNotice.html', $fixture);   
