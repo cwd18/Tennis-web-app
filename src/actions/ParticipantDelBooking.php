@@ -1,11 +1,10 @@
 <?php
-# Delete booking from link parameters and then present continuation view
+# Delete booking from link parameters
 
 namespace TennisApp\Action;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class ParticipantDelBooking
 {
@@ -19,10 +18,8 @@ final class ParticipantDelBooking
         $pdo = $GLOBALS['pdo'];
         $f = new \TennisApp\Fixtures($pdo);
         $f->deleteCourtBooking($fixtureId, $userId, $time, $court);
-        $lines[] = sprintf("Deleted court %u at %s", $court, $time);
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => 'Deleted booking from fixture',
-        'link' => sprintf("participant?fixtureid=%s&userid=%s", $fixtureId, $userId),
-        'lines' => $lines]);
+        return $response
+          ->withHeader('Location', "/participant?fixtureid=$fixtureId&userid=$userId")
+          ->withStatus(302);
       }
 }

@@ -25,10 +25,7 @@ class Fixtures
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        if ($row == false) {
-            return (int)null;
-        }
-        return $row['Fixtureid'];
+        return $row == false ? 0 : $row['Fixtureid'];
     }
     
     public function getRecentFixtures($seriesId, $count = 5) : array
@@ -44,12 +41,24 @@ class Fixtures
         foreach ($result as $row) {
             $description = $this->fixtureDescription($row['FixtureDate']);
             $time = substr($row['FixtureTime'],0,5);
-            $fixtures[] = ['fixtureid' => $row['Fixtureid'], 'description' => $description, 'time' => $time];
+            $fixtures[] = ['fixtureid' => $row['Fixtureid'], 'description' => $description, 
+            'date' => $row['FixtureDate'], 'time' => $time];
         }
         return $fixtures;
     }
 
-    public function addNextFixtureToSeries($seriesId, $offset = 6)
+    public function futureFixtures($seriesId) : int
+    {
+        $today = date("y-m-d");
+        $sql = "SELECT COUNT(FixtureId) AS Count FROM Fixtures 
+        WHERE Seriesid=$seriesId AND FixtureDate>$today;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        return $row['Count'];
+    }
+
+    public function addNextFixtureToSeries($seriesId)
     {
         // Get basic series data
         $series = new Series($this->pdo);
@@ -59,10 +68,10 @@ class Fixtures
         $fixtureWeekDay = $seriesRow['SeriesWeekday'];
         // Calculate the date of the next fixture
         $dayname = date('l', strtotime("Monday +$fixtureWeekDay days"));
-        $fixtureDateInt = strtotime("next ".$dayname, strtotime("+$offset Days"));
+        $fixtureDateInt = strtotime("next $dayname");
         $fixtureDate = date("y-m-d", $fixtureDateInt);
         $fixtureId = $this->checkFixtureExists($seriesId, $fixtureDate);
-        if ($fixtureId != null) {
+        if ($fixtureId > 0) {
             return $fixtureId;
         }
         // Add fixture
@@ -135,12 +144,13 @@ class Fixtures
 
     public function setBookersPlaying($fixtureId)
     {
+        // Set bookers to playing unless they have declared they don't want to play
         $sql = "UPDATE FixtureParticipants, CourtBookings
         SET WantsToPlay=TRUE, IsPlaying=TRUE
         WHERE FixtureParticipants.Fixtureid=$fixtureId        
         AND FixtureParticipants.Fixtureid=CourtBookings.Fixtureid
         AND FixtureParticipants.Userid=CourtBookings.UserId
-        AND WantsToPlay=TRUE AND IsPlaying=FALSE;";
+        AND (WantsToPlay=TRUE OR WantsToPlay IS NULL) AND IsPlaying=FALSE;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
     }

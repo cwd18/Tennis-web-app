@@ -36,12 +36,14 @@
 {% endif %}
 
 <br>
+{% if futurefixtures == 0 %}
 <a class="pure-button" href="addfixture?seriesid={{ seriesid }}">Add the next fixture</a>
-<br><br>
-<a class="pure-button" href="serieslist">Back to series list</a>
-{% if participants|length < 1 and bookings|length < 2 %}
-<br><br>
-<a class="pure-button" href="seriesdelete?seriesid={{ seriesid }}">Delete series</a>
+<br>
 {% endif %}
+
+<br>
+<a class="pure-button" href="serieslist">Back to series list</a>
+<br><br>
+<a class="pure-button" href="seriesdeleteform?seriesid={{ seriesid }}">Delete series</a>
 
 {% endblock %}

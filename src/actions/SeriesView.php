@@ -13,9 +13,9 @@ final class SeriesView
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $series = new \TennisApp\Series($GLOBALS['pdo']);
+        $s = new \TennisApp\Series($GLOBALS['pdo']);
+        $series = $s->getSeries($seriesId);
         $view = Twig::fromRequest($request);
-        $s = $series->getSeries($seriesId);
-        return $view->render($response, 'series.html', $s);
+        return $view->render($response, 'series.html', $series);
     }
 }

@@ -5,7 +5,6 @@ namespace TennisApp\Action;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class FixtureResetPlaying
 {
@@ -16,8 +15,8 @@ final class FixtureResetPlaying
         $pdo = $GLOBALS['pdo'];
         $f = new \TennisApp\Fixtures($pdo);
         $f->resetPlaying($fixtureId);
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => 'All set to not playing', 
-        'link' => "fixture?fixtureid=$fixtureId", 'lines' => ""]);
+        return $response
+          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
+          ->withStatus(302);
     }
 }

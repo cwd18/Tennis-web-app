@@ -5,7 +5,6 @@ namespace TennisApp\Action;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class FixtureDelUsers
 {
@@ -20,12 +19,9 @@ final class FixtureDelUsers
         }
         $pdo = $GLOBALS['pdo'];
         $f = new \TennisApp\Fixtures($pdo);
-        $users = $f->deleteFixtureUsers($fixtureId, $userIds);
-        foreach ($users as $user) {
-            $lines[] = $user['FirstName'] . ' ' . $user['LastName'];
-        }
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => 'Users deleted from fixture',
-        'link' => "fixture?fixtureid=$fixtureId", 'lines' => $lines]);
+        $f->deleteFixtureUsers($fixtureId, $userIds);
+        return $response
+          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
+          ->withStatus(302);
       }
 }

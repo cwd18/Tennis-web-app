@@ -20,12 +20,9 @@ final class SeriesAddUsers
         }
         $pdo = $GLOBALS['pdo'];
         $s = new \TennisApp\Series($pdo);
-        $users = $s->addUsers($seriesId, $userIds);
-        foreach ($users as $user) {
-            $lines[] = $user['FirstName'] . ' ' . $user['LastName'];
-        }
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => 'Users added to series',
-        'link' => "series?seriesid=$seriesId", 'lines' => $lines]);
+        $s->addUsers($seriesId, $userIds);
+        return $response
+          ->withHeader('Location', "/series?seriesid=$seriesId")
+          ->withStatus(302);
       }
 }

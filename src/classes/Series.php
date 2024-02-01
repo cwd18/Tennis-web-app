@@ -56,12 +56,15 @@ class Series
         }
 
         // Get recent fixtures...
-        $fixtures = new Fixtures($this->pdo);
-        $fixtureList = $fixtures->getRecentFixtures($seriesId);
+        $f = new Fixtures($this->pdo);
+        $fixtureList = $f->getRecentFixtures($seriesId);
+
+        // Count future fixtures?
+        $futureFixtures = $f->futureFixtures($seriesId);
 
         // return all series data
         $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $ownerName, 
-        'participants' => $ParticipantList, 'fixtures' => $fixtureList];
+        'participants' => $ParticipantList, 'fixtures' => $fixtureList, 'futurefixtures' => $futureFixtures];
         return $series;
     }
 
@@ -99,8 +102,20 @@ class Series
 
     public function deleteSeries($seriesId)
     {
-        // only works (and should only be called) if no participants or fixtures
         $series = $this->getSeries($seriesId);
+        // delete any fixtures
+        $sql = "SELECT Fixtureid FROM Fixtures WHERE Seriesid=$seriesId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $fixtureIds = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $f = new Fixtures($this->pdo);
+        foreach ($fixtureIds as $fixtureId) {
+            $f->deleteFixture($fixtureId);
+        }
+        // Delete any candidates
+        $sql = "DELETE FROM SeriesCandidates WHERE Seriesid=$seriesId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
         $sql = "DELETE FROM FixtureSeries WHERE Seriesid=$seriesId;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();

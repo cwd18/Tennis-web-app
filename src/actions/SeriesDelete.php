@@ -16,9 +16,8 @@ final class SeriesDelete
         $pdo = $GLOBALS['pdo'];
         $s = new \TennisApp\Series($pdo);
         $s->deleteSeries($seriesId);
-        $lines[] = "Series id: $seriesId";
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => "Series deleted", 
-        'link' => "serieslist", 'lines' => $lines]);
+        return $response
+          ->withHeader('Location', "/serieslist")
+          ->withStatus(302);
     }
 }

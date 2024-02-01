@@ -47,6 +47,7 @@ $app->get('/serieslist', \TennisApp\Action\SeriesList::class);
 $app->get('/seriesaddform', \TennisApp\Action\SeriesAddForm::class);
 $app->post('/seriesadd', \TennisApp\Action\SeriesAdd::class);
 $app->get('/series', \TennisApp\Action\SeriesView::class);
+$app->get('/seriesdeleteform', \TennisApp\Action\SeriesDeleteForm::class);
 $app->get('/seriesdelete', \TennisApp\Action\SeriesDelete::class);
 $app->get('/addfixture', \TennisApp\Action\FixtureAdd::class);
 $app->get('/seriesaddusersform', \TennisApp\Action\SeriesAddUsersForm::class);

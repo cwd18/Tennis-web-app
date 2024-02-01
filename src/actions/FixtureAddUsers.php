@@ -5,7 +5,6 @@ namespace TennisApp\Action;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class FixtureAddUsers
 {
@@ -21,11 +20,8 @@ final class FixtureAddUsers
         $pdo = $GLOBALS['pdo'];
         $f = new \TennisApp\Fixtures($pdo);
         $users = $f->addUsers($fixtureId, $userIds);
-        foreach ($users as $user) {
-            $lines[] = $user['FirstName'] . ' ' . $user['LastName'];
-        }
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => 'Users added to fixture',
-        'link' => "fixture?fixtureid=$fixtureId", 'lines' => $lines]);
+        return $response
+          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
+          ->withStatus(302);
       }
 }
