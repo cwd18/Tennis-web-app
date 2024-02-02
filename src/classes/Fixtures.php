@@ -18,10 +18,13 @@ class Fixtures
         return date("l jS \of F Y",$date);
     }
 
-    public function latestFixture($seriesId) : int
+    public function nextFixture($seriesId) : int
     {
+        $today = date("y-m-d");
+
         $sql = "SELECT Fixtureid FROM Fixtures 
-        WHERE Seriesid=$seriesId ORDER BY FixtureDate DESC LIMIT 1;";
+        WHERE Seriesid=$seriesId AND FixtureDate>'$today'
+        ORDER BY FixtureDate LIMIT 1;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
@@ -61,20 +64,39 @@ class Fixtures
     {
         $today = date("y-m-d");
         $sql = "SELECT COUNT(FixtureId) AS Count FROM Fixtures 
-        WHERE Seriesid=$seriesId AND FixtureDate>$today;";
+        WHERE Seriesid=$seriesId AND FixtureDate>'$today';";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row['Count'];
     }
 
-    public function addNextFixtureToSeries($seriesId)
+    public function addFixture($seriesId, $fixtureDate)
     {
-        // Get basic series data
-        $series = new Series($this->pdo);
-        $seriesRow = $series->getBasicSeriesData($seriesId);
+        $s = new Series($this->pdo);
+        $seriesRow = $s->getBasicSeriesData($seriesId);
         $fixtureOwner = $seriesRow['SeriesOwner'];
         $fixtureTime = $seriesRow['SeriesTime'];
+        $fixtureId = $this->checkFixtureExists($seriesId, $fixtureDate);
+        if ($fixtureId > 0) {
+            return $fixtureId;
+        }
+        $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime)
+        VALUES ('$seriesId', '$fixtureOwner', '$fixtureDate', '$fixtureTime');";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        $fixtureId = $this->pdo->lastInsertId();
+        $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid)
+        SELECT '$fixtureId', Userid FROM SeriesCandidates WHERE Seriesid=$seriesId;";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        return $fixtureId;
+    }
+
+    public function addNextFixtureToSeries($seriesId)
+    {
+        $series = new Series($this->pdo);
+        $seriesRow = $series->getBasicSeriesData($seriesId);
         $fixtureWeekDay = $seriesRow['SeriesWeekday'];
         // Calculate the date of the next fixture
         $dayname = date('l', strtotime("Monday +$fixtureWeekDay days"));
@@ -82,20 +104,13 @@ class Fixtures
         $fixtureDate = date("y-m-d", $fixtureDateInt);
         $fixtureId = $this->checkFixtureExists($seriesId, $fixtureDate);
         if ($fixtureId > 0) {
-            return $fixtureId;
+            if ($this->futureFixtures($seriesId) > 1) {
+                return $fixtureId; // maximum of two future fixes
+            }
+            $fixtureDateInt = strtotime("next $dayname",strtotime($fixtureDate));
+            $fixtureDate = date("y-m-d", $fixtureDateInt);
         }
-        // Add fixture
-        $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime)
-        VALUES ('$seriesId', '$fixtureOwner', '$fixtureDate', '$fixtureTime');";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute();
-        $fixtureId = $this->pdo->lastInsertId();
-        // Initialise participants from series candidates
-        $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid)
-        SELECT '$fixtureId', Userid FROM SeriesCandidates WHERE Seriesid=$seriesId;";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute();
-        return $fixtureId;
+        return $this->addFixture($seriesId, $fixtureDate);
     }
 
     public function deleteFixture($fixtureId)

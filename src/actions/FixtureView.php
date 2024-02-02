@@ -17,7 +17,7 @@ final class FixtureView
         if (array_key_exists('fixtureid', $params)) {
             $fixtureId = $params['fixtureid'];
         } else {
-            $fixtureId = $f->latestFixture($params['seriesid']);
+            $fixtureId = $f->nextFixture($params['seriesid']);
         }
         $fixture = $f->getFixture($fixtureId);
         $view = Twig::fromRequest($request);
