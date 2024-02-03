@@ -3,18 +3,26 @@
 
 namespace TennisApp\Action;
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
 final class SeriesAddUsersForm
 {
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $pdo = $GLOBALS['pdo'];
-        $s = new \TennisApp\Series($pdo);
+        $model = $this->container->get('Model');
+        $s = $model->getSeries();
         $users = $s->getSeriesCandidates($seriesId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 

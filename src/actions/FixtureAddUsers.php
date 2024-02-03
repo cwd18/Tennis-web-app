@@ -1,13 +1,21 @@
 <?php
-# Add users from form parameters and then present continuation view
+# Add users from form parameters
 
 namespace TennisApp\Action;
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class FixtureAddUsers
 {
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
@@ -17,9 +25,9 @@ final class FixtureAddUsers
                 $userIds[] = $p;
             }
         }
-        $pdo = $GLOBALS['pdo'];
-        $f = new \TennisApp\Fixtures($pdo);
-        $users = $f->addUsers($fixtureId, $userIds);
+        $model = $this->container->get('Model');
+        $f = $model->getFixtures();
+        $f->addUsers($fixtureId, $userIds);
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);

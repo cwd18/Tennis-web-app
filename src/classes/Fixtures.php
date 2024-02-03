@@ -375,7 +375,7 @@ class Fixtures
         $sql="SELECT Users.Userid, FirstName, LastName
         FROM Users, FixtureParticipants
         WHERE Fixtureid=$fixtureId AND Users.Userid=FixtureParticipants.Userid
-        AND IsPlaying=FALSE AND WantsToPlay=TRUE;
+        AND IsPlaying=FALSE AND WantsToPlay=TRUE
         ORDER BY FirstName, LastName;";
         $statement = $this->pdo->prepare($sql);
         $statement->execute();

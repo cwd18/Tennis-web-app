@@ -3,12 +3,19 @@
 
 namespace TennisApp\Action;
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class SeriesAddUsers
 {
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
@@ -18,8 +25,8 @@ final class SeriesAddUsers
                 $userIds[] = $p;
             }
         }
-        $pdo = $GLOBALS['pdo'];
-        $s = new \TennisApp\Series($pdo);
+        $model = $this->container->get('Model');
+        $s = $model->getSeries();
         $s->addUsers($seriesId, $userIds);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

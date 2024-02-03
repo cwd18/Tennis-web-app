@@ -3,23 +3,28 @@
 
 namespace TennisApp\Action;
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class UserAdd
 {
-    public function __invoke(Request $request, Response $response): Response
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
+public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
-        $u = new \TennisApp\Users($GLOBALS['pdo']);
-        $userId = $u->addUser($params['fname'], $params['lname'], $params['email']);
-        $row = $u->getUser($userId);
-        $lines[] = $row['FirstName'] . ' ' . $row['LastName'];
-        $lines[] = $row['EmailAddress'];
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => "User $userId added", 
-        'link' => "userlist", 'lines' => $lines]);
+        $model = $this->container->get('Model');
+        $u = $model->getUsers();
+        $u->addUser($params['fname'], $params['lname'], $params['email']);
+        return $response
+          ->withHeader('Location', "/userlist")
+          ->withStatus(302);
     }
 
 }

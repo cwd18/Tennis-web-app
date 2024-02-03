@@ -3,12 +3,20 @@
 
 namespace TennisApp\Action;
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
 final class UserUpdate
 {
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
@@ -16,7 +24,8 @@ final class UserUpdate
         $fname = $params['fname'];
         $lname = $params['lname'];
         $email = $params['email'];
-        $u = new \TennisApp\Users($GLOBALS['pdo']);
+        $model = $this->container->get('Model');
+        $u = $model->getUsers();
         $row = $u->updateUser($userId, $fname, $lname, $email);
         if ($row['FirstName'] != $fname) {
             $lines[] = $row['FirstName'] . " => $fname";

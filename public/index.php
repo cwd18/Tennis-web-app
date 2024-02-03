@@ -1,28 +1,29 @@
 <?php
 declare(strict_types=1);
 
+use DI\Container;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use TennisApp\Model;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-include('../settings.php');
+// Create Container using PHP-DI
+$container = new Container();
 
-try {
-    $pdo = new PDO(
-    sprintf('mysql:host=%s;dbname=%s;port=%s;charset=%s',
-        $settings['host'], $settings['name'], $settings['port'], $settings['charset']),
-    $settings['username'],
-    $settings['password']);
-} catch (Exception $e) {
-    echo 'Failed to connect to database: ', $e->getMessage(), "\n";
-    exit;
-}
-   
-$GLOBALS['pdo']=$pdo;
-
+// Set container to create App with on AppFactory
+AppFactory::setContainer($container);
 $app = AppFactory::create();
+
+$container->set('Model', function () {
+    include('../settings.php');
+    $dbn = sprintf('mysql:host=%s;dbname=%s;port=%s;charset=%s',
+    $settings['host'], $settings['name'], $settings['port'], $settings['charset']);
+    $username = $settings['username'];
+    $password = $settings['password'];
+    return new Model($dbn, $username, $password);
+});
 
 // Add Error Handling Middleware
 $app->addErrorMiddleware(true, true, true);
