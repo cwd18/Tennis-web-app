@@ -5,7 +5,7 @@ namespace TennisApp;
 
 class Users
 {
-    public $pdo;
+    private $pdo;
 
     public function __construct($pdo)
     {
@@ -14,10 +14,8 @@ class Users
 
     public function getAllUsers() : array
     {
-        $list = [];
         $sql = "SELECT Userid, FirstName, LastName FROM Users ORDER BY FirstName, LastName;";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute();
+        $statement = $this->pdo->runSQL($sql);
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
@@ -25,17 +23,15 @@ class Users
     public function addUser($fname, $lname, $email)
     {
         $sql = "INSERT INTO Users (FirstName, LastName, EmailAddress)
-        VALUES ('$fname', '$lname', '$email');";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute();
+        VALUES (:FirstName, :LastName, :EmailAddress);";
+        $this->pdo->runSQL($sql, ['FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
         return $this->pdo->lastInsertId();
     }
 
     public function getUser($userId) : array
     {
-        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userId;";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute();
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid = :Userid;";
+        $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row;
     }
@@ -43,34 +39,28 @@ class Users
     public function getUsers($userIds) : array
     {
         foreach ($userIds as $userId) {
-            $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid=$userId;";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute();
+            $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid = :Userid;";
+            $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
             $rows[] = $statement->fetch(\PDO::FETCH_ASSOC);
             }
         return $rows;
     }
 
 
-    public function deleteUser($userid) : array
+    public function deleteUser($userId)
     {
-        $row = $this->getUser($userid);
-        if ( ! empty($row )) {
-            $sql = "DELETE FROM Users WHERE Userid = $userid;";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute();
-        }
-        return $row;
+        $sql = "DELETE FROM Users WHERE Userid = :Userid;";
+        $this->pdo->runSQL($sql,['Userid' => $userId]);
     }
 
-    public function updateUser($userid, $fname, $lname, $email) : array
+    public function updateUser($userId, $fname, $lname, $email) : array
     {
-        $row = $this->getUser($userid);
+        $row = $this->getUser($userId);
         if ($fname != $row['FirstName'] or $lname != $row['LastName'] or $email != $row['EmailAddress']){
-            $sql = "UPDATE Users SET FirstName='$fname', LastName='$lname', EmailAddress='$email'
-            WHERE Userid=$userid;";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute();
+            $sql = "UPDATE Users SET FirstName = :FirstName, LastName = :LastName, EmailAddress = :EmailAddress
+            WHERE Userid = :Userid;";
+            $this->pdo->runSQL($sql, ['Userid' => $userId, 
+            'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
         }
         return $row;
     }

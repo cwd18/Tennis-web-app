@@ -1,5 +1,5 @@
 <?php
-# Add users from form parameters and then display the series
+# Delete users from form parameters and then display the series
 
 namespace TennisApp\Action;
 
@@ -28,12 +28,9 @@ public function __invoke(Request $request, Response $response): Response
         }
         $model = $this->container->get('Model');
         $s = $model->getSeries();
-        $users = $s->deleteSeriesUsers($seriesId, $userIds);
-        foreach ($users as $user) {
-            $lines[] = $user['FirstName'] . ' ' . $user['LastName'];
-        }
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => 'Users deleted from series',
-        'link' => "series?seriesid=$seriesId", 'lines' => $lines]);
+        $s->deleteSeriesUsers($seriesId, $userIds);
+        return $response
+          ->withHeader('Location', "/series?seriesid=$seriesId")
+          ->withStatus(302);
       }
 }
