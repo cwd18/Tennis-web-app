@@ -24,8 +24,11 @@ class Fixtures
         $sql = "SELECT Fixtureid FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate > :Today
         ORDER BY FixtureDate LIMIT 1;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'Today' => "'$today'"]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('FixtureDate', $today, \PDO::PARAM_STR); 
+        $stmt->execute();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row == false ? 0 : $row['Fixtureid'];
     }
     
@@ -33,8 +36,11 @@ class Fixtures
     {
         $sql = "SELECT Fixtureid FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate = :FixtureDate;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'FixtureDate' => $fixtureDate]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('FixtureDate', $fixtureDate, \PDO::PARAM_STR); 
+        $stmt->execute();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row == false ? 0 : $row['Fixtureid'];
     }
     
@@ -61,8 +67,11 @@ class Fixtures
         $today = date("y-m-d");
         $sql = "SELECT COUNT(FixtureId) AS Count FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate > :Today;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'Today' => "'$today'"]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('Today', $today, \PDO::PARAM_STR); 
+        $stmt->execute();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row['Count'];
     }
 
@@ -78,8 +87,12 @@ class Fixtures
         }
         $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime)
         VALUES (:Seriesid, :FixtureOwner, :FixtureDate, :FixtureTime);";
-        $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'FixtureOwner' => $fixtureOwner, 
-        'FixtureDate' => "'$fixtureDate'", 'FixtureTime' => "'$fixtureTime'"]);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('FixtureOwner', $fixtureOwner, \PDO::PARAM_INT);
+        $stmt->bindParam('FixtureDate', $fixtureDate, \PDO::PARAM_STR); 
+        $stmt->bindParam('FixtureTime', $fixtureTime, \PDO::PARAM_STR); 
+        $stmt->execute();
         $fixtureId = $this->pdo->lastInsertId();
         $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid)
         SELECT '$fixtureId', Userid FROM SeriesCandidates WHERE Seriesid = :Seriesid;";
@@ -89,8 +102,8 @@ class Fixtures
 
     public function addNextFixtureToSeries($seriesId)
     {
-        $series = new Series($this->pdo);
-        $seriesRow = $series->getBasicSeriesData($seriesId);
+        $s = new Series($this->pdo);
+        $seriesRow = $s->getBasicSeriesData($seriesId);
         $fixtureWeekDay = $seriesRow['SeriesWeekday'];
         // Calculate the date of the next fixture
         $dayname = date('l', strtotime("Monday +$fixtureWeekDay days"));
@@ -109,14 +122,12 @@ class Fixtures
 
     public function deleteFixture($fixtureId)
     {
-        $fixture = $this->getFixture($fixtureId);
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid;";
         $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid = :Fixtureid;";
         $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $sql = "DELETE FROM Fixtures WHERE Fixtureid = :Fixtureid;";
         $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        return $fixture;
     }
 
     public function getFixtureCandidates($fixtureId) : array
@@ -164,24 +175,26 @@ class Fixtures
         AND FixtureParticipants.Fixtureid = CourtBookings.Fixtureid
         AND FixtureParticipants.Userid = CourtBookings.UserId
         AND (WantsToPlay = TRUE OR WantsToPlay IS NULL) AND IsPlaying = FALSE;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
     }
 
     public function setPlaying($fixtureId, $userIds)
     {
+        $sql = "UPDATE FixtureParticipants SET IsPlaying = TRUE
+        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $sql = "UPDATE FixtureParticipants SET IsPlaying = TRUE
-            WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-            $this->pdo->runSQL($sql,['Userid' => $userId]);        
+            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);        
         }
     }
 
     public function setWantsToPlay($fixtureId, $userIds)
     {
+        $sql = "UPDATE FixtureParticipants SET WantsToPlay=TRUE
+        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $sql = "UPDATE FixtureParticipants SET WantsToPlay=TRUE
-            WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-            $this->pdo->runSQL($sql,['Userid' => $userId]);        
+            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);        
         }
     }
 
@@ -195,10 +208,11 @@ class Fixtures
     public function addUsers($fixtureId, $userIds)
     {
         // Add users to the fixture
+        $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid) 
+        VALUES (:Fixtureid, :Userid);";
+        $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid) 
-            VALUES (:Fixtureid, :Userid);";
-            $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);
         }
     }
 
@@ -228,9 +242,10 @@ class Fixtures
     public function deleteFixtureUsers($fixtureId, $userIds)
     {
         // Delete specified users from this fixture 
+        $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-            $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);
             }
     }
 
@@ -243,33 +258,41 @@ class Fixtures
         return $row;
     }
 
-    public function updateBasicFixtureData($fixtureId, $owner, $date, $time) : array
+    public function updateBasicFixtureData($fixtureId, $owner, $date, $time)
     {
-        $row = $this->getBasicFixtureData($fixtureId);
-        if ($owner != $row['FixtureOwner'] or $date != $row['FixtureDate'] or $time != substr($row['FixtureTime'],0,5)) {
-            $sql = "UPDATE Fixtures 
-            SET FixtureOwner = :FixtureOwner, FixtureDate = :FixtureDate, FixtureTime = :FixtureTime
-            WHERE Fixtureid = :Fixtureid;";
-            $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 
-            'FixtureOwner' => $owner, 'FixtureDate' => "'$date'", 'FixtureTime' => "'$time'"]);
-    }
-        return $row;
+        $sql = "UPDATE Fixtures 
+        SET FixtureOwner = :FixtureOwner, FixtureDate = :FixtureDate, FixtureTime = :FixtureTime
+        WHERE Fixtureid = :Fixtureid;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('FixtureOwner', $owner, \PDO::PARAM_INT);
+        $stmt->bindParam('FixtureDate', $date, \PDO::PARAM_STR); 
+        $stmt->bindParam('FixtureTime', $time, \PDO::PARAM_STR); 
+        $stmt->execute();
     }
 
     public function addCourtBooking($fixtureId, $bookerId, $time, $court)
     {
         $sql="INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber)
         VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber);";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Bookerid' => $bookerId,
-        'BookingTime' => "'$time'", 'CourtNumber' => $court]);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookerId', $bookerId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
+        $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     public function deleteCourtBooking($fixtureId, $userId, $time, $court)
     {
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND Userid = :Userid
         AND BookingTime = :BookingTime AND CourtNumber = :CourtNumber;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId,
-        'Userid' => $userId, 'BookingTime' => "'$time'", 'CourtNumber' => $court]);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('UserId', $userId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
+        $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     public function getAvailableCourts($fixtureId, $time) : array
@@ -277,8 +300,11 @@ class Fixtures
         $sql = "SELECT CourtNumber FROM CourtBookings 
         WHERE Fixtureid = :Fixtureid AND BookingTime = :BookingTime
         ORDER BY CourtNumber;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'BookingTime' => "'$time'"]);
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
+        $stmt->execute();
+        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (count($rows) > 0)
             {
             $n=1;
@@ -437,27 +463,12 @@ class Fixtures
         return $row;
     }
 
-    public function updateParticipantData($fixtureId, $userId, $wantsToPlay, $isPlaying) : array
-    {
-        $row = $this->getParticipantData($fixtureId, $userId);
-        if ($wantsToPlay != $row['WantsToPlay'] or $isPlaying != $row['IsPlaying']) {
-            $wantsToPlay = var_export($wantsToPlay, true);
-            $isPlaying = var_export($isPlaying, true);
-            $sql = "UPDATE FixtureParticipants 
-            SET WantsToPlay = :WantsToPlay, IsPlaying = :IsPlaying
-            WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-            $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId,
-            'WantsToPlay' => $wantsToPlay, 'IsPlaying' => $isPlaying]);
-        }
-        return $row;
-    }
-
     public function setParticipantWantsToPlay($fixtureId, $userId, $wantsToPlay)
     {
-        $sql = "UPDATE FixtureParticipants SET WantsToPlay=$wantsToPlay, IsPlaying=FALSE 
+        $sql = "UPDATE FixtureParticipants SET WantsToPlay = :WantsToPlay, IsPlaying = FALSE 
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId, 
-        'WantsToPlay => $wantsToPlay']);
+        'WantsToPlay' => $wantsToPlay]);
         }
 
     public function getParticipantBookings($fixtureId, $userId) : array

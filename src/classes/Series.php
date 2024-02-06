@@ -78,21 +78,26 @@ class Series
     {
         $sql = "INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime) 
         VALUES (:SeriesOwner, :SeriesWeekday, :SeriesTime);";
-        $this->pdo->runSQL($sql,['SeriesOwner' => $owner, 'SeriesWeekday' => $day, 'SeriesTime' => "'$time'"]);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
+        $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
+        $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
+        $stmt->execute();
         $seriesId = $this->pdo->lastInsertId();
         return $seriesId;
     }
 
-    public function updateBasicSeriesData($seriesId, $owner, $day, $time) : array
+    public function updateBasicSeriesData($seriesId, $owner, $day, $time)
     {
-        $row = $this->getBasicSeriesData($seriesId);
-        if ($owner != $row['SeriesOwner'] or $day != $row['SeriesWeekday'] or $time != substr($row['SeriesTime'],0,5)) {
-            $sql = "UPDATE FixtureSeries 
-            SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, SeriesTime = :SeriesTime
-            WHERE Seriesid = :Seriesid;";
-            $this->pdo->runSQL($sql,['SeriesOwner' => $owner, 'SeriesWeekday' => $day, 'SeriesTime' => "'$time'"]);
-        }
-        return $row;
+        $sql = "UPDATE FixtureSeries 
+        SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, SeriesTime = :SeriesTime
+        WHERE Seriesid = :Seriesid;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
+        $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
+        $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
+        $stmt->execute();
     }
 
     public function deleteSeries($seriesId)
@@ -100,9 +105,10 @@ class Series
         // Delete any fixtures
         $sql = "SELECT Fixtureid FROM Fixtures WHERE Seriesid = :Seriesid;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
-        $fixtureIds = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $fixtures = $statement->fetchall(\PDO::FETCH_ASSOC);
         $f = new Fixtures($this->pdo);
-        foreach ($fixtureIds as $fixtureId) {
+        foreach ($fixtures as $fixture) {
+            $fixtureId = $fixture['Fixtureid'];
             $f->deleteFixture($fixtureId);
         }
         // Delete any candidates
@@ -127,9 +133,10 @@ class Series
     public function deleteSeriesUsers($seriesId, $userIds)
     {
         // Delete specified users from this series 
+        $sql = "DELETE FROM SeriesCandidates WHERE Seriesid = :Seriesid AND Userid = :Userid;";
+        $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $sql = "DELETE FROM SeriesCandidates WHERE Seriesid = :Seriesid AND Userid = :Userid;";
-            $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'Userid' => $userId]);
+            $stmt->execute(['Seriesid' => $seriesId, 'Userid' => $userId]);
         }
     }
 
@@ -148,9 +155,10 @@ class Series
     public function addUsers($seriesId, $userIds)
     {
         // Add users to the series
+        $sql = "INSERT INTO SeriesCandidates (Seriesid, Userid) VALUES (:Seriesid, :Userid);";
+        $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $sql = "INSERT INTO SeriesCandidates (Seriesid, Userid) VALUES ($seriesId, $userId);";
-            $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'Userid' => $userId]);
+            $stmt->execute(['Seriesid' => $seriesId, 'Userid' => $userId]);
         }
     }
 }

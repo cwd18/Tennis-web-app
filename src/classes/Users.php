@@ -38,10 +38,11 @@ class Users
 
     public function getUsers($userIds) : array
     {
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid = :Userid;";
+        $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid = :Userid;";
-            $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
-            $rows[] = $statement->fetch(\PDO::FETCH_ASSOC);
+            $stmt->execute(['Userid' => $userId]);
+            $rows[] = $stmt->fetch(\PDO::FETCH_ASSOC);
             }
         return $rows;
     }
@@ -53,16 +54,13 @@ class Users
         $this->pdo->runSQL($sql,['Userid' => $userId]);
     }
 
-    public function updateUser($userId, $fname, $lname, $email) : array
+    public function updateUser($userId, $fname, $lname, $email)
     {
-        $row = $this->getUser($userId);
-        if ($fname != $row['FirstName'] or $lname != $row['LastName'] or $email != $row['EmailAddress']){
-            $sql = "UPDATE Users SET FirstName = :FirstName, LastName = :LastName, EmailAddress = :EmailAddress
-            WHERE Userid = :Userid;";
-            $this->pdo->runSQL($sql, ['Userid' => $userId, 
-            'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
-        }
-        return $row;
+        $sql = "UPDATE Users 
+        SET FirstName = :FirstName, LastName = :LastName, EmailAddress = :EmailAddress
+        WHERE Userid = :Userid;";
+        $this->pdo->runSQL($sql, ['Userid' => $userId, 
+        'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
     }
 
 }

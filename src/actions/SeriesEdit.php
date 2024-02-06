@@ -24,18 +24,10 @@ final class SeriesEdit
         $owner = $params['owner'];
         $day = $params['day'];
         $time = $params['time'];
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
-        $row = $s->updateBasicSeriesData($seriesId, $owner, $day, $time);
-        $owner0 = $row['SeriesOwner'];
-        $day0 = $row['SeriesWeekday'];
-        $time0 = substr($row['SeriesTime'],0,5);
-        if ($owner0 != $owner) { $changes[] = "Owner: $owner0 -> $owner"; }
-        if ($day0 != $day) { $changes[] = "Day: $day0 -> $day"; }
-        if ($time0 != $time) { $changes[] = "Time: $time0 -> $time"; }
-        if (empty($changes)) { $changes[] = "Nothing changed"; }
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => 'Series data edits', 
-        'link' => "series?seriesid=$seriesId", 'lines' => $changes]);
+        $s = $this->container->get('Model')->getSeries();
+        $s->updateBasicSeriesData($seriesId, $owner, $day, $time);
+        return $response
+          ->withHeader('Location', "/series?seriesid=$seriesId")
+          ->withStatus(302);
     }
 }

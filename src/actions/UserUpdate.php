@@ -26,19 +26,10 @@ final class UserUpdate
         $email = $params['email'];
         $model = $this->container->get('Model');
         $u = $model->getUsers();
-        $row = $u->updateUser($userId, $fname, $lname, $email);
-        if ($row['FirstName'] != $fname) {
-            $lines[] = $row['FirstName'] . " => $fname";
-        }
-        if ($row['LastName'] != $lname) {
-            $lines[] = $row['LastName'] . " => $lname";
-        }
-        if ($row['EmailAddress'] != $email) {
-            $lines[] = $row['EmailAddress'] . " => $email";
-        }
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'opcontinue.html', ['op' => "User $userId updated", 
-        'link' => "userlist", 'lines' => $lines]);
+        $u->updateUser($userId, $fname, $lname, $email);
+        return $response
+          ->withHeader('Location', "/userlist")
+          ->withStatus(302);
 
       }
 }
