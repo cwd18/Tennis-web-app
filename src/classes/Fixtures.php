@@ -277,7 +277,7 @@ class Fixtures
         VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber);";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
-        $stmt->bindParam('BookerId', $bookerId, \PDO::PARAM_INT);
+        $stmt->bindParam('Bookerid', $bookerId, \PDO::PARAM_INT);
         $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
         $stmt->execute();
@@ -289,7 +289,7 @@ class Fixtures
         AND BookingTime = :BookingTime AND CourtNumber = :CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
-        $stmt->bindParam('UserId', $userId, \PDO::PARAM_INT);
+        $stmt->bindParam('Userid', $userId, \PDO::PARAM_INT);
         $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
         $stmt->execute();
