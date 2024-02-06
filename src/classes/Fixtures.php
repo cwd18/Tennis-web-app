@@ -26,7 +26,7 @@ class Fixtures
         ORDER BY FixtureDate LIMIT 1;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
-        $stmt->bindParam('FixtureDate', $today, \PDO::PARAM_STR); 
+        $stmt->bindParam('Today', $today, \PDO::PARAM_STR); 
         $stmt->execute();
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row == false ? 0 : $row['Fixtureid'];
