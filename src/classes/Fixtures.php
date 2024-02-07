@@ -340,7 +340,7 @@ class Fixtures
         $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         $seriesId = $row['Seriesid'];
-        $ownerName = $row['FirstName']." ".$row['LastName'];
+        $ownerName = $row['FirstName'];
         $description = $this->fixtureDescription($row['FixtureDate']);
         $fixtureTime=substr($row['FixtureTime'],0,5);
 
@@ -379,16 +379,24 @@ class Fixtures
         $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $reserveList = $statement->fetchall(\PDO::FETCH_ASSOC);
         
+        // Get decliners...
+        $sql="SELECT Users.Userid, FirstName, LastName
+        FROM Users, FixtureParticipants
+        WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
+        AND WantsToPlay = FALSE
+        ORDER BY FirstName, LastName;";
+        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $declineList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        
         // Get abstainers...
         $sql="SELECT Users.Userid, FirstName, LastName
         FROM Users, FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
-        AND IsPlaying = FALSE AND (WantsToPlay = FALSE OR WantsToPlay IS NULL)
+        AND WantsToPlay IS NULL
         ORDER BY FirstName, LastName;";
         $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $abstainList = $statement->fetchall(\PDO::FETCH_ASSOC);
         
-
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";
         $sql = "SELECT DISTINCT BookingTime FROM CourtBookings WHERE Fixtureid = :Fixtureid 
@@ -422,14 +430,19 @@ class Fixtures
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
         if (count($rows) > 0) {
             foreach ($rows as $row) {
-                $Name = $row['FirstName']." ".$row['LastName'];
+                $name = $row['FirstName']." ".$row['LastName'];
                 for ($r=1;$bookingGrid[$r][0]!=$row['CourtNumber'];$r++) {} // match grid row
                 for ($c=1;$bookingGrid[0][$c]!=substr($row['BookingTime'],0,5);$c++) {} // match grid column
                 $bookingGrid[$r][$c] = $row['CourtNumber'];
                 if ($bookingGrid[$r][$bookersColumn]=="-") {
-                    $bookingGrid[$r][$bookersColumn] = $Name;
-                } else if ($bookingGrid[$r][$bookersColumn]!=$Name) {
-                    $bookingGrid[$r][$bookersColumn] = $bookingGrid[$r][$bookersColumn].", ".$Name;
+                    $bookingGrid[$r][$bookersColumn] = $name;
+                } else {
+                    $names = explode(", ", $bookingGrid[$r][$bookersColumn]);
+                    if (strcmp($names[count($names) - 1],$name) != 0) {
+                        $bookingGrid[$r][$bookersColumn] = $bookingGrid[$r][$bookersColumn].", ".$name;
+                    } else {
+                        $bookingGrid[$r][$bookersColumn] = $bookingGrid[$r][$bookersColumn]." (2)";
+                    }
                 }
             }
             // remove the first column from the grid as it isn't wanted for display
@@ -446,7 +459,7 @@ class Fixtures
         $fixture = ['seriesid' => $seriesId, 'fixtureid' => $fixtureId,
         'description' => $description, 'time' => $fixtureTime,
         'owner' => $ownerName, 
-        'players' => $playerList, 'reserves' => $reserveList, 'abstainers' => $abstainList,
+        'players' => $playerList, 'reserves' => $reserveList, 'decliners' => $declineList,  'abstainers' => $abstainList,
         'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
         'bookings' => $bookingViewGrid];
         return $fixture;
