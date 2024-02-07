@@ -13,7 +13,7 @@
 {% endfor %}
 </select>
 
-<label for="day">Day</label>
+<label for="date">Date</label>
 <input type="date" name="date" id="date" value="{{ date }}">
 
 <label for="time">Start time</label>
@@ -32,13 +32,17 @@
 <option>18:30</option>
 <option>19:30</option>
 </select>
-<br>
+
+<label for="courts">Courts</label>
+<input type="text" pattern="\d{1,2}-\d{1,2}(?:, \d{1,2}-\d{1,2})*" 
+name="courts" id="courts" value="{{ courts }}"">
 
 <script>
 document.getElementById("owner").value="{{ owner }}"
 document.getElementById("time").value="{{ time }}"
 </script>
 
+<br>
 <button type="submit" class="pure-button pure-button-primary">Update</button>
 
 </fieldset>

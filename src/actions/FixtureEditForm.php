@@ -30,7 +30,7 @@ final class FixtureEditForm
         return $view->render($response, 'fixtureeditform.html', 
         ['fixtureid' => $fixtureId, 'owner' => $fixture['FixtureOwner'],
         'date' => $fixture['FixtureDate'], 'time' => substr($fixture['FixtureTime'],0,5),
-        'users' => $users
+        'courts' => $fixture['FixtureCourts'], 'users' => $users
         ]);   
     }
 }

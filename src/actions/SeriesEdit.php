@@ -24,8 +24,9 @@ final class SeriesEdit
         $owner = $params['owner'];
         $day = $params['day'];
         $time = $params['time'];
+        $courts = $params['courts'];
         $s = $this->container->get('Model')->getSeries();
-        $s->updateBasicSeriesData($seriesId, $owner, $day, $time);
+        $s->updateBasicSeriesData($seriesId, $owner, $day, $time, $courts);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")
           ->withStatus(302);

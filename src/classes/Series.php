@@ -38,12 +38,13 @@ class Series
     public function getSeries($seriesId) : array
     {
         // Retrieve basic series data...
-        $sql = "SELECT FirstName, LastName, SeriesWeekday, SeriesTime 
+        $sql = "SELECT FirstName, LastName, SeriesWeekday, SeriesTime, SeriesCourts
         FROM Users, FixtureSeries WHERE Seriesid = :Seriesid AND Users.Userid = FixtureSeries.SeriesOwner;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
         $ownerName = $row['FirstName']." ".$row['LastName'];
+        $seriesCourts = $row['SeriesCourts'];
         
         // Get default fixture attendees...
         $users = $this->getSeriesUsers($seriesId);
@@ -60,21 +61,21 @@ class Series
         $futureFixtures = $f->futureFixtures($seriesId);
 
         // return all series data
-        $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $ownerName, 
+        $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $ownerName, 'courts' => $seriesCourts,
         'participants' => $ParticipantList, 'fixtures' => $fixtureList, 'futurefixtures' => $futureFixtures];
         return $series;
     }
 
     public function getBasicSeriesData($seriesId) : array
     {
-        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime
+        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts
         FROM FixtureSeries WHERE Seriesid = :Seriesid;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row;
     }
 
-    public function addSeries($owner, $day, $time)
+    public function addSeries($owner, $day, $time, $courts)
     {
         $sql = "INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime) 
         VALUES (:SeriesOwner, :SeriesWeekday, :SeriesTime);";
@@ -82,21 +83,24 @@ class Series
         $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
+        $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR); 
         $stmt->execute();
         $seriesId = $this->pdo->lastInsertId();
         return $seriesId;
     }
 
-    public function updateBasicSeriesData($seriesId, $owner, $day, $time)
+    public function updateBasicSeriesData($seriesId, $owner, $day, $time, $courts)
     {
         $sql = "UPDATE FixtureSeries 
-        SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, SeriesTime = :SeriesTime
+        SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, 
+        SeriesTime = :SeriesTime, SeriesCourts = :SeriesCourts
         WHERE Seriesid = :Seriesid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
+        $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR); 
         $stmt->execute();
     }
 

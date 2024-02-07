@@ -20,15 +20,14 @@ None<br>
 {% set href = 'participantAddBooking?fixtureid='~fixture.fixtureid~'&userid='~participant.Userid %}
 
 {% for time in fixture.bookingtimes %}
-{% set guard = true %}
 {% if time != usedBookingTime %}
 <br><br><b>{{ time }}</b><br>
 {% for court in attribute (courts, time) %}
-    {% if court > 12 and guard %}
-    <br>
-    {% set guard = false %}
+    {% if court != 0 %}
+    <a class="pure-button" href="{{ href }}&time={{ time }}&court={{ court }}">{{ court }}</a>
+    {% else %}
+    <br><br>
     {% endif %}
-<a class="pure-button" href="{{ href }}&time={{ time }}&court={{ court }}">{{ court }}</a>
 {% endfor %}
 {% endif %}
 {% endfor %}

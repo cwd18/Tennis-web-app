@@ -13,6 +13,7 @@ SeriesOwner INT(8) NOT NULL,
 SeriesWeekday INT(8) NOT NULL,
 SeriesTime TIME NOT NULL DEFAULT '07:30',
 SeriesDuration INT(3) NOT NULL DEFAULT 2,
+SeriesCourts varchar (100) NOT NULL DEFAULT '1-17'
 PRIMARY KEY (Seriesid),
 FOREIGN KEY (SeriesOwner) REFERENCES Users(Userid)
 );
@@ -28,6 +29,7 @@ Seriesid INT(8) NOT NULL,
 FixtureOwner INT(8) NOT NULL,
 FixtureDate DATE NOT NULL,
 FixtureTime TIME NOT NULL,
+FixtureCourts varchar (100) NOT NULL DEFAULT '1-17'
 FixtureDuration INT(3) NOT NULL DEFAULT 2,
 PRIMARY KEY (Fixtureid),
 FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),

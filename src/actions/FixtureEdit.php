@@ -12,21 +12,22 @@ final class FixtureEdit
   private $container;
 
   public function __construct(ContainerInterface $container)
-  {
-      $this->container = $container;
-  }
+    {
+        $this->container = $container;
+    }
 
   public function __invoke(Request $request, Response $response): Response
-  {
-      $params = $request->getParsedBody();
-      $fixtureId = $params['fixtureid'];
-      $owner = $params['owner'];
-      $date = $params['date'];
-      $time = $params['time'];
-      $f = $this->container->get('Model')->getFixtures();
-      $f->updateBasicFixtureData($fixtureId, $owner, $date, $time);
-      return $response
-      ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
-      ->withStatus(302);
-}
+    {
+        $params = $request->getParsedBody();
+        $fixtureId = $params['fixtureid'];
+        $owner = $params['owner'];
+        $date = $params['date'];
+        $time = $params['time'];
+        $courts = $params['courts'];
+        $f = $this->container->get('Model')->getFixtures();
+        $f->updateBasicFixtureData($fixtureId, $owner, $date, $time, $courts);
+        return $response
+        ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
+        ->withStatus(302);
+    }
 }

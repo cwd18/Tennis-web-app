@@ -21,8 +21,8 @@
     <br>
 {% endif %}
 
-<br><br><b>Courts booked</b><br>
 {% if bookings|length >0 %}
+<br><br><b>Courts booked</b><br>
 <table class="pure-table"><thead><tr><th>Time</th><th>Court</th><th>Operation</th></tr></thead><tbody>
 {% for bk, b in bookings %}
 <tr>
@@ -35,8 +35,6 @@ delete</a>
 </tr>
 {% endfor %}
 </tbody></table>
-{% else %}
-None<br>
 {% endif %}
 
 {% if bookings|length <2 %}

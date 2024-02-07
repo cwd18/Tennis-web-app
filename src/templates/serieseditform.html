@@ -42,6 +42,10 @@
 </select>
 <br>
 
+<label for="courts">Courts</label>
+<input type="text" pattern="\d{1,2}-\d{1,2}(?:, \d{1,2}-\d{1,2})*" 
+name="courts" id="courts" value="{{ courts }}"">
+
 <script>
 document.getElementById("owner").value="{{ owner }}"
 document.getElementById("day").value="{{ day }}"

@@ -40,10 +40,8 @@ final class ParticipantAddBookingForm
         }
 
         $usedBookingTime = "";
-        $usedCourt = 0;
         if (is_null($bookings)===false and sizeof($bookings)==1) {
             $usedBookingTime = $bookings[0]['time'];
-            $usedCourt = $bookings[0]['court'];
         }
 
         $isPlaying = $u['IsPlaying']?"Yes":"No";
