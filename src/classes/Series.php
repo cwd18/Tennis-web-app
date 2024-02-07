@@ -77,8 +77,8 @@ class Series
 
     public function addSeries($owner, $day, $time, $courts)
     {
-        $sql = "INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime) 
-        VALUES (:SeriesOwner, :SeriesWeekday, :SeriesTime);";
+        $sql = "INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts) 
+        VALUES (:SeriesOwner, :SeriesWeekday, :SeriesTime, :SeriesCourts);";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);

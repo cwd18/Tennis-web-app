@@ -22,9 +22,9 @@ public function __invoke(Request $request, Response $response): Response
         $owner = $params['owner'];
         $day = $params['day'];
         $time = $params['time'];
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
-        $s->addSeries($owner, $day, $time);
+        $courts = $params['courts'];
+        $s = $this->container->get('Model')->getSeries();
+        $s->addSeries($owner, $day, $time, $courts);
         return $response
           ->withHeader('Location', "/serieslist")
           ->withStatus(302);
