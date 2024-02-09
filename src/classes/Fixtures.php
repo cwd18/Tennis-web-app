@@ -22,8 +22,8 @@ class Fixtures
     {
         $sql = "SELECT Fixtureid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts
         FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row;
     }
 
@@ -72,8 +72,8 @@ public function nextFixture($seriesId) : int
     {
         $sql = "SELECT Fixtureid, FixtureDate, FixtureTime FROM Fixtures 
         WHERE Seriesid = :Seriesid ORDER BY FixtureDate DESC LIMIT :Count;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'Count' => $count]);
-        $result = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'Count' => $count]);
+        $result = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (empty($result)) {
             return $result;
         }
@@ -163,8 +163,8 @@ public function nextFixture($seriesId) : int
         $sql = "SELECT Userid, FirstName, LastName FROM Users
         WHERE Users.Userid NOT IN (SELECT Userid FROM FixtureParticipants WHERE Fixtureid = :Fixtureid)
         ORDER BY FirstName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
@@ -175,8 +175,8 @@ public function nextFixture($seriesId) : int
         WHERE Users.Userid = FixtureParticipants.Userid AND Fixtureid = :Fixtureid
         AND WantsToPlay = TRUE AND IsPlaying = FALSE
         ORDER BY FirstName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
@@ -187,8 +187,8 @@ public function nextFixture($seriesId) : int
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid = :Fixtureid
         AND WantsToPlay IS NULL
         ORDER BY FirstName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
@@ -265,8 +265,8 @@ public function nextFixture($seriesId) : int
         $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, FixtureParticipants
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid = :Fixtureid
         ORDER BY FirstName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
@@ -277,8 +277,8 @@ public function nextFixture($seriesId) : int
         WHERE Users.Userid=FixtureParticipants.Userid AND Fixtureid = :Fixtureid1
         AND Users.Userid NOT IN (SELECT Userid FROM CourtBookings WHERE Fixtureid = :Fixtureid2)
         ORDER BY FirstName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid1' => $fixtureId, 'Fixtureid2' => $fixtureId]);
-        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid1' => $fixtureId, 'Fixtureid2' => $fixtureId]);
+        $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
@@ -362,8 +362,8 @@ public function nextFixture($seriesId) : int
         WHERE Fixtureid = :Fixtureid 
         AND Fixtures.FixtureOwner = Users.Userid 
         AND Fixtures.Seriesid = FixtureSeries.Seriesid;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $seriesId = $row['Seriesid'];
         $ownerName = $row['FirstName'];
         $description = $this->fixtureDescription($row['FixtureDate']);
@@ -393,8 +393,8 @@ public function nextFixture($seriesId) : int
         WHERE Fixtureid = :Fixtureid AND Users.Userid=FixtureParticipants.Userid
         AND IsPlaying = TRUE
         ORDER BY AcceptTime, FirstName, LastName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $playerList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $playerList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Get reserves...
         $sql="SELECT Users.Userid, FirstName, LastName, AcceptTime
@@ -402,8 +402,8 @@ public function nextFixture($seriesId) : int
         WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
         AND IsPlaying = FALSE AND WantsToPlay = TRUE
         ORDER BY AcceptTime, FirstName, LastName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $reserveList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $reserveList = $stmt->fetchall(\PDO::FETCH_ASSOC);
         
         // Get decliners...
         $sql="SELECT Users.Userid, FirstName, LastName
@@ -411,8 +411,8 @@ public function nextFixture($seriesId) : int
         WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
         AND WantsToPlay = FALSE
         ORDER BY FirstName, LastName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $declineList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $declineList = $stmt->fetchall(\PDO::FETCH_ASSOC);
         
         // Get abstainers...
         $sql="SELECT Users.Userid, FirstName, LastName
@@ -420,15 +420,15 @@ public function nextFixture($seriesId) : int
         WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
         AND WantsToPlay IS NULL
         ORDER BY FirstName, LastName;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $abstainList = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $abstainList = $stmt->fetchall(\PDO::FETCH_ASSOC);
         
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";
         $sql = "SELECT DISTINCT BookingTime FROM CourtBookings WHERE Fixtureid = :Fixtureid 
         ORDER BY BookingTime;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         $c=1;
         foreach ($rows as $row) {
@@ -440,8 +440,8 @@ public function nextFixture($seriesId) : int
 
         $sql="SELECT DISTINCT CourtNumber FROM CourtBookings 
         WHERE Fixtureid = :Fixtureid ORDER BY CourtNumber;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         $r=1;
         foreach ($rows as $row) {
             $bookingGrid[$r][0] = $row['CourtNumber'];
@@ -452,8 +452,8 @@ public function nextFixture($seriesId) : int
         $sql = "SELECT FirstName, LastName, CourtNumber, BookingTime FROM Users, CourtBookings
         WHERE Fixtureid = :Fixtureid AND Users.Userid = CourtBookings.Userid
         ORDER BY CourtNumber, BookingTime;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (count($rows) > 0) {
             foreach ($rows as $row) {
                 $name = $row['FirstName']." ".$row['LastName'];
@@ -497,8 +497,8 @@ public function nextFixture($seriesId) : int
         FROM Users, FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND FixtureParticipants.Userid = :Userid 
         AND Users.Userid = FixtureParticipants.Userid;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row;
     }
 
@@ -507,9 +507,36 @@ public function nextFixture($seriesId) : int
         $sql = "SELECT CourtNumber, BookingTime FROM CourtBookings
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid
         ORDER BY BookingTime;";
-        $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]); 
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]); 
+        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $rows;
     }
 
+    public function getWantToPlayEmail($fixtureId) : array
+    {
+        $sql = "SELECT FirstName, LastName, EmailAddress, FixtureDate, FixtureTime
+        FROM Fixtures, Users WHERE Fixtureid = :Fixtureid AND Userid = FixtureOwner;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $owner['FirstName'] = $row['FirstName'];
+        $owner['LastName'] = $row['LastName'];
+        $owner['EmailAddress'] = $row['EmailAddress'];
+        $shortDate = date("l jS",strtotime($row['FixtureDate']));
+        $time = substr($row['FixtureTime'],0,5);
+
+        $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress, AcceptTime
+        FROM Users, FixtureParticipants
+        WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
+        ORDER BY AcceptTime, FirstName, LastName;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $toList = $stmt->fetchall(\PDO::FETCH_ASSOC);
+
+        $email['subject'] = "Tennis $shortDate";
+        $email['from'] = $owner['EmailAddress'];
+        $email['message'][] = "Would you like to play?";
+        $email['message'][] = "Start time is $time (subject to getting courts)";
+        $email['salutation'][] = "Regards,";
+        $email['salutation'][] = $owner['FirstName'];
+        return ['email' => $email, 'recipients' => $toList];
+    }
 }

@@ -15,7 +15,11 @@
 {% endif %}
 
 {% if reserves|length >0 %}
-<p><b>Reserve:</b></p>
+    {% if players|length >0 %}
+    <p><b>Reserve:</b></p>
+    {% else %}
+    <p><b>Would like to play:</b></p>
+    {% endif %}
 <ul>
     {% for n in reserves %}
     <li>{{ n.FirstName }} {{ n.LastName }}</li>

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ email.subject }}</h2>
+
+<p>From: {{ email.from }}</p>
+
+<b>Recipients:</b><br>
+{% for t in recipients %}
+{{ t.FirstName }} {{t.LastName}} ({{ t.EmailAddress }})<br>
+{% endfor %}
+
+{% for m in email.message %}
+<p>{{ m }}</p>
+{% endfor %}
+
+<p><a href = "{{ server }}/participantWantsToPlay?fixtureid={{ fixtureid }}&userid={{ recipients.0.Userid }}&WantsToPlay=1">
+    Yes please</a></p>
+<p><a href = "{{ server }}/participantWantsToPlay?fixtureid={{ fixtureid }}&userid={{ recipients.0.Userid }}&WantsToPlay=0">
+    No thank you</a></p>
+
+{% for s in email.salutation %}
+<p>{{ s }}</p>
+{% endfor %}
+
+<br><br>
+<a class="pure-button" href="{{ continuelink }}">Continue</a>
+<br><br>
+<a class="pure-button" href="{{ cancellink }}">Cancel</a>
+
+
+{% endblock %}
