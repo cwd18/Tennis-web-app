@@ -48,7 +48,7 @@ CREATE TABLE FixtureParticipants (
 Fixtureid INT(8),
 Userid INT(8),
 WantsToPlay BOOLEAN,
-RequestTime TIMESTAMP,
+AcceptTime DATETIME DEFAULT NULL,
 IsPlaying BOOLEAN NOT NULL DEFAULT FALSE,
 FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)

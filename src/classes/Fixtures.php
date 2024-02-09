@@ -216,12 +216,29 @@ public function nextFixture($seriesId) : int
 
     public function setWantsToPlay($fixtureId, $userIds)
     {
-        $sql = "UPDATE FixtureParticipants SET WantsToPlay=TRUE
+        // Set participant(s) to want to play and update AcceptTime to current time if NULL
+        $dateTimeNow = date("Y-m-d H:i:s");
+        $sql = "UPDATE FixtureParticipants SET WantsToPlay = TRUE,
+        AcceptTime = CASE
+            WHEN AcceptTime IS NULL THEN :DTnow
+            ELSE AcceptTime
+            END
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->prepare($sql);
-        foreach ($userIds as $userId) {
-            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);        
+        if (is_array($userIds)) {
+            foreach ($userIds as $userId) {
+                $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId, 'DTnow' => $dateTimeNow]);        
+            } 
+        } else {
+            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userIds, 'DTnow' => $dateTimeNow]);        
         }
+    }
+
+    public function setWantsNotToPlay($fixtureId, $userId)
+    {
+        $sql = "UPDATE FixtureParticipants SET WantsToPlay = FALSE, IsPlaying = FALSE 
+        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
     }
 
     public function resetPlaying($fixtureId)
@@ -371,20 +388,20 @@ public function nextFixture($seriesId) : int
         }
         
         // Get players...
-        $sql="SELECT Users.Userid, FirstName, LastName
+        $sql="SELECT Users.Userid, FirstName, LastName, AcceptTime
         FROM Users, FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Users.Userid=FixtureParticipants.Userid
         AND IsPlaying = TRUE
-        ORDER BY FirstName, LastName;";
+        ORDER BY AcceptTime, FirstName, LastName;";
         $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $playerList = $statement->fetchall(\PDO::FETCH_ASSOC);
 
         // Get reserves...
-        $sql="SELECT Users.Userid, FirstName, LastName
+        $sql="SELECT Users.Userid, FirstName, LastName, AcceptTime
         FROM Users, FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
         AND IsPlaying = FALSE AND WantsToPlay = TRUE
-        ORDER BY FirstName, LastName;";
+        ORDER BY AcceptTime, FirstName, LastName;";
         $statement = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $reserveList = $statement->fetchall(\PDO::FETCH_ASSOC);
         
@@ -484,14 +501,6 @@ public function nextFixture($seriesId) : int
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row;
     }
-
-    public function setParticipantWantsToPlay($fixtureId, $userId, $wantsToPlay)
-    {
-        $sql = "UPDATE FixtureParticipants SET WantsToPlay = :WantsToPlay, IsPlaying = FALSE 
-        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId, 
-        'WantsToPlay' => $wantsToPlay]);
-        }
 
     public function getParticipantBookings($fixtureId, $userId) : array
     {

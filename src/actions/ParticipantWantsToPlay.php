@@ -22,9 +22,12 @@ final class ParticipantWantsToPlay
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
         $wantsToPlay = $params['WantsToPlay'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
-        $f->setParticipantWantsToPlay($fixtureId, $userId, $wantsToPlay);
+        $f = $this->container->get('Model')->getFixtures();
+        if ($wantsToPlay) {
+            $f->setWantsToPlay($fixtureId, $userId);
+        } else {
+            $f->setWantsNotToPlay($fixtureId, $userId);
+        }
         return $response
           ->withHeader('Location', "/participant?fixtureid=$fixtureId&userid=$userId")
           ->withStatus(302);

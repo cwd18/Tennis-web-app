@@ -8,13 +8,11 @@
 
 <p>Wants to play: {{ wantstoplay }}</p>
 
-<br><br><b>Courts booked</b><br>
 {% if bookings|length >0 %}
+<br><b>Courts booked</b><br>
 {% for bk, b in bookings %}
 {{ b.time }}: court {{ b.court }}<br>
 {% endfor %}
-{% else %}
-None<br>
 {% endif %}
 
 {% set href = 'participantAddBooking?fixtureid='~fixture.fixtureid~'&userid='~participant.Userid %}
