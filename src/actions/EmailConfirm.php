@@ -1,5 +1,5 @@
 <?php
-# View email invitation and confirm to send email
+# Email invitations
 
 namespace TennisApp\Action;
 
@@ -23,10 +23,13 @@ final class EmailConfirm
         $fixtureId = $params['fixtureid'];
         $f = $this->container->get('Model')->getFixtures();
         $em = $f->getWantToPlayEmail($fixtureId);
+        $email = $em['email'];
+        $recipients = $em['recipients'];
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'emailConfirm.html', ['email' => $em['email'], 'recipients' => $em['recipients'],
+        return $view->render($response, 'emailConfirm.html', ['email' => $email, 
+        'recipients' => $recipients,
         'server' => $_SERVER['SERVER_NAME'], 'fixtureid' => $fixtureId,
-        'continuelink' => "fixture?fixtureid=$fixtureId", 
+        'continuelink' => "emailSend?fixtureid=$fixtureId", 
         'cancellink' => "fixture?fixtureid=$fixtureId"]);
     }
 }

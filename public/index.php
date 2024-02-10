@@ -22,7 +22,7 @@ $container->set('Model', function () {
     $settings['host'], $settings['name'], $settings['port'], $settings['charset']);
     $username = $settings['username'];
     $password = $settings['password'];
-    return new Model($dbn, $username, $password);
+    return new Model($dbn, $username, $password, $email_config);
 });
 
 // Add Error Handling Middleware
@@ -85,5 +85,6 @@ $app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::cla
 
 // Create email routes
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);
+$app->get('/emailSend', \TennisApp\Action\EmailSend::class);
 
 $app->run();

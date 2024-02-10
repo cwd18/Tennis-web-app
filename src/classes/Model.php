@@ -6,13 +6,15 @@ namespace TennisApp;
 class Model
 {
     protected $db = null; 
+    protected $email = null;
     protected $users = null;
     protected $series = null;
     protected $fixtures = null; 
 
-    public function __construct($dsn, $username, $password)
+    public function __construct($dsn, $username, $password, $email_config)
     {
         $this->db = new Database($dsn, $username, $password);
+        $this->email = new Email($email_config);
     }
 
     public function getUsers()
@@ -37,6 +39,11 @@ class Model
             $this->fixtures = new Fixtures($this->db);
         }
         return $this->fixtures;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
     }
 
 }
