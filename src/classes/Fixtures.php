@@ -357,7 +357,8 @@ public function nextFixture($seriesId) : int
     public function getFixture($fixtureId) : array
     {
         // Get Fixture data
-        $sql="SELECT Fixtures.Seriesid, FirstName, LastName, FixtureDate, FixtureTime, FixtureCourts
+        $sql="SELECT Fixtures.Seriesid, FirstName, LastName, 
+        FixtureDate, FixtureTime, FixtureCourts, InvitationsSent
         FROM Fixtures, Users, FixtureSeries
         WHERE Fixtureid = :Fixtureid 
         AND Fixtures.FixtureOwner = Users.Userid 
@@ -369,6 +370,7 @@ public function nextFixture($seriesId) : int
         $description = $this->fixtureDescription($row['FixtureDate']);
         $fixtureTime = substr($row['FixtureTime'],0,5);
         $fixtureCourts = $row['FixtureCourts'];
+        $invitationsSent = $row['InvitationsSent'];
 
         // Calculate booking time slots
         $bookingBase = $fixtureTime;
@@ -484,7 +486,7 @@ public function nextFixture($seriesId) : int
         // return all fixture data
         $fixture = ['seriesid' => $seriesId, 'fixtureid' => $fixtureId,
         'description' => $description, 'time' => $fixtureTime,
-        'owner' => $ownerName, 
+        'owner' => $ownerName, 'invitationsSent' => $invitationsSent,
         'players' => $playerList, 'reserves' => $reserveList, 'decliners' => $declineList,  'abstainers' => $abstainList,
         'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
         'bookings' => $bookingViewGrid, 'courts' => $fixtureCourts];

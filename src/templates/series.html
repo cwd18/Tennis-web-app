@@ -5,17 +5,20 @@
 <p>Series owner: {{ owner }}</p>
 <p>Courts: {{ courts }}</p>
 <a class="pure-button" href="serieseditform?seriesid={{ seriesid }}">Edit series data</a>
-<br>
+<br><br>
 {% if participants|length >0 %}
-<p><b>Default fixture invitees:</b></p>
-<ol>
-    {% for n in participants %}
-    <li>{{ n }}</li>
-    {% endfor %}
-</ol>
+<details>
+    <summary>{{ participants|length }} people</summary>
+    <ol>
+        {% for n in participants %}
+        <li>{{ n }}</li>
+        {% endfor %}
+    </ol>
+</details>
+<br>
 <a class="pure-button" href="seriesdelusersform?seriesid={{ seriesid }}">Remove</a>
 {% else %}
-<p>No default fixture invitees in this series</p>
+<p>Use the Add button to add people</p>
 {% endif %}
 
 <a class="pure-button" href="seriesaddusersform?seriesid={{ seriesid }}">Add</a>

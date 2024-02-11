@@ -1,23 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>{{ participant.FirstName }} {{ participant.LastName }}</h2> 
-<p>For {{ fixture.description }} at {{ fixture.time }}</p>
+{% if wantstoplay == "Unknown" %}
+{% set htext = "has not yet responded" %}
+{% elseif isplaying == "Yes" %}
+{% set htext = "is playing" %}
+{% elseif isplaying == "No" %}
+{% set htext = wantstoplay == "Yes" ? "wants to play" : "can't play" %}
+{% endif %}
 
-<p>Is playing: {{ isplaying }}</p>
 
-<p>Wants to play: {{ wantstoplay }}</p>
+<h2>{{ participant.FirstName }} {{ participant.LastName }} {{ htext }}</h2> 
+<p>{{ fixture.description }} at {{ fixture.time }}</p>
 
 {% if wantstoplay == "Unknown" or wantstoplay == "No" %}
 <a class="pure-button" 
     href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=1">
-    Wants to play</a>
+    I would like to play</a>
 {% endif %}
 
 {% if wantstoplay == "Unknown" or wantstoplay == "Yes" %}
 <a class="pure-button" 
     href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=0">
-    Doesn't want to play</a>
+    I'm sorry I can't play</a>
     <br>
 {% endif %}
 
@@ -41,11 +46,11 @@ delete</a>
 <br>
 <a class="pure-button" 
     href="participantAddBookingForm?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
-    Add booking</a>
+    Report a court booking</a>
     <br>
 {% endif %}
 
 <br><br>
-<a class="pure-button" href="fixture?fixtureid={{ fixture.fixtureid }}">Back to fixture</a>
+<a class="pure-button" href="fixturenotice?fixtureid={{ fixture.fixtureid }}">View fixture</a>
 
 {% endblock %}

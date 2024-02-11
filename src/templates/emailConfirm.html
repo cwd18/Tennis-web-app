@@ -5,26 +5,30 @@
 
 <p>From: {{ email.from }}</p>
 
-<b>Recipients:</b><br>
+<details>
+<summary>{{ recipients|length }} recipients</summary>
 {% for t in recipients %}
 {{ t.FirstName }} {{t.LastName}} ({{ t.EmailAddress }})<br>
 {% endfor %}
+</details>
+
+<p>Dear {{ recipients.0.FirstName }}</p>
 
 {% for m in email.message %}
 <p>{{ m }}</p>
 {% endfor %}
 
-<p><a href = "{{ server }}/participantWantsToPlay?fixtureid={{ fixtureid }}&userid={{ recipients.0.Userid }}&WantsToPlay=1">
-    Yes please</a></p>
-<p><a href = "{{ server }}/participantWantsToPlay?fixtureid={{ fixtureid }}&userid={{ recipients.0.Userid }}&WantsToPlay=0">
-    No thank you</a></p>
-
+<p>
+Please answer by following 
+<a href = "{{ server }}/participant?fixtureid={{ fixtureid }}&userid={{ recipients.0.Userid }}">
+this link</a>
+</p>
 {% for s in email.salutation %}
 <p>{{ s }}</p>
 {% endfor %}
 
 <br><br>
-<a class="pure-button" href="{{ continuelink }}">Continue</a>
+<a class="pure-button" href="{{ continuelink }}">Send emails</a>
 <br><br>
 <a class="pure-button" href="{{ cancellink }}">Cancel</a>
 

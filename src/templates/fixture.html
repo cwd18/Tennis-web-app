@@ -31,7 +31,7 @@
 {% endif %}
 
 {% if decliners|length >0 %}
-<p><b>Doesn't want to play:</b></p>
+<p><b>Can't play:</b></p>
 <ol>
     {% for n in decliners %}
     <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
@@ -42,13 +42,15 @@
 
 
 {% if abstainers|length >0 %}
-<p><b>Hasn't declared:</b></p>
-<ol>
-    {% for n in abstainers %}
-    <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
-        {{ n.FirstName }} {{ n.LastName }}</a></li>
-    {% endfor %}
-</ol>
+<details>
+    <summary>{{ abstainers|length }} people haven't responded</summary>
+    <ol>
+        {% for n in abstainers %}
+        <li><a href="participant?fixtureid={{ fixtureid }}&userid={{ n.Userid }}">
+            {{ n.FirstName }} {{ n.LastName }}</a></li>
+        {% endfor %}
+        </ol>
+</details>
 {% endif %}
 
 <br>
@@ -87,8 +89,10 @@
     No bookings<br>
 {% endif %}
 
+{% if invitationsSent == 0 %}
 <br><br>
 <a class="pure-button" href="emailConfirm?fixtureid={{ fixtureid }}">Email invitations</a>
+{% endif %}
 
 <br><br>
 <a class="pure-button" href="series?seriesid={{ seriesid }}">Back to series</a>

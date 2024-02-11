@@ -4,22 +4,19 @@
 <h2>{{ participant.FirstName }} {{ participant.LastName }}</h2> 
 <p>For {{ fixture.description }} at {{ fixture.time }}</p>
 
-<p>Is playing: {{ isplaying }}</p>
-
-<p>Wants to play: {{ wantstoplay }}</p>
-
 {% if bookings|length >0 %}
-<br><b>Courts booked</b><br>
+<p>Has already booked 
 {% for bk, b in bookings %}
-{{ b.time }}: court {{ b.court }}<br>
+court {{ b.court }} at {{ b.time }} 
 {% endfor %}
 {% endif %}
+</p>
 
 {% set href = 'participantAddBooking?fixtureid='~fixture.fixtureid~'&userid='~participant.Userid %}
 
 {% for time in fixture.bookingtimes %}
 {% if time != usedBookingTime %}
-<br><br><b>{{ time }}</b><br>
+<br><b>{{ time }}</b><br>
 {% for court in attribute (courts, time) %}
     {% if court != 0 %}
     <a class="pure-button" href="{{ href }}&time={{ time }}&court={{ court }}">{{ court }}</a>

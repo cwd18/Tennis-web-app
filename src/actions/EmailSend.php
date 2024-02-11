@@ -29,14 +29,14 @@ final class EmailSend
         $from = $email['from'];
         $e = $m->getEmail();
         $linkBase = sprintf(
-            "%s/participantWantsToPlay?fixtureid=%s&userid=%%s&WantsToPlay=", 
-            $_SERVER['SERVER_NAME'], $fixtureId);
+            "%s/participant?fixtureid=%s&userid=%%s", 
+            "https://direct-terminal-412715.nw.r.appspot.com", $fixtureId);
         foreach ($recipients as $to) {
-            $message = "";
+            $message = sprintf("<p>Hi %s</p>\n", $to['FirstName']);
             foreach ($email['message'] as $line) { $message .= sprintf("<p>%s</p>\n", $line);}
+            $message .= "<p>Please answer by following ";
             $linkBase = sprintf($linkBase, $to['Userid']);
-            $message .= sprintf("<p><a href = %s>Yes please</a></p>\n", $linkBase, 1);
-            $message .= sprintf("<p><a href = %s>No thank you</a></p>\n", $linkBase, 0);
+            $message .= sprintf("<a href = \"%s1\">this link</a></p>\n", $linkBase);
             foreach ($email['salutation'] as $line) { $message .= sprintf("<p>%s</p>\n", $line);}
             $e->sendEmail($from, $to['EmailAddress'], $subject, $message);
         }

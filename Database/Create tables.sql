@@ -29,8 +29,9 @@ Seriesid INT(8) NOT NULL,
 FixtureOwner INT(8) NOT NULL,
 FixtureDate DATE NOT NULL,
 FixtureTime TIME NOT NULL,
-FixtureCourts varchar (100) NOT NULL DEFAULT '1-17'
+FixtureCourts varchar (100) NOT NULL DEFAULT '1-12, 13-15'
 FixtureDuration INT(3) NOT NULL DEFAULT 2,
+InvitationsSent BOOLEAN NOT NULL DEFAULT FALSE,
 PRIMARY KEY (Fixtureid),
 FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),
 FOREIGN KEY (FixtureOwner) REFERENCES Users(Userid)
