@@ -26,7 +26,6 @@ final class EmailSend
         $email = $em['email'];
         $recipients = $em['recipients'];
         $subject = $email['subject'];
-        $from = $email['from'];
         $e = $m->getEmail();
         $linkBase = sprintf(
             "%s/participant?fixtureid=%s&userid=%%s", 
@@ -36,9 +35,9 @@ final class EmailSend
             foreach ($email['message'] as $line) { $message .= sprintf("<p>%s</p>\n", $line);}
             $message .= "<p>Please answer by following ";
             $linkBase = sprintf($linkBase, $to['Userid']);
-            $message .= sprintf("<a href = \"%s1\">this link</a></p>\n", $linkBase);
+            $message .= sprintf("<a href = \"%s\">this personal link</a></p>\n", $linkBase);
             foreach ($email['salutation'] as $line) { $message .= sprintf("<p>%s</p>\n", $line);}
-            $e->sendEmail($from, $to['EmailAddress'], $subject, $message);
+            $e->sendEmail("tennisfixtures42@gmail.com", $to['EmailAddress'], $subject, $message);
         }
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")

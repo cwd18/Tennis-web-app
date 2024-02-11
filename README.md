@@ -9,9 +9,9 @@ This Tennis web app is designed to help people who arrange tennis fixtures playe
 The app supports:
 - Maintaining a list of users with emaill addresses
 - Maintaining multiple fixture series, where each series consists of recurring fixtures (time and day of week)
-  - A fixture series acts as a template for creating the next fixture
+- A fixture series acts as a template for creating the next fixture
 - Maintaining a fixture, which initially inherits a list of invitees from the fixture series
- - Invitees can self-report their desire to play and any court bookings they have made for that fixture
+- Sending email invitations with a personal link that enables each invitee to self-report their desire to play and any court bookings they have made for that fixture
 
 ## Design
 The design is "old school" using server side scripting alone (not AJAX).
