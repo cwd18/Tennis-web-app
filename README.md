@@ -1,7 +1,7 @@
 # Tennis-web-app
 
 ## Motivation
-This app is an in-progress retirement project to fulfill a retirement activity list item to "do some coding".
+This app is an in-progress retirement project to meet a retirement goal to "do some coding".
 
 ## Purpose of the app
 This Tennis web app is designed to help people who arrange tennis fixtures played by an email list of clubmates.
