@@ -13,18 +13,23 @@
 <h2>{{ participant.FirstName }} {{ participant.LastName }} {{ htext }}</h2> 
 <p>{{ fixture.description }} at {{ fixture.time }}</p>
 
-{% if wantstoplay == "Unknown" or wantstoplay == "No" %}
+{% if wantstoplay == "Unknown" %}
 <a class="pure-button" 
     href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=1">
     I would like to play</a>
-{% endif %}
-
-{% if wantstoplay == "Unknown" or wantstoplay == "Yes" %}
 <a class="pure-button" 
     href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=0">
     I'm sorry I can't play</a>
-    <br>
+{% elseif wantstoplay == "Yes" %}
+<a class="pure-button" 
+    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=0">
+    I'm sorry I now can't play</a>
+{% elseif wantstoplay == "No" %}
+<a class="pure-button" 
+    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=1">
+    I would now like to play</a>
 {% endif %}
+<br>
 
 {% if bookings|length >0 %}
 <br><br><b>Courts booked</b><br>
