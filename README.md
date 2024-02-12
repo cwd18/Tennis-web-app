@@ -16,7 +16,7 @@ The app supports:
 ## Design
 The design is "old school" using server side scripting alone (not AJAX).
 
-The backend uses MariaDB, Apache, and PHP.
+The backend uses MySQL or MariaDB, Apache, and (modern) PHP.
 
 The application uses the [Slim framework](https://www.slimframework.com/), which uses a front controller design and supports autoloading of classes.
 
