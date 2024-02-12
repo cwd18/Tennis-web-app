@@ -35,10 +35,14 @@ final class ParticipantView
             $n++;
         }
         $isPlaying = $u['IsPlaying']?"Yes":"No";
-        if (is_null($u['WantsToPlay'])) { $wantsToPlay = "Unknown"; }
-        else { $wantsToPlay = $u['WantsToPlay']?"Yes":"No"; }
+        if (is_null($u['WantsToPlay'])) { 
+            $wantsToPlay = "Unknown"; 
+        } else { 
+            $wantsToPlay = $u['WantsToPlay'] ? "Yes" : "No"; 
+        }
+        $twigFile = $request->getUri()->getPath() . '.html';
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'participant.html', 
+        return $view->render($response, $twigFile, 
         ['fixture' => $fixture, 'participant' => $u,
         'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
         'bookings' => $bookings]);   

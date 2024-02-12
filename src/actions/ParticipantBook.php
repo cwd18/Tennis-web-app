@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class ParticipantAddBookingForm
+final class ParticipantBook
 {
     private $container;
 
@@ -19,6 +19,7 @@ final class ParticipantAddBookingForm
 
     public function __invoke(Request $request, Response $response): Response
     {
+        $fromFixture = str_contains($request->getUri()->getPath(), 'FromFixture');
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
@@ -48,10 +49,10 @@ final class ParticipantAddBookingForm
         if (is_null($u['WantsToPlay'])) { $wantsToPlay = "Unknown"; }
         else { $wantsToPlay = $u['WantsToPlay']?"Yes":"No"; }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'participantAddBookingForm.html', 
+        return $view->render($response, 'participantBook.html', 
         ['fixture' => $fixture, 'participant' => $u,
         'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
         'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime, 
-        'courts' => $courts]);   
+        'courts' => $courts, 'fromFixture' => $fromFixture]);   
     }
 }

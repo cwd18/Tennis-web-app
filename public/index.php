@@ -78,9 +78,12 @@ $app->get('/fixtureresetplaying', \TennisApp\Action\FixtureResetPlaying::class);
 
 // Create participant routes
 $app->get('/participant', \TennisApp\Action\ParticipantView::class);
+$app->get('/participantFromFixture', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
-$app->get('/participantAddBookingForm', \TennisApp\Action\ParticipantAddBookingForm::class);
+$app->get('/participantBook', \TennisApp\Action\ParticipantBook::class);
+$app->get('/participantBookFromFixture', \TennisApp\Action\ParticipantBook::class);
 $app->get('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
+$app->get('/participantAddBookingFromFixture', \TennisApp\Action\ParticipantAddBooking::class);
 $app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::class);
 
 // Create email routes

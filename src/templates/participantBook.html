@@ -12,7 +12,8 @@ court {{ b.court }} at {{ b.time }}
 {% endif %}
 </p>
 
-{% set href = 'participantAddBooking?fixtureid='~fixture.fixtureid~'&userid='~participant.Userid %}
+{% set path = fromFixture ? 'participantAddBookingFromFixture' : 'participantAddBooking' %}
+{% set href = path ~ '?fixtureid=' ~ fixture.fixtureid ~ '&userid=' ~ participant.Userid %}
 
 {% for time in fixture.bookingtimes %}
 {% if time != usedBookingTime %}
