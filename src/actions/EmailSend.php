@@ -32,10 +32,12 @@ final class EmailSend
             "https://direct-terminal-412715.nw.r.appspot.com", $fixtureId);
         foreach ($recipients as $to) {
             $message = sprintf("<p>Hi %s</p>\n", $to['FirstName']);
-            foreach ($email['message'] as $line) { $message .= sprintf("<p>%s</p>\n", $line);}
+            foreach ($email['message'] as $line) { 
+                $message .= sprintf("<p>%s</p>\n", $line);
+            }
             $message .= "<p>Please answer by following ";
-            $linkBase = sprintf($linkBase, $to['Userid']);
-            $message .= sprintf("<a href = \"%s\">this personal link</a></p>\n", $linkBase);
+            $link = sprintf($linkBase, $to['Userid']);
+            $message .= sprintf("<a href = \"%s\">this personal link</a></p>\n", $link);
             foreach ($email['salutation'] as $line) { $message .= sprintf("<p>%s</p>\n", $line);}
             $e->sendEmail("tennisfixtures42@gmail.com", $to['EmailAddress'], $subject, $message);
         }

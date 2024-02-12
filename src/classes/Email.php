@@ -28,7 +28,8 @@ class Email {
         $this->phpmailer->Body    = '<!DOCTYPE html><html lang="en-us"><body>'
             . $message .'</body></html>';                              // Body of email
         $this->phpmailer->AltBody = strip_tags($message);            // Plain text body
-        $this->phpmailer->send();                                    // Send the email
+        $this->phpmailer->send();                                   // Send the email
+        $this->phpmailer->clearAllRecipients(); 
         return true;                                                 // Return true
     }
 }
