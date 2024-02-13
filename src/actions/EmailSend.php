@@ -21,25 +21,19 @@ final class EmailSend
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $m = $this->container->get('Model');
+        $server = $m->getServer();
         $f = $m->getFixtures();
         $em = $f->getWantToPlayEmail($fixtureId);
         $email = $em['email'];
         $recipients = $em['recipients'];
         $subject = $email['subject'];
         $e = $m->getEmail();
-        $linkBase = sprintf(
-            "%s/participant?fixtureid=%s&userid=%%s", 
-            "https://direct-terminal-412715.nw.r.appspot.com", $fixtureId);
+        $twig = $m->getTwig();
+        $sender = "tennisfixtures42@gmail.com";
         foreach ($recipients as $to) {
-            $message = sprintf("<p>Hi %s</p>\n", $to['FirstName']);
-            foreach ($email['message'] as $line) { 
-                $message .= sprintf("<p>%s</p>\n", $line);
-            }
-            $message .= "<p>Please answer by following ";
-            $link = sprintf($linkBase, $to['Userid']);
-            $message .= sprintf("<a href = \"%s\">this personal link</a></p>\n", $link);
-            foreach ($email['salutation'] as $line) { $message .= sprintf("<p>%s</p>\n", $line);}
-            $e->sendEmail("tennisfixtures42@gmail.com", $to['EmailAddress'], $subject, $message);
+            $message = $twig->render('emailBody.html', ['email' => $email, 
+            'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
+            $e->sendEmail($sender, $to['EmailAddress'], $subject, $message);
         }
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")

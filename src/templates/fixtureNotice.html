@@ -20,11 +20,11 @@
     {% else %}
     <p><b>Would like to play:</b></p>
     {% endif %}
-<ul>
+<ol>
     {% for n in reserves %}
     <li>{{ n.FirstName }} {{ n.LastName }}</li>
     {% endfor %}
-</ul>
+</ol>
 {% endif %}
 
 

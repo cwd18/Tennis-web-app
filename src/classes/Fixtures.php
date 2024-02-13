@@ -519,12 +519,12 @@ public function nextFixture($seriesId) : int
         $sql = "SELECT FirstName, LastName, EmailAddress, FixtureDate, FixtureTime
         FROM Fixtures, Users WHERE Fixtureid = :Fixtureid AND Userid = FixtureOwner;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $owner['FirstName'] = $row['FirstName'];
-        $owner['LastName'] = $row['LastName'];
-        $owner['EmailAddress'] = $row['EmailAddress'];
-        $shortDate = date("l jS",strtotime($row['FixtureDate']));
-        $time = substr($row['FixtureTime'],0,5);
+        $fixture = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $owner['FirstName'] = $fixture['FirstName'];
+        $owner['LastName'] = $fixture['LastName'];
+        $owner['EmailAddress'] = $fixture['EmailAddress'];
+        $shortDate = date("l jS",strtotime($fixture['FixtureDate']));
+        $time = substr($fixture['FixtureTime'],0,5);
 
         $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress, AcceptTime
         FROM Users, FixtureParticipants
@@ -534,11 +534,8 @@ public function nextFixture($seriesId) : int
         $toList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         $email['subject'] = "Tennis $shortDate";
-        $email['from'] = $owner['EmailAddress'];
-        $email['message'][] = "Would you like to play?";
-        $email['message'][] = "Start time is $time (subject to getting courts)";
-        $email['salutation'][] = "Regards,";
-        $email['salutation'][] = $owner['FirstName'];
+        $email['owner'] = $owner;
+        $email['fixtureTime'] = $time;
         return ['email' => $email, 'recipients' => $toList];
     }
 }

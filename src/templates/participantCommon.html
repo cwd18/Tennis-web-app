@@ -13,21 +13,15 @@
 <h2>{{ participant.FirstName }} {{ participant.LastName }} {{ htext }}</h2> 
 <p>{{ fixture.description }} at {{ fixture.time }}</p>
 
+{% set href = 'participantWantsToPlay' ~ fromFixture ~ '?fixtureid=' ~ fixture.fixtureid ~ 
+'&userid=' ~ participant.Userid ~ '&WantsToPlay=' %}
 {% if wantstoplay == "Unknown" %}
-<a class="pure-button" 
-    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=1">
-    I would like to play</a>
-<a class="pure-button" 
-    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=0">
-    I'm sorry I can't play</a>
+    <a class="pure-button" href="{{ href }}1">I would like to play</a>
+    <a class="pure-button" href="{{ href }}0">I'm sorry I can't play</a>
 {% elseif wantstoplay == "Yes" %}
-<a class="pure-button" 
-    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=0">
-    I'm sorry I now can't play</a>
+    <a class="pure-button" href="{{ href }}0">I'm sorry I can't now play</a>
 {% elseif wantstoplay == "No" %}
-<a class="pure-button" 
-    href="participantWantsToPlay?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&WantsToPlay=1">
-    I would now like to play</a>
+    <a class="pure-button" href="{{ href }}1">I would now like to play</a>
 {% endif %}
 <br>
 

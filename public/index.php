@@ -16,15 +16,6 @@ $container = new Container();
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
-$container->set('Model', function () {
-    include('../settings.php');
-    $dbn = sprintf('mysql:host=%s;dbname=%s;port=%s;charset=%s',
-    $settings['host'], $settings['name'], $settings['port'], $settings['charset']);
-    $username = $settings['username'];
-    $password = $settings['password'];
-    return new Model($dbn, $username, $password, $email_config);
-});
-
 // Add Error Handling Middleware
 $app->addErrorMiddleware(true, true, true);
 
@@ -34,6 +25,14 @@ $twig->addExtension(new \Twig\Extension\DebugExtension());
 
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
+
+// Create model
+$container->set('Model', function () {
+    include('../settings.php');
+    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../src/templates');
+    $twigForEmail = new \Twig\Environment($loader);
+    return new Model($db_config, $email_config, $server, $twigForEmail);
+});
 
 // Create user routes
 $app->get('/userlist', \TennisApp\Action\UserList::class);
@@ -80,6 +79,7 @@ $app->get('/fixtureresetplaying', \TennisApp\Action\FixtureResetPlaying::class);
 $app->get('/participant', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantFromFixture', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
+$app->get('/participantWantsToPlayFromFixture', \TennisApp\Action\ParticipantWantsToPlay::class);
 $app->get('/participantBook', \TennisApp\Action\ParticipantBook::class);
 $app->get('/participantBookFromFixture', \TennisApp\Action\ParticipantBook::class);
 $app->get('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);

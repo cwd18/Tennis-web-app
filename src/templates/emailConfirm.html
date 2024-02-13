@@ -3,7 +3,7 @@
 
 <h2>{{ email.subject }}</h2>
 
-<p>From: {{ email.from }}</p>
+<p>From: {{ email.owner.FirstName }} {{ email.owner.LastName }}</p>
 
 <details>
 <summary>{{ recipients|length }} recipients</summary>
@@ -12,20 +12,8 @@
 {% endfor %}
 </details>
 
-<p>Dear {{ recipients.0.FirstName }}</p>
-
-{% for m in email.message %}
-<p>{{ m }}</p>
-{% endfor %}
-
-<p>
-Please answer by following 
-<a href = "{{ server }}/participant?fixtureid={{ fixtureid }}&userid={{ recipients.0.Userid }}">
-this personal link</a>
-</p>
-{% for s in email.salutation %}
-<p>{{ s }}</p>
-{% endfor %}
+{% set to = recipients[0] %}
+{% include "emailBody.html" %}
 
 <br><br>
 <a class="pure-button" href="{{ continuelink }}">Send emails</a>

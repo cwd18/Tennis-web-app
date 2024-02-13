@@ -18,6 +18,7 @@ final class ParticipantWantsToPlay
 
     public function __invoke(Request $request, Response $response): Response
     {
+        $fromFixture = str_contains($request->getUri()->getPath(), 'FromFixture');
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
@@ -28,8 +29,9 @@ final class ParticipantWantsToPlay
         } else {
             $f->setWantsNotToPlay($fixtureId, $userId);
         }
+        $outPath = $fromFixture ? '/participantFromFixture' : '/participant';
         return $response
-          ->withHeader('Location', "/participant?fixtureid=$fixtureId&userid=$userId")
+          ->withHeader('Location', "$outPath?fixtureid=$fixtureId&userid=$userId")
           ->withStatus(302);
     }
 }

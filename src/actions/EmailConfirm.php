@@ -21,14 +21,15 @@ final class EmailConfirm
     {
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
-        $f = $this->container->get('Model')->getFixtures();
+        $model = $this->container->get('Model');
+        $f = $model->getFixtures();
         $em = $f->getWantToPlayEmail($fixtureId);
         $email = $em['email'];
         $recipients = $em['recipients'];
         $view = Twig::fromRequest($request);
         return $view->render($response, 'emailConfirm.html', ['email' => $email, 
         'recipients' => $recipients,
-        'server' => $_SERVER['SERVER_NAME'], 'fixtureid' => $fixtureId,
+        'server' => $model->getServer(), 'fixtureid' => $fixtureId,
         'continuelink' => "emailSend?fixtureid=$fixtureId", 
         'cancellink' => "fixture?fixtureid=$fixtureId"]);
     }
