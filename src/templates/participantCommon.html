@@ -39,12 +39,23 @@
 <td>{{ b.time }}</td>
 <td>{{ b.court }}</td>
 <td>
-<a href="participantDelBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&time={{ b.time }}&court={{ b.court }}">
+<a href="participantDelBooking{{ fromFixture }}?
+fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&time={{ b.time }}&court={{ b.court }}">
 delete</a>
 </td>
 </tr>
 {% endfor %}
 </tbody></table>
 {% endif %}
+
+{% if bookings|length <2 %}
+<br>
+<a class="pure-button" 
+    href="participantBook{{ fromFixture }}?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
+    Report a court booking</a>
+    <br>
+{% endif %}
+
+<br><br>
 
 {% endblock %}

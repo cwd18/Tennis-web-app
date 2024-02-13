@@ -85,6 +85,7 @@ $app->get('/participantBookFromFixture', \TennisApp\Action\ParticipantBook::clas
 $app->get('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
 $app->get('/participantAddBookingFromFixture', \TennisApp\Action\ParticipantAddBooking::class);
 $app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::class);
+$app->get('/participantDelBookingFromFixture', \TennisApp\Action\ParticipantDelBooking::class);
 
 // Create email routes
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);
