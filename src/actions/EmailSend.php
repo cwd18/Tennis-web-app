@@ -33,11 +33,11 @@ final class EmailSend
         $subject = $email['subject'];
         $e = $m->getEmail();
         $twig = $m->getTwig();
-        $sender = "tennisfixtures42@gmail.com";
+        $replyTo = $email['owner']['EmailAddress'];
         foreach ($recipients as $to) {
             $message = $twig->render('emailBody.html', ['email' => $email, 
             'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
-            $e->sendEmail($sender, $to['EmailAddress'], $subject, $message);
+            $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message);
         }
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")

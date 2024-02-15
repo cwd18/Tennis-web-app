@@ -18,11 +18,13 @@ class Email {
         $this->phpmailer->SMTPDebug  = $email_config['debug'];       // Debug method
         $this->phpmailer->CharSet    = 'UTF-8';                      // Character encoding
         $this->phpmailer->isHTML(true);                              // Set as HTML email
+
     }
 
-    public function sendEmail($from, $to, $subject, $message): bool
+    public function sendEmail($replyTo, $to, $subject, $message): bool
     {
-        $this->phpmailer->setFrom($from);                            // From email address
+        $this->phpmailer->addReplyTo($replyTo);
+        $this->phpmailer->setFrom("tennisfixtures42@gmail.com");
         $this->phpmailer->addAddress($to);                           // To email address
         $this->phpmailer->Subject = $subject;                        // Subject of email
         $this->phpmailer->Body    = '<!DOCTYPE html><html lang="en-us"><body>'
