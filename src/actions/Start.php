@@ -28,7 +28,7 @@ final class Start
                 $fixtureId = $row['Otherid'];
                 $wantsToPlay = $m->getFixtures()->getWantsToPlay($fixtureId, $userId);
                 $route = $wantsToPlay == NULL ? 
-                "/participant?fixtureid=$fixtureId&userid=$userId" :
+                "/participantInvite?fixtureid=$fixtureId&userid=$userId" :
                 "/fixturenotice?fixtureid=$fixtureId";
                 break;
             case 'Owner':

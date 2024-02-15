@@ -504,7 +504,7 @@ public function nextFixture($seriesId) : int
         return $row;
     }
 
-    public function getWantsToPlay($fixtureId, $userId) : int
+    public function getWantsToPlay($fixtureId, $userId) : ?int
     {
         $sql = "SELECT WantsToPlay FROM FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
@@ -512,7 +512,18 @@ public function nextFixture($seriesId) : int
         return $stmt->fetchColumn();
     }
     
-    public function getParticipantBookings($fixtureId, $userId) : array
+    public function getInvitationData(int $fixtureId, int $userId) : array
+    {
+        $sql = "SELECT Fixtureid, Users.Userid, FirstName, LastName, FixtureDate, FixtureTime
+        FROM Fixtures, Users WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $row['FixtureDate'] = date("l jS",strtotime($row['FixtureDate']));
+        $row['FixtureTime'] = substr($row['FixtureTime'],0,5);
+        return $row;
+    }
+
+    public function getParticipantBookings(int $fixtureId, int $userId) : array
     {
         $sql = "SELECT CourtNumber, BookingTime FROM CourtBookings
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid
