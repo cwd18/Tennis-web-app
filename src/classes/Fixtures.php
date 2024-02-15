@@ -5,7 +5,7 @@ namespace TennisApp;
 
 class Fixtures
 {
-    public $pdo;
+    protected $pdo;
 
     public function __construct($pdo)
     {

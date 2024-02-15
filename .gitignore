@@ -2,3 +2,4 @@
 /.vscode
 /settings.php
 /vendor/
+/Database/Backup.sh

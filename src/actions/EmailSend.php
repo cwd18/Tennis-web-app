@@ -26,6 +26,10 @@ final class EmailSend
         $em = $f->getWantToPlayEmail($fixtureId);
         $email = $em['email'];
         $recipients = $em['recipients'];
+        $tokens = $m->getTokens();
+        foreach ($recipients as &$recipient) {
+            $recipient['Token'] = $tokens->getOrcreateToken($recipient['Userid'], 'User', $fixtureId);
+        }
         $subject = $email['subject'];
         $e = $m->getEmail();
         $twig = $m->getTwig();

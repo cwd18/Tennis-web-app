@@ -1,10 +1,8 @@
-{% set href = server ~ '/participant?fixtureid=' ~ fixtureid ~ '&userid=' ~ to.Userid %}
-
 <p>Dear {{ to.FirstName }}</p>
 
 <p>Would you like to play?</p>
 
-<p>Please answer by following <a href = "{{ href }}">this personal link</a></p>
+<p>Please answer by following <a href = "{{ server }}/start/{{ to.Token }}">this personal link</a></p>
 
 <p>The start time is {{ email.fixtureTime }} (subject to getting courts)</p>
 

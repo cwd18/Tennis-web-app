@@ -51,6 +51,16 @@ Userid INT(8),
 WantsToPlay BOOLEAN,
 AcceptTime DATETIME DEFAULT NULL,
 IsPlaying BOOLEAN NOT NULL DEFAULT FALSE,
+PRIMARY KEY (Fixtureid, Userid),
 FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
+FOREIGN KEY (Userid) REFERENCES Users(Userid)
+);
+CREATE TABLE Tokens (
+Token char (32),
+Userid INT(8) NOT NULL,
+TokenClass ENUM ('User', 'Owner', 'Admin'),
+OtherId INT(8),
+Expires DATETIME DEFAULT NULL,
+PRIMARY KEY (Token),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );

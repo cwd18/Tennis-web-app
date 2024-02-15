@@ -12,6 +12,7 @@ class Model
     protected $users = null;
     protected $series = null;
     protected $fixtures = null; 
+    protected $tokens = null; 
 
     public function __construct($db_config, $email_config, $server, $twig)
     {
@@ -47,6 +48,14 @@ class Model
             $this->fixtures = new Fixtures($this->db);
         }
         return $this->fixtures;
+    }
+
+    public function getTokens()
+    {
+        if ($this->tokens === null) {
+            $this->tokens = new Tokens($this->db);
+        }
+        return $this->tokens;
     }
 
     public function getEmail()

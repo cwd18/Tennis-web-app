@@ -34,6 +34,9 @@ $container->set('Model', function () {
     return new Model($db_config, $email_config, $server, $twigForEmail);
 });
 
+// Token-based entry
+$app->get('/start/{token}', \TennisApp\Action\Start::class);
+
 // Create user routes
 $app->get('/userlist', \TennisApp\Action\UserList::class);
 $app->get('/useraddform', \TennisApp\Action\UserAddForm::class);
