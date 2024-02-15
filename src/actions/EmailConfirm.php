@@ -23,7 +23,7 @@ final class EmailConfirm
         $fixtureId = $params['fixtureid'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
-        $em = $f->getWantToPlayEmail($fixtureId);
+        $em = $f->getPlayInvitations($fixtureId);
         $email = $em['email'];
         $recipients = $em['recipients'];
         $tokens = $m->getTokens();

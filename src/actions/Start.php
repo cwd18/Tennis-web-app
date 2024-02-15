@@ -26,7 +26,10 @@ final class Start
         switch ($row['TokenClass']) {
             case 'User':
                 $fixtureId = $row['Otherid'];
-                $route = "/participant?fixtureid=$fixtureId&userid=$userId";
+                $wantsToPlay = $m->getFixtures()->getWantsToPlay($fixtureId, $userId);
+                $route = $wantsToPlay == NULL ? 
+                "/participant?fixtureid=$fixtureId&userid=$userId" :
+                "/fixturenotice?fixtureid=$fixtureId";
                 break;
             case 'Owner':
                 $seriesId = $row['Otherid'];

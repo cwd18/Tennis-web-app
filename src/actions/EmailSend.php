@@ -23,7 +23,7 @@ final class EmailSend
         $m = $this->container->get('Model');
         $server = $m->getServer();
         $f = $m->getFixtures();
-        $em = $f->getWantToPlayEmail($fixtureId);
+        $em = $f->getPlayInvitations($fixtureId);
         $email = $em['email'];
         $recipients = $em['recipients'];
         $tokens = $m->getTokens();
