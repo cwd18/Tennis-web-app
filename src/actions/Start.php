@@ -22,7 +22,14 @@ final class Start
         $m = $this->container->get('Model');
         $t = $m->getTokens();
         $row = $t->checkToken($token);
+        if ($row == FALSE) {
+            $response->getBody()->write("Token not found: $token");
+            return $response;
+        }
         $userId = $row['Userid'];
+        $_SESSION['User'] = $userId;
+        $_SESSION['Role'] = $row['TokenClass'];
+        $_SESSION['Otherid'] = $row['Otherid'];
         switch ($row['TokenClass']) {
             case 'User':
                 $fixtureId = $row['Otherid'];

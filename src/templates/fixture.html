@@ -91,7 +91,7 @@
     No bookings<br>
 {% endif %}
 
-{% if invitationsSent == 0 %}
+{% if invitationsSent == 0  and abstainers|length >0 %}
 <br><br>
 <a class="pure-button" href="emailConfirm?fixtureid={{ fixtureid }}">Email invitations</a>
 {% endif %}

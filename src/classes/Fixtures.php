@@ -545,10 +545,11 @@ public function nextFixture($seriesId) : int
         $shortDate = date("l jS",strtotime($fixture['FixtureDate']));
         $time = substr($fixture['FixtureTime'],0,5);
 
-        $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress, AcceptTime
+        $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress
         FROM Users, FixtureParticipants
-        WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
-        ORDER BY AcceptTime, FirstName, LastName;";
+        WHERE WantsToPlay IS NULL 
+        AND Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
+        ORDER BY FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $toList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
@@ -556,5 +557,11 @@ public function nextFixture($seriesId) : int
         $email['owner'] = $owner;
         $email['fixtureTime'] = $time;
         return ['email' => $email, 'recipients' => $toList];
+    }
+
+    public function setInvitationsSent($fixtureId)
+    {
+        $sql = "UPDATE Fixtures SET InvitationsSent = TRUE WHERE Fixtureid = :Fixtureid;";
+        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
     }
 }

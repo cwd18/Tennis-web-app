@@ -19,8 +19,12 @@ final class SeriesList
 
 public function __invoke(Request $request, Response $response): Response
     {
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
+        $role = $_SESSION['Role'] ?? 'Unknown';
+        if (strcmp($role, 'Admin') !=0 ) {
+            $response->getBody()->write("Not authorised: $role");
+            return $response;
+        }
+        $s = $this->container->get('Model')->getSeries();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'serieslist.html', ['serieslist' => $s->getAllSeries()]);
     }

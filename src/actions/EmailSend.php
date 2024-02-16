@@ -39,6 +39,7 @@ final class EmailSend
             'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message);
         }
+        $f->setInvitationsSent($fixtureId);
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);
