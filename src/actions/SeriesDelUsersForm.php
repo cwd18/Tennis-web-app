@@ -21,8 +21,12 @@ public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $s = $m->getSeries();
         $users = $s->getSeriesUsers($seriesId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 

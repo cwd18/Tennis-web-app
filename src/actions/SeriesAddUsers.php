@@ -25,8 +25,12 @@ final class SeriesAddUsers
                 $userIds[] = $p;
             }
         }
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $s = $m->getSeries();
         $s->addUsers($seriesId, $userIds);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

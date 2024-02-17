@@ -20,8 +20,12 @@ final class UserEdit
   public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $model = $this->container->get('Model');
-        $u = $model->getUsers();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkAdmin())) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $u = $m->getUsers();
         $row = $u->getUser($params['Userid']);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'useredit.html', $row);

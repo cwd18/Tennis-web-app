@@ -18,7 +18,6 @@ final class ParticipantAddBooking
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $fromFixture = str_contains($request->getUri()->getPath(), 'FromFixture');
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
@@ -27,9 +26,8 @@ final class ParticipantAddBooking
         $model = $this->container->get('Model');
         $f = $model->getFixtures();
         $f->addCourtBooking($fixtureId, $userId, $time, $court);
-        $outPath = $fromFixture ? '/participantFromFixture' : '/participant';
         return $response
-            ->withHeader('Location', "$outPath?fixtureid=$fixtureId&userid=$userId")
+            ->withHeader('Location', "/participant?fixtureid=$fixtureId&userid=$userId")
             ->withStatus(302);
     }
 }

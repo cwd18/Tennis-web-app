@@ -21,10 +21,15 @@ final class FixtureEditForm
     {
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
-        $model = $this->container->get('Model');
-        $u = $model->getUsers();
+        $m = $this->container->get('Model');
+        $f = $m->getFixtures();
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $u = $m->getUsers();
         $users = $u->getAllUsers();
-        $f = $model->getFixtures();
         $fixture = $f->getBasicFixtureData($fixtureId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'fixtureeditform.html', 

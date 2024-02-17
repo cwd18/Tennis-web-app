@@ -20,8 +20,13 @@ final class FixtureSetBookersPlaying
     {
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
+        $m = $this->container->get('Model');
+        $f = $m->getFixtures();
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
         $f->setBookersPlaying($fixtureId);
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")

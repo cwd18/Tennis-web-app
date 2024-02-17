@@ -19,7 +19,6 @@ final class ParticipantBook
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $fromFixture = str_contains($request->getUri()->getPath(), 'FromFixture');
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
@@ -53,6 +52,6 @@ final class ParticipantBook
         ['fixture' => $fixture, 'participant' => $u,
         'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
         'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime, 
-        'courts' => $courts, 'fromFixture' => $fromFixture]);   
+        'courts' => $courts]);   
     }
 }

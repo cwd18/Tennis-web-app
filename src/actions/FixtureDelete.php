@@ -21,8 +21,12 @@ final class FixtureDelete
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $seriesId = $params['seriesid'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkAdmin())) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $f = $m->getFixtures();
         $f->deleteFixture($fixtureId);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

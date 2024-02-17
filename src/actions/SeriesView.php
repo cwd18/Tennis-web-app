@@ -21,8 +21,12 @@ final class SeriesView
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $s = $m->getSeries();
         $series = $s->getSeries($seriesId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'series.html', $series);

@@ -6,7 +6,6 @@ namespace TennisApp\Action;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class SeriesDelUsers
 {
@@ -26,8 +25,12 @@ public function __invoke(Request $request, Response $response): Response
                 $userIds[] = $p;
             }
         }
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $s = $m->getSeries();
         $s->deleteSeriesUsers($seriesId, $userIds);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

@@ -20,8 +20,12 @@ public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkAdmin())) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $s = $m->getSeries();
         $s->deleteSeries($seriesId);
         return $response
           ->withHeader('Location', "/serieslist")

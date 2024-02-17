@@ -20,8 +20,12 @@ final class UserDelete
     {
         $params = $request->getQueryParams();
         $userId = $params['Userid'];
-        $model = $this->container->get('Model');
-        $u = $model->getUsers();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkAdmin())) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $u = $m->getUsers();
         $u->deleteUser($userId);
         return $response
           ->withHeader('Location', "/userlist")

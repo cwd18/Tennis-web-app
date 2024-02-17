@@ -20,7 +20,12 @@ final class FixtureAdd
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $f = $this->container->get('Model')->getFixtures();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $f = $m->getFixtures();
         $f->addNextFixtureToSeries($seriesId);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

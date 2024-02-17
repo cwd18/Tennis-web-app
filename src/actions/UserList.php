@@ -19,8 +19,12 @@ final class UserList
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $model = $this->container->get('Model');
-        $u = $model->getUsers();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkAdmin())) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $u = $m->getUsers();
         $allUsers = $u->getAllUsers();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'userlist.html', ['userlist' => $allUsers]);

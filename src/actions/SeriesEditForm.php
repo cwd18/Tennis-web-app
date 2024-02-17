@@ -21,10 +21,14 @@ public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $model = $this->container->get('Model');
-        $u = $model->getUsers();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $u = $m->getUsers();
         $users = $u->getAllUsers();
-        $s = $model->getSeries();
+        $s = $m->getSeries();
         $series = $s->getBasicSeriesData($seriesId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'serieseditform.html', 

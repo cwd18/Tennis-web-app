@@ -18,7 +18,14 @@ class Fixtures
         return date("l jS \of F Y",$date);
     }
 
-     public function getBasicFixtureData($fixtureId) : array
+    public function getSeriesid($fixtureId) : int
+    {
+        $sql = "SELECT Seriesid FROM Fixtures WHERE Fixtureid = :Fixtureid;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        return $stmt->fetchColumn();
+    }
+
+    public function getBasicFixtureData($fixtureId) : array
     {
         $sql = "SELECT Fixtureid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts
         FROM Fixtures WHERE Fixtureid = :Fixtureid;";

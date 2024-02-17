@@ -18,20 +18,25 @@ final class ParticipantWantsToPlay
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $fromFixture = str_contains($request->getUri()->getPath(), 'FromFixture');
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
         $wantsToPlay = $params['WantsToPlay'];
-        $f = $this->container->get('Model')->getFixtures();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkUser($fixtureId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $f = $m->getFixtures();
         if ($wantsToPlay) {
             $f->setWantsToPlay($fixtureId, $userId);
         } else {
             $f->setWantsNotToPlay($fixtureId, $userId);
         }
-        $outPath = $fromFixture ? '/participantFromFixture' : '/participant';
+        $outPath = strcmp($m->sessionRole(),'User') == 0 ? "/fixturenotice?fixtureid=$fixtureId" :
+         "/participant?fixtureid=$fixtureId&userid=$userId";
         return $response
-          ->withHeader('Location', "$outPath?fixtureid=$fixtureId&userid=$userId")
+          ->withHeader('Location', $outPath)
           ->withStatus(302);
     }
 }

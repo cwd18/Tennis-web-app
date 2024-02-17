@@ -21,8 +21,12 @@ final class SeriesDeleteForm
     {
         $params = $request->getQueryParams();
         $seriesId = $params['seriesid'];
-        $model = $this->container->get('Model');
-        $s = $model->getSeries();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkAdmin())) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $s = $m->getSeries();
         $series = $s->getBasicSeriesData($seriesId);
         $lines[] = "Are you sure you want to delete the below series?";
         $lines[] = $s->seriesDescription($series['SeriesWeekday'], $series['SeriesTime']);

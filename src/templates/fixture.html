@@ -10,7 +10,7 @@
 <a class="pure-button" href="fixturenotice?fixtureid={{ fixtureid }}" target="_blank">Fixture notice</a>
 <br><br>
 
-{% set linkbase = 'participantFromFixture?fixtureid=' ~ fixtureid ~ '&userid=' %}
+{% set linkbase = 'participant?fixtureid=' ~ fixtureid ~ '&userid=' %}
 
 {% if players|length >0 %}
 <p><b>Playing:</b></p>
@@ -99,9 +99,11 @@
 <br><br>
 <a class="pure-button" href="series?seriesid={{ seriesid }}">Back to series</a>
 
+{% if Role == 'Admin' %}
 <br><br>
 <a class="pure-button" 
 href="fixturedeleteform?seriesid={{ seriesid }}&fixtureid={{ fixtureid }}">Delete fixture</a>
+{% endif %}
 
 <br><br><br><br>
 

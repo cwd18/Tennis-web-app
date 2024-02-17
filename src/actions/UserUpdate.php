@@ -24,8 +24,12 @@ final class UserUpdate
         $fname = $params['fname'];
         $lname = $params['lname'];
         $email = $params['email'];
-        $model = $this->container->get('Model');
-        $u = $model->getUsers();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkAdmin())) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $u = $m->getUsers();
         $u->updateUser($userId, $fname, $lname, $email);
         return $response
           ->withHeader('Location', "/userlist")

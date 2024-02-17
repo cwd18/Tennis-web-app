@@ -72,4 +72,56 @@ class Model
     {
         return $this->twig;
     }
+
+    public function sessionRole()
+    {
+        return $_SESSION['Role'] ?? 'Unknown';
+    }
+
+    public function checkAdmin() : ?string
+    {
+        $role = $this->sessionRole();
+        if (strcmp($role, 'Admin') == 0) {
+            return NULL;
+        }
+        return "Not authorised: $role";
+    }
+
+    public function checkOwner($seriesId) : ?string
+    {
+        $role = $this->sessionRole();
+        if (strcmp($role, 'Admin') == 0) {
+            return NULL;
+        }
+        if (strcmp($role, 'Owner') == 0) {
+            if ($_SESSION['Otherid'] == $seriesId) {
+                return NULL;
+            }
+            return "Owner not authorised for this series: $seriesId";
+        }
+        return "Not authorised: $role";
+    }
+
+    public function checkUser($fixtureId) : ?string
+    {
+        $role = $this->sessionRole();
+        if (strcmp($role, 'Admin') == 0) {
+            return NULL;
+        }
+        if (strcmp($role, 'Owner') == 0) {
+            $seriesId = $this->getFixtures()->getSeriesid($fixtureId);
+            if ($_SESSION['Otherid'] == $seriesId) {
+                return NULL;
+            }
+            return "Owner not authorised for this series: $seriesId";
+        }
+        if (strcmp($role, 'User') == 0) {
+            if ($_SESSION['Otherid'] == $fixtureId) {
+                return NULL;
+            }
+            return "User not authorised for this series: $fixtureId";
+        }
+        return "Not authorised: $role";
+    }
+
 }

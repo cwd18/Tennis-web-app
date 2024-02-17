@@ -23,6 +23,11 @@ final class EmailConfirm
         $fixtureId = $params['fixtureid'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
         $em = $f->getPlayInvitations($fixtureId);
         $email = $em['email'];
         $recipients = $em['recipients'];

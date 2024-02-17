@@ -1,5 +1,57 @@
-{% set fromFixture = "" %}
+{% extends "base.html" %}
+{% block content %}
 
-{{ include('participantCommon.html') }}
+{% if wantstoplay == "Unknown" %}
+{% set htext = "has not yet responded" %}
+{% elseif isplaying == "Yes" %}
+{% set htext = "is playing" %}
+{% elseif isplaying == "No" %}
+{% set htext = wantstoplay == "Yes" ? "wants to play" : "can't play" %}
+{% endif %}
 
-<a class="pure-button" href="fixturenotice?fixtureid={{ fixture.fixtureid }}">View fixture</a>
+
+<h2>{{ participant.FirstName }} {{ participant.LastName }} {{ htext }}</h2> 
+<p>{{ fixture.description }} at {{ fixture.time }}</p>
+
+{% set href = "participantWantsToPlay?fixtureid=%d&userid=%d&WantsToPlay="|
+    format(fixture.fixtureid, participant.Userid) %}
+{% if wantstoplay == "Unknown" %}
+    <a class="pure-button" href="{{ href }}1">I would like to play</a>
+    <a class="pure-button" href="{{ href }}0">I'm sorry I can't play</a>
+{% elseif wantstoplay == "Yes" %}
+    <a class="pure-button" href="{{ href }}0">I'm sorry I can't now play</a>
+{% elseif wantstoplay == "No" %}
+    <a class="pure-button" href="{{ href }}1">I would now like to play</a>
+{% endif %}
+<br>
+
+{% if bookings|length >0 %}
+<br><br><b>Courts booked</b><br>
+<table class="pure-table"><thead><tr><th>Time</th><th>Court</th><th> </th></tr></thead><tbody>
+{% for bk, b in bookings %}
+<tr>
+<td>{{ b.time }}</td>
+<td>{{ b.court }}</td>
+<td>
+<a href="participantDelBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&time={{ b.time }}&court={{ b.court }}">
+delete</a>
+</td>
+</tr>
+{% endfor %}
+</tbody></table>
+{% endif %}
+
+{% if bookings|length <2 %}
+<br>
+<a class="pure-button" 
+    href="participantBook?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
+    Report a court booking</a>
+    <br>
+{% endif %}
+
+<br><br>
+<a class="pure-button" href="fixture?fixtureid={{ fixture.fixtureid }}">Back to fixture</a>
+<br><br>
+
+{% endblock %}
+

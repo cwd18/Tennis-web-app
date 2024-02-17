@@ -6,7 +6,6 @@ namespace TennisApp\Action;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
 final class SeriesEdit
 {
@@ -25,7 +24,12 @@ final class SeriesEdit
         $day = $params['day'];
         $time = $params['time'];
         $courts = $params['courts'];
-        $s = $this->container->get('Model')->getSeries();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $s = $m->getSeries();
         $s->updateBasicSeriesData($seriesId, $owner, $day, $time, $courts);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

@@ -23,6 +23,7 @@ $app->addErrorMiddleware(true, true, true);
 
 // Create Twig
 $twig = Twig::create(__DIR__ . '/../src/templates', ['cache' => false, 'debug' => true]);
+$twig->getEnvironment()->addGlobal('Role', $_SESSION['Role'] ?? 'Unknown');
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 
 // Add Twig-View Middleware
@@ -83,15 +84,10 @@ $app->get('/fixtureresetplaying', \TennisApp\Action\FixtureResetPlaying::class);
 // Create participant routes
 $app->get('/participantInvite', \TennisApp\Action\ParticipantInvite::class);
 $app->get('/participant', \TennisApp\Action\ParticipantView::class);
-$app->get('/participantFromFixture', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
-$app->get('/participantWantsToPlayFromFixture', \TennisApp\Action\ParticipantWantsToPlay::class);
 $app->get('/participantBook', \TennisApp\Action\ParticipantBook::class);
-$app->get('/participantBookFromFixture', \TennisApp\Action\ParticipantBook::class);
 $app->get('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
-$app->get('/participantAddBookingFromFixture', \TennisApp\Action\ParticipantAddBooking::class);
 $app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::class);
-$app->get('/participantDelBookingFromFixture', \TennisApp\Action\ParticipantDelBooking::class);
 
 // Create email routes
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);

@@ -24,7 +24,13 @@ final class FixtureEdit
         $date = $params['date'];
         $time = $params['time'];
         $courts = $params['courts'];
-        $f = $this->container->get('Model')->getFixtures();
+        $m = $this->container->get('Model');
+        $f = $m->getFixtures();
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
         $f->updateBasicFixtureData($fixtureId, $owner, $date, $time, $courts);
         return $response
         ->withHeader('Location', "/fixture?fixtureid=$fixtureId")

@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-
 <h2>{{ description }}</h2>
 <p>Series owner: {{ owner }}</p>
 <p>Courts: {{ courts }}</p>
@@ -45,9 +44,12 @@
 <br>
 {% endif %}
 
+{% if Role == 'Admin' %}
 <br>
 <a class="pure-button" href="serieslist">Back to series list</a>
 <br><br>
 <a class="pure-button" href="seriesdeleteform?seriesid={{ seriesid }}">Delete series</a>
+{% endif %}
 
+<br>
 {% endblock %}

@@ -1,5 +1,5 @@
 <?php
-# Present participant invitation
+# Present participant invitation to play
 
 namespace TennisApp\Action;
 
@@ -22,8 +22,12 @@ final class ParticipantInvite
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkUser($fixtureId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $f = $m->getFixtures();
         $invite = $f->getInvitationData($fixtureId, $userId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'participantInvite.html', $invite);

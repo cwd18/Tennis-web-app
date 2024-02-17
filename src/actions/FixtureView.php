@@ -20,12 +20,17 @@ final class FixtureView
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
+        $m = $this->container->get('Model');
+        $f = $m->getFixtures();
         if (array_key_exists('fixtureid', $params)) {
             $fixtureId = $params['fixtureid'];
         } else {
             $fixtureId = $f->nextFixture($params['seriesid']);
+        }
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
         }
         $fixture = $f->getFixture($fixtureId);
         $view = Twig::fromRequest($request);

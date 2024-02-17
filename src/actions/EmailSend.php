@@ -21,8 +21,13 @@ final class EmailSend
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $m = $this->container->get('Model');
-        $server = $m->getServer();
         $f = $m->getFixtures();
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $server = $m->getServer();
         $em = $f->getPlayInvitations($fixtureId);
         $email = $em['email'];
         $recipients = $em['recipients'];

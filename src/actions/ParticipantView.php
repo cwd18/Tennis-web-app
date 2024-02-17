@@ -22,8 +22,13 @@ final class ParticipantView
         $params = $request->getQueryParams();
         $fixtureId = $params['fixtureid'];
         $userId = $params['userid'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
+        $m = $this->container->get('Model');
+        $f = $m->getFixtures();
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
         $fixture = $f->getFixture($fixtureId);
         $u = $f->getParticipantData($fixtureId, $userId);
         $brows = $f->getParticipantBookings($fixtureId, $userId);
