@@ -78,6 +78,11 @@ class Model
         return $_SESSION['Role'] ?? 'Unknown';
     }
 
+    public function sessionUser()
+    {
+        return $_SESSION['User'] ?? 0;
+    }
+    
     public function checkAdmin() : ?string
     {
         $role = $this->sessionRole();

@@ -20,6 +20,15 @@ class Users
         return $users;
     }
 
+    public function getUsername($userId) : string
+    {
+        $sql = "SELECT FirstName, LastName FROM Users WHERE Userid = :Userid;";
+        $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        return $row['FirstName'] . " " .$row['LastName'];
+    }
+
+
     public function addUser($fname, $lname, $email)
     {
         $sql = "INSERT INTO Users (FirstName, LastName, EmailAddress)

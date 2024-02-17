@@ -14,6 +14,14 @@ session_start();
 // Create Container using PHP-DI
 $container = new Container();
 
+// Create model
+$container->set('Model', function () {
+    include('../settings.php');
+    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../src/templates');
+    $twigForEmail = new \Twig\Environment($loader);
+    return new Model($db_config, $email_config, $server, $twigForEmail);
+});
+
 // Set container to create App with on AppFactory
 AppFactory::setContainer($container);
 $app = AppFactory::create();
@@ -23,19 +31,17 @@ $app->addErrorMiddleware(true, true, true);
 
 // Create Twig
 $twig = Twig::create(__DIR__ . '/../src/templates', ['cache' => false, 'debug' => true]);
-$twig->getEnvironment()->addGlobal('Role', $_SESSION['Role'] ?? 'Unknown');
+
+$te = $twig->getEnvironment();
+$m = $container->get('Model');
+$u = $m->getUsers();
+$te->addGlobal('Role', $m->sessionRole());
+$te->addGlobal('SessionUser', $u->getUsername($m->sessionUser()));
+
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
-
-// Create model
-$container->set('Model', function () {
-    include('../settings.php');
-    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../src/templates');
-    $twigForEmail = new \Twig\Environment($loader);
-    return new Model($db_config, $email_config, $server, $twigForEmail);
-});
 
 // Token-based entry
 $app->get('/start/{token}', \TennisApp\Action\Start::class);
