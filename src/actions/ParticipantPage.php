@@ -1,5 +1,5 @@
 <?php
-# Present participant invitation to play
+# Present participant page
 
 namespace TennisApp\Action;
 
@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class ParticipantInvite
+final class ParticipantPage
 {
     private $container;
 
@@ -27,9 +27,15 @@ final class ParticipantInvite
             $response->getBody()->write($error);
             return $response;
         }
-        $f = $m->getFixtures();
-        $invite = $f->getInvitationData($fixtureId, $userId);
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'participantInvite.html', $invite);
+        $f = $m->getFixtures();
+        if ($f->getWantsToPlay($fixtureId, $userId) == NULL) {
+            return $view->render($response, 'participantInvite.html', $f->getInvitationData($fixtureId, $userId));
+        }
+        if ($f->getCourtsBooked($fixtureId, $userId) == NULL and $f->inBookingWindow($fixtureId)) {
+            return $view->render($response, 'participantBook.html', $f->getBookingFormData($fixtureId, $userId));
+        }
+        $fixture = $f->getFixture($fixtureId);
+        return $view->render($response, 'fixtureNotice.html', $fixture);   
     }
 }

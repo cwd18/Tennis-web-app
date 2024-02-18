@@ -23,11 +23,17 @@ final class ParticipantAddBooking
         $userId = $params['userid'];
         $court = $params['court'];
         $time = $params['time'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
+        $m = $this->container->get('Model');
+        $f = $m->getFixtures();
         $f->addCourtBooking($fixtureId, $userId, $time, $court);
+        $outPath = "/participant?fixtureid=$fixtureId&userid=$userId";
+        if (strcmp($m->sessionRole(),'User') == 0) {
+            $outPath = $f->countParticipantBookings($fixtureId, $userId) == 2 ?
+            "/fixturenotice?fixtureid=$fixtureId" : 
+            "/participantBook?fixtureid=$fixtureId&userid=$userId";
+        }
         return $response
-            ->withHeader('Location', "/participant?fixtureid=$fixtureId&userid=$userId")
+            ->withHeader('Location', $outPath)
             ->withStatus(302);
     }
 }

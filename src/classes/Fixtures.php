@@ -34,7 +34,20 @@ class Fixtures
         return $row;
     }
 
-    public function updateBasicFixtureData($fixtureId, $owner, $date, $time, $courts)
+    public function inBookingWindow($fixtureId) : bool
+    {
+        $sql = "SELECT FixtureDate, FixtureTime 
+        FROM Fixtures WHERE Fixtureid = :Fixtureid;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $fixtureDate = $stmt->fetchColumn(0);
+        $fixtureTime = $stmt->fetchColumn(1);
+        $bookingTime = "07:30";
+        $bookingDt = strtotime($fixtureDate . " " . $bookingTime);
+        $nowDt = time();
+        return $nowDt < $bookingDt and $nowDt > ($bookingDt - 7 * 86400);
+    }
+
+        public function updateBasicFixtureData($fixtureId, $owner, $date, $time, $courts)
     {
         $sql = "UPDATE Fixtures 
         SET FixtureOwner = :FixtureOwner, FixtureDate = :FixtureDate, 
@@ -519,6 +532,14 @@ public function nextFixture($seriesId) : int
         return $stmt->fetchColumn();
     }
     
+    public function getCourtsBooked($fixtureId, $userId) : ?int
+    {
+        $sql = "SELECT CourtsBooked FROM FixtureParticipants
+        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        return $stmt->fetchColumn();
+    }
+    
     public function getInvitationData(int $fixtureId, int $userId) : array
     {
         $sql = "SELECT Fixtureid, Users.Userid, FirstName, LastName, FixtureDate, FixtureTime
@@ -538,6 +559,45 @@ public function nextFixture($seriesId) : int
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]); 
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $rows;
+    }
+
+    public function countParticipantBookings(int $fixtureId, int $userId) : int
+    {
+        $sql = "SELECT COUNT(CourtNumber) FROM CourtBookings
+        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]); 
+        return $stmt->fetchColumn();
+    }
+
+    public function getBookingFormData(int $fixtureId, int $userId) : array
+    {
+        $fixture = $this->getFixture($fixtureId);
+        $u = $this->getParticipantData($fixtureId, $userId);
+        $brows = $this->getParticipantBookings($fixtureId, $userId);
+        $bookings=null;
+        $n=0;
+        foreach ($brows as $b) {
+            $bookings[$n]['court'] = $b['CourtNumber'];
+            $bookings[$n]['time'] = substr($b['BookingTime'],0,5);
+            $n++;
+        }
+
+        foreach ($fixture['bookingtimes'] as $time) {
+            $courts[$time] = $this->getAvailableCourts($fixtureId, $time);
+        }
+
+        $usedBookingTime = "";
+        if (is_null($bookings)===false and sizeof($bookings)==1) {
+            $usedBookingTime = $bookings[0]['time'];
+        }
+
+        $isPlaying = $u['IsPlaying']?"Yes":"No";
+        if (is_null($u['WantsToPlay'])) { $wantsToPlay = "Unknown"; }
+        else { $wantsToPlay = $u['WantsToPlay']?"Yes":"No"; }
+        return ['fixture' => $fixture, 'participant' => $u,
+        'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
+        'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime, 
+        'courts' => $courts];   
     }
 
     public function getPlayInvitations($fixtureId) : array

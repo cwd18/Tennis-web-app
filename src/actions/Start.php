@@ -27,24 +27,20 @@ final class Start
             return $response;
         }
         $userId = $row['Userid'];
+
         $_SESSION['User'] = $userId;
         $_SESSION['Role'] = $row['TokenClass'];
         $_SESSION['Otherid'] = $row['Otherid'];
-        switch ($row['TokenClass']) {
-            case 'User':
-                $fixtureId = $row['Otherid'];
-                $wantsToPlay = $m->getFixtures()->getWantsToPlay($fixtureId, $userId);
-                $route = $wantsToPlay == NULL ? 
-                "/participantInvite?fixtureid=$fixtureId&userid=$userId" :
-                "/fixturenotice?fixtureid=$fixtureId";
-                break;
-            case 'Owner':
-                $seriesId = $row['Otherid'];
-                $route = "/series?seriesid=$seriesId";
-                break;
-            case 'Admin':
-                $route = "/serieslist";
-                break;
+
+        $role = $row['TokenClass'];
+        if (strcmp($role, 'User') == 0) {
+            $fixtureId = $row['Otherid'];
+            $route = "/participantPage?fixtureid=$fixtureId&userid=$userId";
+        } elseif (strcmp($role, 'Owner') == 0) {
+            $seriesId = $row['Otherid'];
+            $route = "/series?seriesid=$seriesId";
+        } elseif (strcmp($role, 'Admin') == 0) {
+            $route = "/serieslist";
         }
         return $response
           ->withHeader('Location', $route)

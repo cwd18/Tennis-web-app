@@ -88,6 +88,7 @@ $app->get('/fixturesetbookersplaying', \TennisApp\Action\FixtureSetBookersPlayin
 $app->get('/fixtureresetplaying', \TennisApp\Action\FixtureResetPlaying::class);
 
 // Create participant routes
+$app->get('/participantPage', \TennisApp\Action\ParticipantPage::class);
 $app->get('/participantInvite', \TennisApp\Action\ParticipantInvite::class);
 $app->get('/participant', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);

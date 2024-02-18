@@ -38,12 +38,14 @@ class Series
     public function getSeries($seriesId) : array
     {
         // Retrieve basic series data...
-        $sql = "SELECT FirstName, LastName, SeriesWeekday, SeriesTime, SeriesCourts
+        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, SeriesTime, SeriesCourts
         FROM Users, FixtureSeries WHERE Seriesid = :Seriesid AND Users.Userid = FixtureSeries.SeriesOwner;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
-        $ownerName = $row['FirstName']." ".$row['LastName'];
+        $owner['Userid'] =  $row['Userid'];
+        $owner['FirstName'] = $row['FirstName'];
+        $owner['LastName'] = $row['LastName'];
         $seriesCourts = $row['SeriesCourts'];
         
         // Get default fixture attendees...
@@ -61,7 +63,7 @@ class Series
         $futureFixtures = $f->futureFixtures($seriesId);
 
         // return all series data
-        $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $ownerName, 'courts' => $seriesCourts,
+        $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $owner, 'courts' => $seriesCourts,
         'participants' => $ParticipantList, 'fixtures' => $fixtureList, 'futurefixtures' => $futureFixtures];
         return $series;
     }

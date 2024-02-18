@@ -28,6 +28,10 @@ final class SeriesView
         }
         $s = $m->getSeries();
         $series = $s->getSeries($seriesId);
+        if (strcmp($m->sessionRole(),'Admin') == 0) {
+            $token=$m->getTokens()->getOrcreateToken($series['owner']['Userid'], 'Owner', $seriesId);
+            $series['owner']['Link'] = sprintf("%s/start/%s",$m->getServer(), $token);
+        }
         $view = Twig::fromRequest($request);
         return $view->render($response, 'series.html', $series);
     }

@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>{{ description }}</h2>
-<p>Series owner: {{ owner }}</p>
+<p>Series owner: {{ owner.FirstName}} {{owner.LastName }}</p>
+{% if Role == 'Admin' %}
+<p>Owner link: <a href="{{ owner.Link }}">link</a></p> 
+{% endif %}
+
 <p>Courts: {{ courts }}</p>
 <a class="pure-button" href="serieseditform?seriesid={{ seriesid }}">Edit series data</a>
 <br><br>
