@@ -20,6 +20,7 @@ FOREIGN KEY (SeriesOwner) REFERENCES Users(Userid)
 CREATE TABLE SeriesCandidates (
 Seriesid INT(8) NOT NULL,
 Userid INT (8) NOT NULL,
+PRIMARY KEY (Seriesid, Userid),
 FOREIGN KEY (Seriesid) REFERENCES FixtureSeries(Seriesid),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );

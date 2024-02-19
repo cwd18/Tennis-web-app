@@ -16,12 +16,12 @@
 {% set href = "participantWantsToPlay?fixtureid=%d&userid=%d&WantsToPlay="|
     format(fixture.fixtureid, participant.Userid) %}
 {% if wantstoplay == "Unknown" %}
-    <a class="pure-button" href="{{ href }}1">I would like to play</a>
-    <a class="pure-button" href="{{ href }}0">I'm sorry I can't play</a>
+    <a class="pure-button" href="{{ href }}1">Would like to play</a>
+    <a class="pure-button" href="{{ href }}0">Cannot play</a>
 {% elseif wantstoplay == "Yes" %}
-    <a class="pure-button" href="{{ href }}0">I'm sorry I can't now play</a>
+    <a class="pure-button" href="{{ href }}0">Cannot now play</a>
 {% elseif wantstoplay == "No" %}
-    <a class="pure-button" href="{{ href }}1">I would now like to play</a>
+    <a class="pure-button" href="{{ href }}1">Would now like to play</a>
 {% endif %}
 <br>
 
