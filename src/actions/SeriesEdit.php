@@ -20,7 +20,6 @@ final class SeriesEdit
     {
         $params = $request->getParsedBody();
         $seriesId = $params['seriesid'];
-        $owner = $params['owner'];
         $day = $params['day'];
         $time = $params['time'];
         $courts = $params['courts'];
@@ -30,6 +29,7 @@ final class SeriesEdit
             return $response;
         }
         $s = $m->getSeries();
+        $owner = array_key_exists('owner', $params) ? $params['owner'] : $s->getOwner($seriesId);
         $s->updateBasicSeriesData($seriesId, $owner, $day, $time, $courts);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

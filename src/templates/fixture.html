@@ -4,10 +4,9 @@
 
 <h2>{{ description }}</h2>
 <h2>{{ time }} start</h2>
-<p>Fixture owner: {{ owner }}</p>
+<p>Fixture owner: {{ owner.FirstName }} {{ owner.LastName }}</p>
 <p>Courts: {{ courts }}</p>
 <a class="pure-button" href="fixtureeditform?fixtureid={{ fixtureid }}">Edit fixture data</a>
-<a class="pure-button" href="fixturenotice?fixtureid={{ fixtureid }}" target="_blank">Fixture notice</a>
 <br><br>
 
 {% set linkbase = 'participant?fixtureid=' ~ fixtureid ~ '&userid=' %}
@@ -95,6 +94,9 @@
 <br><br>
 <a class="pure-button" href="emailConfirm?fixtureid={{ fixtureid }}">Email invitations</a>
 {% endif %}
+
+<br><br>
+<a class="pure-button" href="fixturenotice?fixtureid={{ fixtureid }}" target="_blank">Review fixture notice</a>
 
 <br><br>
 <a class="pure-button" href="series?seriesid={{ seriesid }}">Back to series</a>

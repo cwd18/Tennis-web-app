@@ -58,9 +58,8 @@ class SessionHandler implements \SessionHandlerInterface
     public function gc($maxlifetime) : int|false
     {
         // Cleanup old sessions, returning the number of deleted sessions on success, or false on failure
-        $this->pdo->runSQL("DELETE FROM SessionData WHERE UNIX_TIMESTAMP(SessionExpires) < UNIX_TIMESTAMP();");
-        return $this->pdo->rowCount();
+        $stmt = $this->pdo->runSQL(
+            "DELETE FROM SessionData WHERE UNIX_TIMESTAMP(SessionExpires) < UNIX_TIMESTAMP();");
+        return $stmt->rowCount();
     }
-
-
 }

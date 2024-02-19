@@ -77,6 +77,12 @@ class Series
         return $row;
     }
 
+    public function getOwner($seriesId) : int
+    {
+        $sql = "SELECT SeriesOwner FROM FixtureSeries WHERE Seriesid = :Seriesid;";
+        return $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchColumn();
+    }
+
     public function addSeries($owner, $day, $time, $courts)
     {
         $sql = "INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts) 

@@ -6,13 +6,6 @@
 <legend>Edit fixture {{ fixtureid }}</legend>
 <input type="hidden" name="fixtureid" value="{{ fixtureid }}">
 
-<label for="owner">Fixture Owner</label>
-<select name="owner" id="owner">
-{% for user in users %}
-<option value="{{ user.Userid }}">{{ user.FirstName }} {{ user.LastName }}</option>
-{% endfor %}
-</select>
-
 <label for="date">Date</label>
 <input type="date" name="date" id="date" value="{{ date }}">
 
@@ -38,7 +31,6 @@
 name="courts" id="courts" value="{{ courts }}"">
 
 <script>
-document.getElementById("owner").value="{{ owner }}"
 document.getElementById("time").value="{{ time }}"
 </script>
 

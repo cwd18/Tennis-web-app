@@ -31,7 +31,7 @@ final class FixtureEdit
             $response->getBody()->write($error);
             return $response;
         }
-        $f->updateBasicFixtureData($fixtureId, $owner, $date, $time, $courts);
+        $f->updateBasicFixtureData($fixtureId, $date, $time, $courts);
         return $response
         ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
         ->withStatus(302);

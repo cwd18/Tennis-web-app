@@ -47,15 +47,13 @@ class Fixtures
         return $nowDt < $bookingDt and $nowDt > ($bookingDt - 7 * 86400);
     }
 
-        public function updateBasicFixtureData($fixtureId, $owner, $date, $time, $courts)
+        public function updateBasicFixtureData($fixtureId, $date, $time, $courts)
     {
-        $sql = "UPDATE Fixtures 
-        SET FixtureOwner = :FixtureOwner, FixtureDate = :FixtureDate, 
+        $sql = "UPDATE Fixtures SET FixtureDate = :FixtureDate, 
         FixtureTime = :FixtureTime, FixtureCourts = :FixtureCourts
         WHERE Fixtureid = :Fixtureid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
-        $stmt->bindParam('FixtureOwner', $owner, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureDate', $date, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureCourts', $courts, \PDO::PARAM_STR); 
@@ -386,7 +384,8 @@ public function nextFixture($seriesId) : int
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $seriesId = $row['Seriesid'];
-        $ownerName = $row['FirstName'];
+        $owner['FirstName'] = $row['FirstName'];
+        $owner['LastName'] = $row['LastName'];
         $description = $this->fixtureDescription($row['FixtureDate']);
         $fixtureTime = substr($row['FixtureTime'],0,5);
         $fixtureCourts = $row['FixtureCourts'];
@@ -506,7 +505,7 @@ public function nextFixture($seriesId) : int
         // return all fixture data
         $fixture = ['seriesid' => $seriesId, 'fixtureid' => $fixtureId,
         'description' => $description, 'time' => $fixtureTime,
-        'owner' => $ownerName, 'invitationsSent' => $invitationsSent,
+        'owner' => $owner, 'invitationsSent' => $invitationsSent,
         'players' => $playerList, 'reserves' => $reserveList, 'decliners' => $declineList,  'abstainers' => $abstainList,
         'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
         'bookings' => $bookingViewGrid, 'courts' => $fixtureCourts];

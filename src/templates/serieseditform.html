@@ -3,15 +3,17 @@
 
 <form class="pure-form pure-form-stacked" action="seriesedit" method="post">
 <fieldset>
-<legend>Edit series {{ seriesid}}</legend>
+<legend>Edit series</legend>
 <input type="hidden" name="seriesid" value="{{ seriesid }}">
 
+{% if Role == 'Admin' %}
 <label for="owner">Series Owner</label>
 <select name="owner" id="owner">
 {% for user in users %}
 <option value="{{ user.Userid }}">{{ user.FirstName }} {{ user.LastName }}</option>
 {% endfor %}
 </select>
+{% endif %}
 
 <label for="day">Day</label>
 <select name="day" id="day">
@@ -51,6 +53,8 @@ document.getElementById("owner").value="{{ owner }}"
 document.getElementById("day").value="{{ day }}"
 document.getElementById("time").value="{{ time }}"
 </script>
+
+<br>
 
 <button type="submit" class="pure-button pure-button-primary">Update</button>
 
