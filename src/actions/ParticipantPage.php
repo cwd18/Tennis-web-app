@@ -30,10 +30,12 @@ final class ParticipantPage
         $view = Twig::fromRequest($request);
         $f = $m->getFixtures();
         if ($f->getWantsToPlay($fixtureId, $userId) == NULL) {
-            return $view->render($response, 'participantInvite.html', $f->getInvitationData($fixtureId, $userId));
+            return $view->render($response, 'participantInvite.html', 
+            $f->getInvitationData($fixtureId, $userId));
         }
         if ($f->getCourtsBooked($fixtureId, $userId) == NULL and $f->inBookingWindow($fixtureId)) {
-            return $view->render($response, 'participantBook.html', $f->getBookingFormData($fixtureId, $userId));
+            return $view->render($response, 'participantBook.html', 
+            $f->getBookingFormData($fixtureId, $userId));
         }
         $fixture = $f->getFixture($fixtureId);
         return $view->render($response, 'fixtureNotice.html', $fixture);   

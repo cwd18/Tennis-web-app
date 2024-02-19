@@ -24,6 +24,9 @@ class Model
         $this->email = new Email($email_config);
         $this->server = $server;
         $this->twig = $twig;
+        $sessionHandler = new SessionHandler($this->db);
+        session_set_save_handler($sessionHandler, true);
+        session_start();
     }
 
     public function getUsers()

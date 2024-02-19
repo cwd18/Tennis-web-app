@@ -20,13 +20,13 @@ final class FixtureNotice
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
-        if (array_key_exists('fixtureid', $params)) {
-            $fixtureId = $params['fixtureid'];
-        } else {
-            $fixtureId = $f->nextFixture($params['seriesid']);
+        $fixtureId = $params['fixtureid'];
+        $m = $this->container->get('Model');
+        if (is_string($error = $m->checkUser($fixtureId))) {
+            $response->getBody()->write($error);
+            return $response;
         }
+        $f = $m->getFixtures();
         $fixture = $f->getFixture($fixtureId);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'fixtureNotice.html', $fixture);   

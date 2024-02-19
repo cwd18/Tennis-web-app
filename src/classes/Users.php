@@ -25,6 +25,8 @@ class Users
         $sql = "SELECT FirstName, LastName FROM Users WHERE Userid = :Userid;";
         $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($row == FALSE)
+            return "Unknown";
         return $row['FirstName'] . " " .$row['LastName'];
     }
 

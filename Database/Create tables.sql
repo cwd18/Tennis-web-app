@@ -65,3 +65,9 @@ Expires DATETIME DEFAULT NULL,
 PRIMARY KEY (Token),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );
+CREATE TABLE SessionData (
+Sessionid varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+SessionExpires datetime NOT NULL,
+SessionData varchar(1024) COLLATE utf8_unicode_ci,
+PRIMARY KEY (Sessionid)
+);
