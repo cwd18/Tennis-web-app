@@ -1,17 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>{{ description }}</h2>
+<div class="header">
+<h1>{{ description }}</h1>
 <p>Series owner: {{ owner.FirstName}} {{owner.LastName }}</p>
 {% if Role == 'Admin' %}
 <p>Owner link: <a href="{{ owner.Link }}">link</a></p> 
 {% endif %}
-
+</div>
+<div class="content">
 <p>Courts: {{ courts }}</p>
 <a class="pure-button" href="serieseditform?seriesid={{ seriesid }}">Edit series data</a>
+
 <br><br>
 {% if participants|length >0 %}
 <details>
-    <summary>{{ participants|length }} people</summary>
+    <summary><b>Participants ({{ participants|length }})</b></summary>
     <ol>
         {% for n in participants %}
         <li>{{ n }}</li>
@@ -56,4 +59,12 @@
 {% endif %}
 
 <br>
+<details>
+<summary>About this page</summary>
+{% apply markdown_to_html %}
+{{ include('series.md') }}
+{% endapply %}
+</details>
+
+</div>
 {% endblock %}
