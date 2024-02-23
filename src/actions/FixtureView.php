@@ -1,5 +1,5 @@
 <?php
-# View the specified fixture
+# View the specified fixture by fixtureid or seriesid (to view next fixture)
 
 namespace TennisApp\Action;
 
@@ -22,12 +22,15 @@ final class FixtureView
         $params = $request->getQueryParams();
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
+        $s = $m->getSeries();
+        $f = $m->getFixtures();
         if (array_key_exists('fixtureid', $params)) {
             $fixtureId = $params['fixtureid'];
+            $seriesId = $f->getSeriesid($fixtureId);
         } else {
-            $fixtureId = $f->nextFixture($params['seriesid']);
+            $seriesId = $params['seriesid'];
+            $fixtureId = $s->nextFixture($seriesId);
         }
-        $seriesId = $f->getSeriesid($fixtureId);
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;

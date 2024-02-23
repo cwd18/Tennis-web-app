@@ -2,10 +2,20 @@
 {% block content %}
 <div class="header">
 <h1>{{ description }}</h1>
-<p>Series owner: {{ owner.FirstName}} {{owner.LastName }}</p>
+
+<table class="pure-table">
+<tr>
+<td><b>Next fixtures</b></td>
+{% for n in next2fixtures %}
+<td><a href="fixture?fixtureid={{ n.Fixtureid}}">{{ n.FixtureDate|date("jS \\o\\f F") }}</a></td>
+{% endfor %}
+</tr></table>
+
+<p>Series owner: {{ owner.FirstName}} {{owner.LastName }}
 {% if Role == 'Admin' %}
-<p>Owner link: <a href="{{ owner.Link }}">link</a></p> 
+ (<a href="{{ owner.Link }}">owner access link</a>) 
 {% endif %}
+</p>
 </div>
 <div class="content">
 <p>Courts: {{ courts }}</p>
@@ -31,7 +41,8 @@
 <br><br>
 
 {% if fixtures|length >0 %}
-<p><b>Latest fixtures (latest date first):</b></p>
+<details>
+<summary><b>Past fixtures</b></summary>
 <table class="pure-table"><thead><tr><th>Date</th><th>Time</th></tr></thead><tbody>
     {% for n in fixtures %}
         <tr>
@@ -41,14 +52,9 @@
     {% endfor %}
     </tbody>
 </table>
+</details>
 {% else %}
 <p>No fixtures in this series</p>
-{% endif %}
-
-<br>
-{% if futurefixtures < 2 %}
-<a class="pure-button" href="addfixture?seriesid={{ seriesid }}">Add the next fixture</a>
-<br>
 {% endif %}
 
 {% if Role == 'Admin' %}
@@ -56,6 +62,7 @@
 <a class="pure-button" href="serieslist">Back to series list</a>
 <br><br>
 <a class="pure-button" href="seriesdeleteform?seriesid={{ seriesid }}">Delete series</a>
+<br>
 {% endif %}
 
 <br>
@@ -65,6 +72,6 @@
 {{ include('series.md') }}
 {% endapply %}
 </details>
-
+<br><br>
 </div>
 {% endblock %}

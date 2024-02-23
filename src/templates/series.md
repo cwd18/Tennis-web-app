@@ -1,11 +1,10 @@
-This is the landing page for a series owner (using the provided link).
+This is the landing page for a series owner (using the provided access link).
 
-A "series" is a series of weekly tennis fixtures on the same day and time of the week (the time can adjust slightly owing to court availability).
+A "series" is a series of weekly tennis fixtures on the same day and time of the week (the start time can adjust slightly subject to court availability).
 
 The series owner uses this page to:
-- Edit basic series data
+- Access a forthcoming fixture (the next fixture or the one after that)
 - Add and remove the people who participate in fixtures (and who will be invited)
-- Drill down into a particular fixture
-- Add the next fixture to the series
+- Edit basic series data, such as the start time and court numbers to be used
 
-The heading shows the usual fixture day and start time, the series owner, and which courts should be booked.
+New fixtures are automatically created to maintain two future fixtures. When a new fixture is created, it uses series dats, such as the list of participants. If you make a change to series data, it will impact subsequently created fixtures.
