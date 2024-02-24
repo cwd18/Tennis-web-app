@@ -24,25 +24,19 @@ class SessionHandler implements \SessionHandlerInterface
 
     public function read($id) : string|false
     {
-        $nowDt = date('Y-m-d H:i:s');
-        $sql = "SELECT SessionData FROM SessionData WHERE Sessionid = :id AND SessionExpires > :nowDt;";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('id', $id, \PDO::PARAM_INT);
-        $stmt->bindParam('nowDt', $nowDt, \PDO::PARAM_STR); 
-        $stmt->execute();
-        $result = $stmt->fetchColumn();
+        $sql = "SELECT SessionData FROM SessionData WHERE Sessionid = :id 
+        AND SessionExpires > CURRENT_DATE();";
+        $result = $this->pdo->runSQL($sql,['id' => $id])->fetchColumn();
         return $result == false ? "" : $result;
     }
 
     public function write($id, $sessionData) : bool
     {
-        $nowDt = date('Y-m-d H:i:s');
-        $expiresDt = date('Y-m-d H:i:s',strtotime($nowDt . ' + 8 hours'));
         $sql = "REPLACE INTO SessionData 
-        SET Sessionid = :id, SessionExpires = :expiresDt, SessionData = :SessionData;";
+        SET Sessionid = :id, SessionExpires = DATE_ADD(CURRENT_DATE(), INTERVAL 7 DAY), 
+        SessionData = :SessionData;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('id', $id, \PDO::PARAM_INT);
-        $stmt->bindParam('expiresDt', $expiresDt, \PDO::PARAM_STR); 
         $stmt->bindParam('SessionData', $sessionData, \PDO::PARAM_STR); 
         $stmt->execute();
         return true;
@@ -58,8 +52,7 @@ class SessionHandler implements \SessionHandlerInterface
     public function gc($maxlifetime) : int|false
     {
         // Cleanup old sessions, returning the number of deleted sessions on success, or false on failure
-        $stmt = $this->pdo->runSQL(
-            "DELETE FROM SessionData WHERE UNIX_TIMESTAMP(SessionExpires) < UNIX_TIMESTAMP();");
+        $stmt = $this->pdo->runSQL("DELETE FROM SessionData WHERE SessionExpires < CURRENT_DATE();");
         return $stmt->rowCount();
     }
 }

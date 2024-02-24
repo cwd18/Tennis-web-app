@@ -7,4 +7,4 @@ The series owner uses this page to:
 - Add and remove the people who participate in fixtures (and who will be invited)
 - Edit basic series data, such as the start time and court numbers to be used
 
-New fixtures are automatically created to maintain two future fixtures. When a new fixture is created, it uses series dats, such as the list of participants. If you make a change to series data, it will impact subsequently created fixtures.
+New fixtures are automatically created to maintain two future fixtures. When a new fixture is created, it uses series data, such as the list of participants. If you make a change to series data, it will impact subsequently created fixtures.
