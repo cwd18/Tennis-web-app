@@ -5,7 +5,9 @@
 {% for series in serieslist %}
 <p><a href="series?seriesid={{ series.seriesid }}">{{ series.description }}</a></p>
 {% endfor %}
-<br>
+
+<p>Auto link for cron job: {{ autoLink }}</p>
+
 <a class="pure-button" href="seriesaddform">Add a series</a>
 <br><br>
 <a class="pure-button" href="userlist">Users</a>

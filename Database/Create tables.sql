@@ -61,7 +61,7 @@ FOREIGN KEY (Userid) REFERENCES Users(Userid)
 CREATE TABLE Tokens (
 Token char (32),
 Userid INT(8) NOT NULL,
-TokenClass ENUM ('User', 'Owner', 'Admin'),
+TokenClass ENUM ('User', 'Owner', 'Admin', 'Auto'),
 OtherId INT(8),
 Expires DATETIME DEFAULT NULL,
 PRIMARY KEY (Token),
@@ -72,4 +72,8 @@ Sessionid varchar(255) COLLATE utf8_unicode_ci NOT NULL,
 SessionExpires datetime NOT NULL,
 SessionData varchar(1024) COLLATE utf8_unicode_ci,
 PRIMARY KEY (Sessionid)
+);
+CREATE TABLE EventLog (
+EventTime DATETIME DEFAULT NULL,
+EventMessage varchar(1024)
 );
