@@ -96,7 +96,6 @@ $app->post('/fixturesetplaying', \TennisApp\Action\FixtureSetPlaying::class);
 $app->get('/fixturesetbookersplaying', \TennisApp\Action\FixtureSetBookersPlaying::class);
 $app->get('/fixtureresetplaying', \TennisApp\Action\FixtureResetPlaying::class);
 $app->get('/fixtureAddRequests', \TennisApp\Action\FixtureAddRequests::class);
-$app->post('/fixtureAddRequest', \TennisApp\Action\FixtureAddRequest::class);
 $app->get('/fixtureDelRequest', \TennisApp\Action\FixtureDelRequest::class);
 
 // Create participant routes
