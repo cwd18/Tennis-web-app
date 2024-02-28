@@ -19,7 +19,7 @@ final class FixtureSetBookersPlaying
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
         $seriesId = $f->getSeriesid($fixtureId);

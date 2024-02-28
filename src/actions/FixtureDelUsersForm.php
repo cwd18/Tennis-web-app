@@ -20,7 +20,7 @@ final class FixtureDelUsersForm
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
         $seriesId = $f->getSeriesid($fixtureId);
@@ -28,7 +28,7 @@ final class FixtureDelUsersForm
             $response->getBody()->write($error);
             return $response;
         }
-        $users = $f->getFixtureNonBookers($fixtureId);
+        $users = $f->getFixtureNonBookers($fixtureId, 'Booked');
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 

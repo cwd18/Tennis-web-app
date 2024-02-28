@@ -1,5 +1,5 @@
 <?php
-# Set users to want to play from form parameters
+# Add users from form parameters
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class FixtureWantsToPlay
+final class FixtureAddrequest
 {
     private $container;
 
@@ -20,11 +20,9 @@ final class FixtureWantsToPlay
     {
         $params = $request->getParsedBody();
         $fixtureId = (int)$params['fixtureid'];
-        foreach ($params as $pk => $p) {
-            if (substr($pk, 0, 5) == "user_") {
-                $userIds[] = $p;
-            }
-        }
+        $userId = (int)$params['booker'];
+        $court = (int)$params['court'];
+        $time = $params['time'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
         $seriesId = $f->getSeriesid($fixtureId);
@@ -32,7 +30,7 @@ final class FixtureWantsToPlay
             $response->getBody()->write($error);
             return $response;
         }
-        $f->setWantsToPlay($fixtureId, $userIds);
+        $f->addCourtBooking($fixtureId, $userId, $time, $court, 'Request');
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);

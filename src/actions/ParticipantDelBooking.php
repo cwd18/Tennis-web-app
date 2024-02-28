@@ -19,13 +19,19 @@ final class ParticipantDelBooking
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $userId = $params['userid'];
         $court = $params['court'];
         $time = $params['time'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
-        $f->deleteCourtBooking($fixtureId, $userId, $time, $court);
+        $type = $params['type'];
+        $m = $this->container->get('Model');
+        $f = $m->getFixtures();
+        $seriesId = $f->getSeriesid($fixtureId);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            $response->getBody()->write($error);
+            return $response;
+        }
+        $f->deleteCourtBooking($fixtureId, $userId, $time, $court, $type);
         return $response
           ->withHeader('Location', "/participant?fixtureid=$fixtureId&userid=$userId")
           ->withStatus(302);

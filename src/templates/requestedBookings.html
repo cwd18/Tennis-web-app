@@ -1,0 +1,18 @@
+{% if requestedBookings|length > 0 %}
+<b>Booking requests...</b><br>
+<table class="pure-table">
+    <thead><th>Booker</th><th>Court</th><th>Time</th><th> </th></tr></thead>
+    {% for r in requestedBookings %}
+        <tr>
+        <td>{{ r.FirstName}} {{ r.LastName}}</td>
+        <td>{{ r.CourtNumber}}</td>
+        <td>{{ r.BookingTime }}</td>
+        <td>
+        <a href="fixtureDelRequest?fixtureid={{ fixtureid }}&userid={{ r.Userid }}&time={{ r.BookingTime }}&court={{ r.CourtNumber }}">
+        delete</a></td>
+        </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No booking requests</p>
+{% endif %}

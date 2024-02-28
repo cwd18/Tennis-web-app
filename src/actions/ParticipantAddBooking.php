@@ -19,16 +19,18 @@ final class ParticipantAddBooking
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $userId = $params['userid'];
         $court = $params['court'];
         $time = $params['time'];
+        $type = $params['type'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
-        $f->addCourtBooking($fixtureId, $userId, $time, $court);
-        $outPath = "/participant?fixtureid=$fixtureId&userid=$userId";
+        $f->addCourtBooking($fixtureId, $userId, $time, $court, $type);
+        $outPath = strcmp($type, 'Booked') == 0 ? "/participant?fixtureid=$fixtureId&userid=$userId":
+            "/fixtureAddRequests?fixtureid=$fixtureId";
         if (strcmp($m->sessionRole(),'User') == 0) {
-            $outPath = $f->countParticipantBookings($fixtureId, $userId) == 2 ?
+            $outPath = $f->countParticipantBookings($fixtureId, $userId, $type) == 2 ?
             "/fixturenotice?fixtureid=$fixtureId" : 
             "/participantBook?fixtureid=$fixtureId&userid=$userId";
         }

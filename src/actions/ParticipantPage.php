@@ -20,8 +20,8 @@ final class ParticipantPage
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
-        $userId = $params['userid'];
+        $fixtureId = (int)$params['fixtureid'];
+        $userId = (int)$params['userid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUser($fixtureId))) {
             $response->getBody()->write($error);
@@ -33,9 +33,9 @@ final class ParticipantPage
             return $view->render($response, 'participantInvite.html', 
             $f->getInvitationData($fixtureId, $userId));
         }
-        if ($f->getCourtsBooked($fixtureId, $userId) == NULL and $f->inBookingWindow($fixtureId)) {
+        if ($f->getCourtsBooked($fixtureId, $userId) == NULL and $f->inBookingWindow($fixtureId) == 0) {
             return $view->render($response, 'participantBook.html', 
-            $f->getBookingFormData($fixtureId, $userId));
+            $f->getBookingFormData($fixtureId, $userId, 'Booked'));
         }
         $fixture = $f->getFixture($fixtureId);
         return $view->render($response, 'fixtureNotice.html', $fixture);   

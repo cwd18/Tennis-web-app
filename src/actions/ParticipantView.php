@@ -20,7 +20,7 @@ final class ParticipantView
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $userId = $params['userid'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
@@ -31,7 +31,7 @@ final class ParticipantView
         }
         $fixture = $f->getFixture($fixtureId);
         $u = $f->getParticipantData($fixtureId, $userId);
-        $brows = $f->getParticipantBookings($fixtureId, $userId);
+        $brows = $f->getParticipantBookings($fixtureId, $userId, 'Booked');
         $bookings=null;
         $n=0;
         foreach ($brows as $b) {

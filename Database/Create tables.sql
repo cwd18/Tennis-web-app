@@ -41,10 +41,11 @@ CREATE TABLE CourtBookings (
 Fixtureid INT(8) NOT NULL,
 BookingTime TIME NOT NULL,
 CourtNumber INT(3) NOT NULL,
+BookingType ENUM ('Booked', 'Request') NOT NULL DEFAULT 'Booked',
 Userid INT(8) NOT NULL,
-PRIMARY KEY (Fixtureid, BookingTime, CourtNumber),
-FOREIGN KEY (Fixtureid) REFERENCES Fixtures(Fixtureid),
-FOREIGN KEY (Userid) REFERENCES Users(Userid)
+PRIMARY KEY (Fixtureid, BookingTime, CourtNumber, BookingType),
+FOREIGN KEY (Fixtureid) REFERENCES FixtureParticipants(Fixtureid),
+FOREIGN KEY (Userid) REFERENCES FixtureParticipants(Userid)
 );
 CREATE TABLE FixtureParticipants (
 Fixtureid INT(8),

@@ -1,5 +1,5 @@
 <?php
-# Set users to want to play from form parameters
+# Delete booking request from link parameters
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class FixtureWantsToPlay
+final class FixtureDelRequest
 {
     private $container;
 
@@ -15,16 +15,14 @@ final class FixtureWantsToPlay
     {
         $this->container = $container;
     }
-
+    
     public function __invoke(Request $request, Response $response): Response
     {
-        $params = $request->getParsedBody();
+        $params = $request->getQueryParams();
         $fixtureId = (int)$params['fixtureid'];
-        foreach ($params as $pk => $p) {
-            if (substr($pk, 0, 5) == "user_") {
-                $userIds[] = $p;
-            }
-        }
+        $userId = (int)$params['userid'];
+        $court = $params['court'];
+        $time = $params['time'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
         $seriesId = $f->getSeriesid($fixtureId);
@@ -32,9 +30,9 @@ final class FixtureWantsToPlay
             $response->getBody()->write($error);
             return $response;
         }
-        $f->setWantsToPlay($fixtureId, $userIds);
+        $f->deleteCourtBooking($fixtureId, $userId, $time, $court, 'Request');
         return $response
-          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
+          ->withHeader('Location', "/fixture?fixtureid=$fixtureId&userid=$userId")
           ->withStatus(302);
       }
 }

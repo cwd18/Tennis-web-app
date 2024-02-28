@@ -1,5 +1,5 @@
 <?php
-# Present form to add booking
+# Present form to add booking or requested booking
 
 namespace TennisApp\Action;
 
@@ -20,11 +20,12 @@ final class ParticipantBook
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $userId = $params['userid'];
+        $type = $params['type'];
         $model = $this->container->get('Model');
         $f = $model->getFixtures();
-        $bookingFormData = $f->getBookingFormData($fixtureId, $userId);
+        $bookingFormData = $f->getBookingFormData($fixtureId, $userId, $type);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'participantBook.html', $bookingFormData);
     }

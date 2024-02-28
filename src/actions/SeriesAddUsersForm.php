@@ -20,7 +20,7 @@ final class SeriesAddUsersForm
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $seriesId = $params['seriesid'];
+        $seriesId = (int)$params['seriesid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);

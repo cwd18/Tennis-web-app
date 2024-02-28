@@ -27,29 +27,48 @@
 </ol>
 {% endif %}
 
-
 {% if players|length == 0 and reserves|length == 0 %}
 <p>No players or reserves yet</p>
 {% endif %}
 
-{% if bookings|length >1 %}
-    <b>Courts:</b><br><br>
-    <table class="pure-table">
-    {% for key, r in bookings %}
-    {% if key == 0 %}<thead>{% endif %}
-    <tr>
-    {% for c in r %}
-    {% if key == 0 %}
-        <th>{{ c }}</th>
+{% if inBookingWindow >= 0 %}
+    {% if bookings|length >1 %}
+        <b>Booked courts...</b><br>
+        <table class="pure-table">
+        {% for key, r in bookings %}
+        {% if key == 0 %}<thead>{% endif %}
+        <tr>
+        {% for c in r %}
+        {% if key == 0 %}
+            <th>{{ c }}</th>
+        {% else %}
+            <td>{{ c }}</td>
+        {% endif %}
+        {% endfor %}
+        {% if key == 0 %}</thead>{% endif %}
+        {% endfor %}
+        </table>
     {% else %}
-        <td>{{ c }}</td>
+        No bookings<br>
     {% endif %}
+{% endif %}
+
+{% if inBookingWindow != 0 %}
+{% if requestedBookings|length > 0 %}
+<b>Booking requests...</b><br>
+<table class="pure-table">
+    <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
+    {% for r in requestedBookings %}
+        <tr>
+        <td>{{ r.FirstName}} {{ r.LastName}}</td>
+        <td>{{ r.CourtNumber}}</td>
+        <td>{{ r.BookingTime }}</td>
+        </tr>
     {% endfor %}
-    {% if key == 0 %}</thead>{% endif %}
-    {% endfor %}
-    </table>
+</table>
 {% else %}
-    No bookings yet<br>
+<p>No booking requests</p>
+{% endif %}
 {% endif %}
 
 <br>

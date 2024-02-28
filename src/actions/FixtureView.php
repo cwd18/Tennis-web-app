@@ -25,10 +25,10 @@ final class FixtureView
         $s = $m->getSeries();
         $f = $m->getFixtures();
         if (array_key_exists('fixtureid', $params)) {
-            $fixtureId = $params['fixtureid'];
+            $fixtureId = (int)$params['fixtureid'];
             $seriesId = $f->getSeriesid($fixtureId);
         } else {
-            $seriesId = $params['seriesid'];
+            $seriesId = (int)$params['seriesid'];
             $fixtureId = $s->nextFixture($seriesId);
         }
         if (is_string($error = $m->checkOwner($seriesId))) {

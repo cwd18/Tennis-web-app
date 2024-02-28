@@ -20,7 +20,7 @@ final class FixtureNotice
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUser($fixtureId))) {
             $response->getBody()->write($error);

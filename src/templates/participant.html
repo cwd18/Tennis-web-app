@@ -33,7 +33,7 @@
 <td>{{ b.time }}</td>
 <td>{{ b.court }}</td>
 <td>
-<a href="participantDelBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&time={{ b.time }}&court={{ b.court }}">
+<a href="participantDelBooking?type=Booked&fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&time={{ b.time }}&court={{ b.court }}">
 delete</a>
 </td>
 </tr>
@@ -44,7 +44,7 @@ delete</a>
 {% if bookings|length <2 %}
 <br>
 <a class="pure-button" 
-    href="participantBook?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
+    href="participantBook?type=Booked&fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
     Report a court booking</a>
     <br>
 {% endif %}

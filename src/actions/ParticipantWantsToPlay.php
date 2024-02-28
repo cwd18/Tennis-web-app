@@ -19,7 +19,7 @@ final class ParticipantWantsToPlay
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $userId = $params['userid'];
         $wantsToPlay = $params['WantsToPlay'];
         $m = $this->container->get('Model');

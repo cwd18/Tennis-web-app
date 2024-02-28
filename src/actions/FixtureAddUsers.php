@@ -19,7 +19,7 @@ final class FixtureAddUsers
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         foreach ($params as $pk => $p) {
             if (substr($pk, 0, 5) == "user_") {
                 $userIds[] = $p;

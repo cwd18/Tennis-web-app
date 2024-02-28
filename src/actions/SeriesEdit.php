@@ -19,7 +19,7 @@ final class SeriesEdit
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
-        $seriesId = $params['seriesid'];
+        $seriesId = (int)$params['seriesid'];
         $day = $params['day'];
         $time = $params['time'];
         $courts = $params['courts'];

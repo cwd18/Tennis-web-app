@@ -1,13 +1,14 @@
 <?php
-# Set users to want to play from form parameters
+# Present form to add a booking request to the specified fixture
 
 namespace TennisApp\Action;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use \Slim\Views\Twig;
 
-final class FixtureWantsToPlay
+final class FixtureAddRequests
 {
     private $container;
 
@@ -18,13 +19,8 @@ final class FixtureWantsToPlay
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $params = $request->getParsedBody();
+        $params = $request->getQueryParams();
         $fixtureId = (int)$params['fixtureid'];
-        foreach ($params as $pk => $p) {
-            if (substr($pk, 0, 5) == "user_") {
-                $userIds[] = $p;
-            }
-        }
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
         $seriesId = $f->getSeriesid($fixtureId);
@@ -32,9 +28,12 @@ final class FixtureWantsToPlay
             $response->getBody()->write($error);
             return $response;
         }
-        $f->setWantsToPlay($fixtureId, $userIds);
-        return $response
-          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
-          ->withStatus(302);
-      }
+        $users = $f->getFixtureNonBookers($fixtureId, 'Request');
+        $requestedBookings = $f->getRequestedBookings($fixtureId);
+        $view = Twig::fromRequest($request);
+        return $view->render($response, 'fixtureAddRequests.html', 
+        ['users' => $users, 
+        'requestedBookings' => $requestedBookings,
+        'fixtureid' => $fixtureId]);
+    }
 }

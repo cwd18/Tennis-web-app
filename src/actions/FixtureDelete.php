@@ -19,8 +19,8 @@ final class FixtureDelete
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = $params['fixtureid'];
-        $seriesId = $params['seriesid'];
+        $fixtureId = (int)$params['fixtureid'];
+        $seriesId = (int)$params['seriesid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkAdmin())) {
             $response->getBody()->write($error);

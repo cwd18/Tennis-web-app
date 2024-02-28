@@ -19,7 +19,7 @@ final class FixtureEdit
   public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
-        $fixtureId = $params['fixtureid'];
+        $fixtureId = (int)$params['fixtureid'];
         $owner = $params['owner'];
         $date = $params['date'];
         $time = $params['time'];
