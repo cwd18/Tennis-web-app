@@ -13,7 +13,8 @@ SeriesOwner INT(8) NOT NULL,
 SeriesWeekday INT(8) NOT NULL,
 SeriesTime TIME NOT NULL DEFAULT '07:30',
 SeriesDuration INT(3) NOT NULL DEFAULT 2,
-SeriesCourts varchar (100) NOT NULL DEFAULT '1-17'
+SeriesCourts varchar (100) NOT NULL DEFAULT '1-17',
+AutoEmail BOOLEAN DEFAULT FALSE,
 PRIMARY KEY (Seriesid),
 FOREIGN KEY (SeriesOwner) REFERENCES Users(Userid)
 );
@@ -44,8 +45,7 @@ CourtNumber INT(3) NOT NULL,
 BookingType ENUM ('Booked', 'Request') NOT NULL DEFAULT 'Booked',
 Userid INT(8) NOT NULL,
 PRIMARY KEY (Fixtureid, BookingTime, CourtNumber, BookingType),
-FOREIGN KEY (Fixtureid) REFERENCES FixtureParticipants(Fixtureid),
-FOREIGN KEY (Userid) REFERENCES FixtureParticipants(Userid)
+FOREIGN KEY (Fixtureid, UserId) REFERENCES FixtureParticipants(Fixtureid, UserId)
 );
 CREATE TABLE FixtureParticipants (
 Fixtureid INT(8),

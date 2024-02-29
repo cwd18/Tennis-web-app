@@ -13,6 +13,8 @@ class Model
     protected $series = null;
     protected $fixtures = null; 
     protected $tokens = null; 
+    protected $eventLog = null; 
+
 
     public function __construct($db_config, $email_config, $server, $twig)
     {
@@ -24,6 +26,7 @@ class Model
         $this->email = new Email($email_config);
         $this->server = $server;
         $this->twig = $twig;
+        $this->eventLog = new EventLog($this->db);
         $sessionHandler = new SessionHandler($this->db);
         session_set_save_handler($sessionHandler, true);
         session_start();
@@ -64,6 +67,11 @@ class Model
     public function getEmail()
     {
         return $this->email;
+    }
+
+    public function getEventLog()
+    {
+        return $this->eventLog;
     }
 
     public function getServer()

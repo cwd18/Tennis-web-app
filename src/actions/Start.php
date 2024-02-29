@@ -35,7 +35,7 @@ final class Start
         $role = $row['TokenClass'];
 
         if (strcmp($role, 'Auto') == 0) {
-            $m->getSeries()->runAutomation();
+            $m->getSeries()->runAutomation($m);
             return $response;
         }
 

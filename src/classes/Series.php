@@ -41,19 +41,28 @@ class Series
         return $series;
     }
 
-    public function runAutomation()
+    public function runAutomation($model)
     {
         // Called to run automated tasks
-        $sql = "INSERT INTO EventLog(EventTime, EventMesssage) 
-        VALUES (CURRENT_TIMESTAMP(), 'runAutomation called');";
-        $this->pdo->runSQL($sql);
-        $sql = "SELECT Seriesid FROM FixtureSeries;";
+        $eventLog = $model->getEventLog();
+        $eventLog->write('runAutomation called');
+        $sql = "SELECT Seriesid, SeriesWeekday, AutoEmail FROM FixtureSeries;";
         $statement = $this->pdo->runSQL($sql);
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $todayWeekday = date("N", strtotime("wednesday")) - 1; // 0 for Monday, 6 for Sunday
+        $tomorrowWeekday = ($todayWeekday + 1) % 7;
         foreach ($rows as $row) {
-            $this->ensure2FutureFixtures($row['Seriesid']);
+            $seriesId = $row['Seriesid'];
+            $this->ensure2FutureFixtures($seriesId);
+            if ($row['AutoEmail']) {
+                if ($todayWeekday == $row['Weekday']) {
+                    $eventLog->write("Sending court booking emails for series $seriesId");
+                }
+                if ($tomorrowWeekday == $row['Weekday']) {
+                    $eventLog->write("Sending invitation emails for series $seriesId");
+                }
+            }
         }
-
     }
 
     public function getSeries($seriesId) : array
@@ -218,16 +227,12 @@ class Series
 
     public function nextFixture($seriesId) : int
     {
-        $today = date("y-m-d");
+        // return fixtureid of next fixture or zero if there isn't one
         $sql = "SELECT Fixtureid FROM Fixtures 
-        WHERE Seriesid = :Seriesid AND FixtureDate > :Today
+        WHERE Seriesid = :Seriesid AND FixtureDate > CURRENT_DATE()
         ORDER BY FixtureDate LIMIT 1;";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
-        $stmt->bindParam('Today', $today, \PDO::PARAM_STR); 
-        $stmt->execute();
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $row == false ? 0 : $row['Fixtureid'];
+        $$fixtureId = $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchColumn();
+        return $fixtureId == false ? 0 : $fixtureId;
     }
 
     private function addFixture($seriesId, $fixtureDate) : int
