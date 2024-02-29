@@ -26,10 +26,10 @@ public function __invoke(Request $request, Response $response): Response
         }
         $tokens = $m->getTokens();
         $token = $tokens->getOrcreateToken(1, 'Auto', NULL);
-        $autoLink = sprintf("%s/start/%s",$m->getServer(), $token);
+        $autoUrl = "/start/$token";
         $s = $m->getSeries();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'serieslist.html', 
-            ['serieslist' => $s->getAllSeries(), 'autoLink' => $autoLink]);
+            ['serieslist' => $s->getAllSeries(), 'autoUrl' => $autoUrl]);
     }
 }

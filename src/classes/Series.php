@@ -47,6 +47,13 @@ class Series
         $sql = "INSERT INTO EventLog(EventTime, EventMesssage) 
         VALUES (CURRENT_TIMESTAMP(), 'runAutomation called');";
         $this->pdo->runSQL($sql);
+        $sql = "SELECT Seriesid FROM FixtureSeries;";
+        $statement = $this->pdo->runSQL($sql);
+        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        foreach ($rows as $row) {
+            $this->ensure2FutureFixtures($row['Seriesid']);
+        }
+
     }
 
     public function getSeries($seriesId) : array
@@ -186,8 +193,7 @@ class Series
         $sql = "SELECT Userid, FirstName, LastName FROM Users
         WHERE Users.Userid NOT IN (SELECT Userid FROM SeriesCandidates WHERE Seriesid = :Seriesid)
         ORDER BY FirstName, LastName;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
-        $users = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $users = $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
@@ -224,8 +230,10 @@ class Series
         return $row == false ? 0 : $row['Fixtureid'];
     }
 
-    private function addFixture($seriesId, $fixtureDate)
+    private function addFixture($seriesId, $fixtureDate) : int
     {
+        // Add a fixture at specified date and return the fixtureid
+        // If the fixture already exists, return the fixtureid of that fixture
         $seriesRow = $this->getBasicSeriesData($seriesId);
         $fixtureOwner = $seriesRow['SeriesOwner'];
         $fixtureTime = $seriesRow['SeriesTime'];
@@ -244,9 +252,23 @@ class Series
         $stmt->bindParam('FixtureCourts', $fixtureCourts, \PDO::PARAM_STR); 
         $stmt->execute();
         $fixtureId = $this->pdo->lastInsertId();
+        // Add fixture participants
         $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid)
         SELECT '$fixtureId', Userid FROM SeriesCandidates WHERE Seriesid = :Seriesid;";
         $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
+        // Copy any court booking requests from any previous fixture
+        $sql = "SELECT Fixtureid FROM Fixtures 
+        WHERE Seriesid = :Seriesid AND FixtureDate < :FixtureDate
+        ORDER BY FixtureDate DESC LIMIT 1;";
+        $previousFixtureId = $this->pdo->runSQL($sql,
+            ['Seriesid' => $seriesId, 'FixtureDate' => $fixtureDate])->fetchall(\PDO::FETCH_ASSOC);
+        if ($previousFixtureId == false) {
+            return $fixtureId; // no previous fixture
+        }
+        $sql ="INSERT INTO CourtBookings (Fixtureid, BookingTime, CourtNumber, BookingType)
+        SELECT '$fixtureId', BookingTime, CourtNumber, BookingType FROM CourtBookings
+        WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
+        $this->pdo->runSQL($sql,['Fixtureid' => $previousFixtureId]);
         return $fixtureId;
     }
 
