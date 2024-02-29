@@ -1,0 +1,4 @@
+cron:
+- description: "Daily automated processing of e.g. emails"
+  url: /start/0a7a2f3e521770a956ea62e75397aead
+  schedule: every day 07:00

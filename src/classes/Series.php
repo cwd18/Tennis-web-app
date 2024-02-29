@@ -41,6 +41,14 @@ class Series
         return $series;
     }
 
+    public function runAutomation()
+    {
+        // Called to run automated tasks
+        $sql = "INSERT INTO EventLog(EventTime, EventMesssage) 
+        VALUES (CURRENT_TIMESTAMP(), 'runAutomation called');";
+        $this->pdo->runSQL($sql);
+    }
+
     public function getSeries($seriesId) : array
     {
         // Retrieve basic series data...

@@ -33,6 +33,12 @@ final class Start
         $_SESSION['Otherid'] = $row['Otherid'];
 
         $role = $row['TokenClass'];
+
+        if (strcmp($role, 'Auto') == 0) {
+            $m->getSeries()->runAutomation();
+            return $response;
+        }
+
         if (strcmp($role, 'User') == 0) {
             $fixtureId = $row['Otherid'];
             $route = "/participantPage?fixtureid=$fixtureId&userid=$userId";
@@ -42,7 +48,7 @@ final class Start
         } elseif (strcmp($role, 'Admin') == 0) {
             $route = "/serieslist";
         }
-        return $response
+    return $response
           ->withHeader('Location', $route)
           ->withStatus(302);
     }
