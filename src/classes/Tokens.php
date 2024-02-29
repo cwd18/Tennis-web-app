@@ -12,7 +12,7 @@ class Tokens
         $this->pdo = $pdo;
     }
 
-    public function getOrCreateToken(int $userId, string $tokenClass, int|NULL $otherId): string
+    public function getOrCreateToken(int $userId, string $tokenClass, int $otherId): string
     {
         $token = $this->getToken($userId, $tokenClass, $otherId);
         if (is_string($token)) {
@@ -35,7 +35,7 @@ class Tokens
         return $this->pdo->runSQL($sql, ['Token' => $token])->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function getToken(int $userId, string $tokenClass, int|NULL $otherId): mixed
+    public function getToken(int $userId, string $tokenClass, int $otherId): mixed
     {
         $sql = "SELECT Token FROM Tokens WHERE Userid = :Userid 
             AND TokenClass = :TokenClass AND Otherid = :Otherid

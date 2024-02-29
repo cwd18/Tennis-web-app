@@ -25,7 +25,7 @@ public function __invoke(Request $request, Response $response): Response
             return $response;
         }
         $tokens = $m->getTokens();
-        $token = $tokens->getOrcreateToken(1, 'Auto', NULL);
+        $token = $tokens->getOrcreateToken(1, 'Auto', 0);
         $autoUrl = "/start/$token";
         $s = $m->getSeries();
         $view = Twig::fromRequest($request);
