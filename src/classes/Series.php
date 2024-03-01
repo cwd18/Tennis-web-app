@@ -69,7 +69,8 @@ class Series
     {
         // Retrieve basic series data...
         $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, SeriesTime, SeriesCourts
-        FROM Users, FixtureSeries WHERE Seriesid = :Seriesid AND Users.Userid = FixtureSeries.SeriesOwner;";
+        FROM Users JOIN FixtureSeries ON Users.Userid = FixtureSeries.SeriesOwner
+        WHERE Seriesid = :Seriesid;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
@@ -79,10 +80,14 @@ class Series
         $seriesCourts = $row['SeriesCourts'];
 
         // Get upcoming two fixtures (there should only be two)
+        $todayDate = date('Y-m-d');
         $sql = "SELECT Fixtureid, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime FROM Fixtures 
-        WHERE Seriesid = :Seriesid AND FixtureDate >= CURRENT_DATE() 
+        WHERE Seriesid = :Seriesid AND FixtureDate >= :today 
         ORDER BY FixtureDate ASC LIMIT 2;";
-        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
+        $stmt->execute();
         $next2Fixtures = $stmt->fetchall(\PDO::FETCH_ASSOC);
         
         // Get default fixture attendees...
@@ -177,8 +182,9 @@ class Series
     public function getSeriesUsers($seriesId)
     {
         // Return list of users for this series 
-        $sql = "SELECT Users.Userid, FirstName, LastName FROM Users, SeriesCandidates
-        WHERE Seriesid = :Seriesid AND Users.Userid = SeriesCandidates.Userid
+        $sql = "SELECT Users.Userid, FirstName, LastName 
+        FROM Users JOIN SeriesCandidates ON Users.Userid = SeriesCandidates.Userid
+        WHERE Seriesid = :Seriesid 
         ORDER BY FirstName, LastName;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -228,10 +234,15 @@ class Series
     public function nextFixture($seriesId) : int
     {
         // return fixtureid of next fixture or zero if there isn't one
+        $todayDate = date('Y-m-d');
         $sql = "SELECT Fixtureid FROM Fixtures 
-        WHERE Seriesid = :Seriesid AND FixtureDate > CURRENT_DATE()
+        WHERE Seriesid = :Seriesid AND FixtureDate > :today
         ORDER BY FixtureDate LIMIT 1;";
-        $$fixtureId = $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchColumn();
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
+        $stmt->execute();
+        $fixtureId = $stmt->fetchColumn();
         return $fixtureId == false ? 0 : $fixtureId;
     }
 
@@ -291,10 +302,15 @@ class Series
     
     private function getPastFixtures($seriesId, $count) : array
     {
+        $todayDate = date('Y-m-d');
         $sql = "SELECT Fixtureid, FixtureDate, FixtureTime FROM Fixtures 
-        WHERE Seriesid = :Seriesid AND FixtureDate < CURRENT_DATE()
+        WHERE Seriesid = :Seriesid AND FixtureDate < :today
         ORDER BY FixtureDate DESC LIMIT :Count;";
-        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $seriesId, 'Count' => $count]);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
+        $stmt->bindParam('Count', $count, \PDO::PARAM_INT);
+        $stmt->execute();
         $result = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (empty($result)) {
             return $result;
