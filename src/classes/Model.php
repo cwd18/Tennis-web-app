@@ -5,7 +5,7 @@ namespace TennisApp;
 
 class Model
 {
-    protected $db = null; 
+    public $db = null; 
     protected $email = null;
     protected $server = null;
     protected $twig = null;

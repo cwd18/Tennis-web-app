@@ -28,8 +28,11 @@ public function __invoke(Request $request, Response $response): Response
         $token = $tokens->getOrcreateToken(1, 'Auto', 0);
         $autoUrl = "/start/$token";
         $s = $m->getSeries();
+        $l = $m->getEventLog();
+        $sqlTime = $m->db->runSQL("SELECT RIGHT(NOW(),8);")->fetchColumn();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'serieslist.html', 
-            ['serieslist' => $s->getAllSeries(), 'autoUrl' => $autoUrl]);
+            ['serieslist' => $s->getAllSeries(), 'phpTime' => date("H:i:s"), 'sqlTime' => $sqlTime,
+            'autoUrl' => $autoUrl, 'log' => $l->list()]);
     }
 }

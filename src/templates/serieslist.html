@@ -6,10 +6,18 @@
 <p><a href="series?seriesid={{ series.seriesid }}">{{ series.description }}</a></p>
 {% endfor %}
 
-<p>Auto URL: {{ autoUrl }}</p>
-
 <a class="pure-button" href="seriesaddform">Add a series</a>
 <br><br>
 <a class="pure-button" href="userlist">Users</a>
 
+<p>PHP time: {{ phpTime }}
+<br>SQL time: {{ sqlTime }}</p>
+
+<p>Auto URL: {{ autoUrl }}</p>
+
+{% for l in log %}
+{{ l.EventTime }}: {{l.EventMessage}}<br>
+{% endfor %}
+
+<br><br>
 {% endblock %}

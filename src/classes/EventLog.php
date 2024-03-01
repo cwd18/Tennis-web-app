@@ -12,12 +12,22 @@ class EventLog
         $this->pdo = $pdo;
     }
 
-
     public function write($message)
     {
+        $now = date("Y-m-d H:i:s");
         $sql = "INSERT INTO EventLog (EventTime, EventMessage) 
-        VALUES (CURRENT_TIMESTAMP(), :EventMessage);";
-        $this->pdo->runSQL($sql, ['EventMessage' => $message]);
+        VALUES (:EventTime, :EventMessage);";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('EventTime', $now, \PDO::PARAM_STR); 
+        $stmt->bindParam('EventMessage', $message, \PDO::PARAM_STR); 
+        $stmt->execute();
+    }
+    
+    public function list() : array
+    {
+        $sql = "SELECT * FROM EventLog ORDER BY EventTime DESC LIMIT 20;";
+        $rows = $this->pdo->runSQL($sql)->fetchall(\PDO::FETCH_ASSOC);
+        return $rows;
     }
 
 }

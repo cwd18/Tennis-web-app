@@ -49,16 +49,16 @@ class Series
         $sql = "SELECT Seriesid, SeriesWeekday, AutoEmail FROM FixtureSeries;";
         $statement = $this->pdo->runSQL($sql);
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
-        $todayWeekday = date("N", strtotime("wednesday")) - 1; // 0 for Monday, 6 for Sunday
+        $todayWeekday = date('N') - 1; // 0 for Monday, 6 for Sunday
         $tomorrowWeekday = ($todayWeekday + 1) % 7;
         foreach ($rows as $row) {
             $seriesId = $row['Seriesid'];
             $this->ensure2FutureFixtures($seriesId);
             if ($row['AutoEmail']) {
-                if ($todayWeekday == $row['Weekday']) {
+                if ($todayWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
                 }
-                if ($tomorrowWeekday == $row['Weekday']) {
+                if ($tomorrowWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending invitation emails for series $seriesId");
                 }
             }
