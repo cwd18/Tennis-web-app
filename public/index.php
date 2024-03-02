@@ -105,6 +105,7 @@ $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::c
 $app->get('/participantBook', \TennisApp\Action\ParticipantBook::class);
 $app->get('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
 $app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::class);
+$app->get('/participantNoBooking', \TennisApp\Action\ParticipantNoBooking::class);
 
 // Create email routes
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);

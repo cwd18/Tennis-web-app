@@ -40,14 +40,21 @@ delete</a>
 {% endfor %}
 </tbody></table>
 {% endif %}
+<br>
+
+{% if participant.CourtsBooked is null %}
+<p>Has not said whether any courts have been booked</p>    
+<a class="pure-button" href="participantNoBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
+    I didn't book any court</a>
+{% endif %}
 
 {% if bookings|length <2 %}
-<br>
 <a class="pure-button" 
     href="participantBook?type=Booked&fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
     Report a court booking</a>
     <br>
 {% endif %}
+
 
 <br><br>
 <a class="pure-button" href="fixture?fixtureid={{ fixture.fixtureid }}">Back to fixture</a>

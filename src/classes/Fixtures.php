@@ -124,7 +124,7 @@ class Fixtures
 
     public function getParticipantData($fixtureId, $userId) : array|bool
     {
-        $sql = "SELECT Users.Userid, FirstName, LastName, WantsToPlay, IsPlaying 
+        $sql = "SELECT Users.Userid, FirstName, LastName, WantsToPlay, IsPlaying, CourtsBooked 
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid AND FixtureParticipants.Userid = :Userid;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
@@ -148,6 +148,13 @@ class Fixtures
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
         return $stmt->fetchColumn();
+    }
+    
+    public function setCourtsBooked(int $fixtureId, int $userId, bool $val)
+    {
+        $sql = "UPDATE FixtureParticipants SET CourtsBooked = :val 
+        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $this->pdo->runSQL($sql, ['val' => $val, 'Fixtureid' => $fixtureId, 'Userid' => $userId]);
     }
     
     public function setBookersPlaying($fixtureId)
@@ -264,6 +271,9 @@ class Fixtures
         $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
         $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR); 
         $stmt->execute();
+        if (strcmp($type, 'Booking') == 0){
+            $this->setCourtsBooked($fixtureId, $bookerId, TRUE);
+        }
     }
 
     public function deleteCourtBooking($fixtureId, $userId, $time, $court, $type)
@@ -355,29 +365,23 @@ class Fixtures
         }
         
         // Get players...
-        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, AcceptTime, ISNULL(CourtNumber) AS NotBooked
+        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, AcceptTime, CourtsBooked
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        LEFT JOIN CourtBookings ON FixtureParticipants.Userid = CourtBookings.Userid
-        AND FixtureParticipants.Fixtureid = CourtBookings.Fixtureid
-        AND (BookingType = 'Booked' OR BookingType IS NULL)
         WHERE FixtureParticipants.Fixtureid = :Fixtureid 
         AND IsPlaying = TRUE
-        ORDER BY NotBooked, AcceptTime, FirstName, LastName;";
+        ORDER BY CourtsBooked DESC, AcceptTime, FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $playerList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Get people who have accepted but not marked to play...
-        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, AcceptTime, ISNULL(CourtNumber) AS NotBooked
+        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, AcceptTime, CourtsBooked
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        LEFT JOIN CourtBookings ON FixtureParticipants.Userid = CourtBookings.Userid
-        AND FixtureParticipants.Fixtureid = CourtBookings.Fixtureid
-        AND (BookingType = 'Booked' OR BookingType IS NULL)
         WHERE FixtureParticipants.Fixtureid = :Fixtureid 
         AND IsPlaying = FALSE AND WantsToPlay = TRUE
-        ORDER BY NotBooked, AcceptTime, FirstName, LastName;";
+        ORDER BY CourtsBooked DESC, AcceptTime, FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $reserveList = $stmt->fetchall(\PDO::FETCH_ASSOC);
-        
+
         // Get decliners...
         $sql="SELECT Users.Userid, FirstName, LastName
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid

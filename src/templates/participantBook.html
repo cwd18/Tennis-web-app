@@ -31,7 +31,7 @@ court {{ b.court }} at {{ b.time }}
 
 {% if Role == 'User' %}
     {% if bookings|length == 0 %}
-    <a class="pure-button" href="fixturenotice?fixtureid={{ fixture.fixtureid }}">
+    <a class="pure-button" href="participantNoBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
         I didn't book any court</a>
     {% else %}
     <a class="pure-button" href="fixturenotice?fixtureid={{ fixture.fixtureid }}">
