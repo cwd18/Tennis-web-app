@@ -225,6 +225,15 @@ class Series
         return $fixtureId == false ? 0 : $fixtureId;
     }
 
+    public function latestFixture($seriesId) : int
+    {
+        // return fixtureid of the latest fixture or zero if there isn't one
+        $sql = "SELECT Fixtureid FROM Fixtures 
+        WHERE Seriesid = :Seriesid ORDER BY FixtureDate DESC LIMIT 1;";
+        $stmt = $this->pdo->runSQL($sql, ['Seriesid' => $seriesId]);
+        return (int)$stmt->fetchColumn();
+    }
+
     private function addFixture($seriesId, $fixtureDate) : int
     {
         // Add a fixture at specified date and return the fixtureid

@@ -24,11 +24,14 @@ class Automate
             $seriesId = $row['Seriesid'];
             $s->ensure2FutureFixtures($seriesId);
             if ($row['AutoEmail']) {
+                $fixtureId = $s->latestFixture($seriesId);
                 if ($todayWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
+                    // add code here to send emails
                 }
                 if ($tomorrowWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending invitation emails for series $seriesId");
+                    $this->sendInvitationEmails($model, $fixtureId);
                 }
             }
         }
