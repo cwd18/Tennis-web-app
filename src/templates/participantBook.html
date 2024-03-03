@@ -31,10 +31,10 @@ court {{ b.court }} at {{ b.time }}
 
 {% if Role == 'User' %}
     {% if bookings|length == 0 %}
-    <a class="pure-button" href="participantNoBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
+    <a class="pure-button" href="participantSetBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&value=0">
         I didn't book any court</a>
     {% else %}
-    <a class="pure-button" href="fixturenotice?fixtureid={{ fixture.fixtureid }}">
+    <a class="pure-button" href="participantSetBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&value=1">
         I only booked one court</a>
     {% endif %}
 {% elseif bookingType == 'Booked' %}

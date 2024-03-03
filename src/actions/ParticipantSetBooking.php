@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class ParticipantNoBooking
+final class ParticipantSetBooking
 {
     private $container;
 
@@ -20,10 +20,11 @@ final class ParticipantNoBooking
     {
         $params = $request->getQueryParams();
         $fixtureId = (int)$params['fixtureid'];
-        $userId = $params['userid'];
+        $userId = (int)$params['userid'];
+        $value = $params['value'];
         $m = $this->container->get('Model');
         $f = $m->getFixtures();
-        $f->setCourtsBooked($fixtureId, $userId, FALSE);
+        $f->setCourtsBooked($fixtureId, $userId, $value);
         $outPath = "/participant?fixtureid=$fixtureId&userid=$userId";
         if (strcmp($m->sessionRole(),'User') == 0) {
             $outPath = "/fixturenotice?fixtureid=$fixtureId";

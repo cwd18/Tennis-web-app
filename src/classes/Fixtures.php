@@ -271,9 +271,6 @@ class Fixtures
         $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
         $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR); 
         $stmt->execute();
-        if (strcmp($type, 'Booking') == 0){
-            $this->setCourtsBooked($fixtureId, $bookerId, TRUE);
-        }
     }
 
     public function deleteCourtBooking($fixtureId, $userId, $time, $court, $type)
