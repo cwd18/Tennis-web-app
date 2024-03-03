@@ -14,6 +14,7 @@ class Model
     protected $fixtures = null; 
     protected $tokens = null; 
     protected $eventLog = null; 
+    protected $automate;
 
 
     public function __construct($db_config, $email_config, $server, $twig)
@@ -23,10 +24,11 @@ class Model
         $username = $db_config['username'];
         $password = $db_config['password'];
         $this->db = new Database($dsn, $username, $password);
-        $this->email = new Email($email_config);
+        $this->email = new Email($email_config, $this->db, $server, $twig);
         $this->server = $server;
         $this->twig = $twig;
         $this->eventLog = new EventLog($this->db);
+        $this->automate = new Automate();
         $sessionHandler = new SessionHandler($this->db);
         session_set_save_handler($sessionHandler, true);
         session_start();
@@ -82,6 +84,11 @@ class Model
     public function getTwig()
     {
         return $this->twig;
+    }
+
+    public function getAutomate()
+    {
+        return $this->automate;
     }
 
     public function sessionRole()

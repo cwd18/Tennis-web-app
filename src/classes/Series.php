@@ -41,34 +41,10 @@ class Series
         return $series;
     }
 
-    public function runAutomation($model)
-    {
-        // Called to run automated tasks
-        $eventLog = $model->getEventLog();
-        $eventLog->write('runAutomation called');
-        $sql = "SELECT Seriesid, SeriesWeekday, AutoEmail FROM FixtureSeries;";
-        $statement = $this->pdo->runSQL($sql);
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
-        $todayWeekday = date('N') - 1; // 0 for Monday, 6 for Sunday
-        $tomorrowWeekday = ($todayWeekday + 1) % 7;
-        foreach ($rows as $row) {
-            $seriesId = $row['Seriesid'];
-            $this->ensure2FutureFixtures($seriesId);
-            if ($row['AutoEmail']) {
-                if ($todayWeekday == $row['SeriesWeekday']) {
-                    $eventLog->write("Sending court booking emails for series $seriesId");
-                }
-                if ($tomorrowWeekday == $row['SeriesWeekday']) {
-                    $eventLog->write("Sending invitation emails for series $seriesId");
-                }
-            }
-        }
-    }
-
     public function getSeries($seriesId) : array
     {
         // Retrieve basic series data...
-        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, SeriesTime, SeriesCourts
+        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, SeriesTime, SeriesCourts, AutoEmail
         FROM Users JOIN FixtureSeries ON Users.Userid = FixtureSeries.SeriesOwner
         WHERE Seriesid = :Seriesid;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
@@ -78,6 +54,7 @@ class Series
         $owner['FirstName'] = $row['FirstName'];
         $owner['LastName'] = $row['LastName'];
         $seriesCourts = $row['SeriesCourts'];
+        $autoEmail = $row['AutoEmail'];
 
         // Get upcoming two fixtures (there should only be two)
         $todayDate = date('Y-m-d');
@@ -101,7 +78,8 @@ class Series
         $fixtureList = $this->getPastFixtures($seriesId, 5);
 
         // return all series data
-        $series = ['seriesid' => $seriesId, 'description' => $description, 'owner' => $owner, 'courts' => $seriesCourts,
+        $series = ['seriesid' => $seriesId, 'description' => $description,
+         'owner' => $owner, 'courts' => $seriesCourts, 'autoEmail' => $autoEmail,
         'participants' => $ParticipantList, 'fixtures' => $fixtureList, 'next2fixtures' => $next2Fixtures];
         return $series;
     }
@@ -142,6 +120,7 @@ class Series
         $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR); 
         $stmt->execute();
         $seriesId = $this->pdo->lastInsertId();
+        $this->addUsers($seriesId, array((int)$owner));
         return $seriesId;
     }
 
@@ -267,7 +246,7 @@ class Series
         $stmt->bindParam('FixtureTime', $fixtureTime, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureCourts', $fixtureCourts, \PDO::PARAM_STR); 
         $stmt->execute();
-        $fixtureId = $this->pdo->lastInsertId();
+        $fixtureId = (int)$this->pdo->lastInsertId();
         // Add fixture participants
         $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid)
         SELECT '$fixtureId', Userid FROM SeriesCandidates WHERE Seriesid = :Seriesid;";
@@ -277,7 +256,7 @@ class Series
         WHERE Seriesid = :Seriesid AND FixtureDate < :FixtureDate
         ORDER BY FixtureDate DESC LIMIT 1;";
         $previousFixtureId = $this->pdo->runSQL($sql,
-            ['Seriesid' => $seriesId, 'FixtureDate' => $fixtureDate])->fetchall(\PDO::FETCH_ASSOC);
+            ['Seriesid' => $seriesId, 'FixtureDate' => $fixtureDate])->fetchcolumn();
         if ($previousFixtureId == false) {
             return $fixtureId; // no previous fixture
         }
@@ -288,7 +267,7 @@ class Series
         return $fixtureId;
     }
 
-    private function checkFixtureExists($seriesId, $fixtureDate) : int|bool
+    private function checkFixtureExists($seriesId, $fixtureDate) : int
     {
         // returns Fixtureid or zero if fixture does not exist
         $sql = "SELECT Fixtureid FROM Fixtures 
@@ -297,7 +276,7 @@ class Series
         $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureDate', $fixtureDate, \PDO::PARAM_STR); 
         $stmt->execute();
-        return $stmt->fetchColumn(); 
+        return (int)$stmt->fetchColumn(); 
     }
     
     private function getPastFixtures($seriesId, $count) : array

@@ -16,9 +16,13 @@
  (<a href="{{ owner.Link }}">owner access link</a>) 
 {% endif %}
 </p>
+
+<p>Courts: {{ courts }}</p>
+
+<p>Email automation is {{ autoEmail ? 'enabled' : 'disabled' }}</p>
+
 </div>
 <div class="content">
-<p>Courts: {{ courts }}</p>
 <a class="pure-button" href="serieseditform?seriesid={{ seriesid }}">Edit series data</a>
 
 <br><br>

@@ -4,6 +4,10 @@
 
 <p>Please answer by following <a href = "{{ server }}/start/{{ to.Token }}">this personal link</a></p>
 
+{% if altmessage %}
+Link: {{ server }}/start/{{ to.Token }}
+{% endif %}
+
 <p>The start time is {{ email.fixtureTime }} (subject to getting courts)</p>
 
 <p>Regards,</p>
