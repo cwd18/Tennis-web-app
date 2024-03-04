@@ -1,0 +1,29 @@
+<p>Hi {{ to.FirstName }}</p>
+
+<p>Please book a court at 0730!</p>
+
+<h3>Please book as follows for {{ email.shortDate }}:</h3>
+<table class="pure-table">
+    <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
+    {% for r in email.requests %}
+        <tr{{ r.Userid == to.Userid ? ' style="color:red;"' : '' }}>
+        <td>{{ r.FirstName}} {{ r.LastName}}</td>
+        <td>{{ r.CourtNumber}}</td>
+        <td>{{ r.BookingTime }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<p>After 0730, please record which courts you booked (or that you didn't book a court) by following 
+    <a href = "{{ server }}/start/{{ to.Token }}">this personal link</a>.</p>
+
+{% if altmessage %}
+Link: {{ server }}/start/{{ to.Token }}
+{% endif %}
+
+<p>Using the link to record any courts you booked (even if you didn't book any courts) 
+will get you higher in the playing list than not recording.</p>
+
+<p>Regards,</p>
+
+<p>{{ email.owner.FirstName }}</p>

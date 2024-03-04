@@ -30,7 +30,7 @@ final class SeriesView
         $s->ensure2FutureFixtures($seriesId);
         $series = $s->getSeries($seriesId);
         if (strcmp($m->sessionRole(),'Admin') == 0) {
-            $token=$m->getTokens()->getOrcreateToken($series['owner']['Userid'], 'Owner', $seriesId);
+            $token=$m->getTokens()->getOrCreateToken($series['owner']['Userid'], 'Owner', $seriesId);
             $series['owner']['Link'] = sprintf("%s/start/%s",$m->getServer(), $token);
         }
         $view = Twig::fromRequest($request);

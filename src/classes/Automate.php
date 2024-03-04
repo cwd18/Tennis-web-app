@@ -27,7 +27,7 @@ class Automate
                 $fixtureId = $s->latestFixture($seriesId);
                 if ($todayWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
-                    // add code here to send emails
+                    $this->sendBookingEmails($model, $fixtureId);
                 }
                 if ($tomorrowWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending invitation emails for series $seriesId");
@@ -47,20 +47,48 @@ class Automate
         $recipients = $em['recipients'];
         $tokens = $m->getTokens();
         foreach ($recipients as &$recipient) {
-            $recipient['Token'] = $tokens->getOrcreateToken($recipient['Userid'], 'User', $fixtureId);
+            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
         }
         $subject = $email['subject'];
         $e = $m->getEmail();
         $twig = $m->getTwig();
         $replyTo = $email['owner']['EmailAddress'];
         foreach ($recipients as $to) {
-            $message = $twig->render('emailBody.html', ['altmessage' => false, 'email' => $email, 
+            $message = $twig->render('emailWannaPlay.html', ['altmessage' => false, 'email' => $email, 
             'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
-            $altmessage = strip_tags($twig->render('emailBody.html', ['altmessage' => true, 'email' => $email, 
+            $altmessage = strip_tags($twig->render('emailWannaPlay.html', ['altmessage' => true, 
+            'email' => $email, 'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
+            $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
+        }
+        $f->setInvitationsSent($fixtureId);
+
+    }
+
+    public function sendBookingEmails($model, $fixtureId)
+    {
+        $m = $model;
+        $f = $m->getFixtures();
+        $server = $m->getServer();
+        $em = $f->getBookingRequests($fixtureId);
+        $email = $em['email'];
+        $recipients = $em['recipients'];
+        $tokens = $m->getTokens();
+        foreach ($recipients as &$recipient) {
+            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
+        }
+        $subject = "Book a court at 07:30 for " . $email['shortDate'];
+        $e = $m->getEmail();
+        $twig = $m->getTwig();
+        $replyTo = $email['owner']['EmailAddress'];
+        foreach ($recipients as $to) {
+            $message = $twig->render('emailBookingBase.html', ['altmessage' => false, 'email' => $email, 
+            'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
+            $altmessage = strip_tags($twig->render('emailBookingBase.html', ['altmessage' => true, 'email' => $email, 
             'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
         $f->setInvitationsSent($fixtureId);
 
     }
+
 }

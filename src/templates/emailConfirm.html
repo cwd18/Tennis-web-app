@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>{{ email.subject }}</h2>
+<h2>Book a court at 07:30 for {{ email.shortDate }}</h2>
 
 <p>Reply to: {{ email.owner.FirstName }} {{ email.owner.LastName }}</p>
 
@@ -12,8 +12,14 @@
 {% endfor %}
 </details>
 
+{% set emailBody = false %}
+
 {% set to = recipients[0] %}
-{% include "emailBody.html" %}
+{% if invitationsSent == 0 %}
+{% include "emailWannaPlay.html" %}
+{% else %}    
+{% include "emailBooking.html" %}
+{% endif %}
 
 <br><br>
 <a class="pure-button" href="{{ continuelink }}">Send emails</a>

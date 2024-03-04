@@ -28,16 +28,21 @@ final class EmailConfirm
             $response->getBody()->write($error);
             return $response;
         }
-        $em = $f->getPlayInvitations($fixtureId);
+        $invitationsSent = $f->getInvitationsSent($fixtureId);
+        if ($invitationsSent == 0 ) {
+            $em = $f->getPlayInvitations($fixtureId);
+        } else {
+            $em = $f->getBookingRequests($fixtureId);
+        }
         $email = $em['email'];
         $recipients = $em['recipients'];
         $tokens = $m->getTokens();
         foreach ($recipients as &$recipient) {
-            $recipient['Token'] = $tokens->getOrcreateToken($recipient['Userid'], 'User', $fixtureId);
+            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
         }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'emailConfirm.html', ['email' => $email, 
-        'recipients' => $recipients,
+        return $view->render($response, 'emailConfirm.html', ['invitationsSent' => $invitationsSent, 
+        'email' => $email, 'recipients' => $recipients,
         'server' => $m->getServer(), 'fixtureid' => $fixtureId,
         'continuelink' => "emailSend?fixtureid=$fixtureId", 
         'cancellink' => "fixture?fixtureid=$fixtureId"]);

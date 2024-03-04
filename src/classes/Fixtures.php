@@ -537,7 +537,7 @@ class Fixtures
 
     public function getInvitationData(int $fixtureId, int $userId) : array
     {
-        // Get data for asking user if they want to play    13
+        // Get data for asking user if they want to play om participant web page
         $sql = "SELECT Fixtureid, Users.Userid, FirstName, LastName, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime
         FROM Fixtures, Users WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
@@ -550,7 +550,8 @@ class Fixtures
     {
         // Get information for creating invitation to play emails
         $sql = "SELECT FirstName, LastName, EmailAddress, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime
-        FROM Fixtures, Users WHERE Fixtureid = :Fixtureid AND Userid = FixtureOwner;";
+        FROM Fixtures JOIN Users ON Userid = FixtureOwner
+        WHERE Fixtureid = :Fixtureid;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $fixture = $stmt->fetch(\PDO::FETCH_ASSOC);
         $owner['FirstName'] = $fixture['FirstName'];
@@ -561,7 +562,7 @@ class Fixtures
 
         $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        WHERE WantsToPlay IS NULL AND Fixtureid = :Fixtureid 
+        WHERE WantsToPlay IS NULL AND Fixtureid = :Fixtureid
         ORDER BY FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
         $toList = $stmt->fetchall(\PDO::FETCH_ASSOC);
@@ -572,9 +573,44 @@ class Fixtures
         return ['email' => $email, 'recipients' => $toList];
     }
 
+    public function getBookingRequests($fixtureId) : array
+    {
+        // Get information for creating booking request emails
+        $sql = "SELECT FirstName, LastName, EmailAddress, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime
+        FROM Fixtures JOIN Users ON Userid = FixtureOwner
+        WHERE Fixtureid = :Fixtureid;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $fixture = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $owner['FirstName'] = $fixture['FirstName'];
+        $owner['LastName'] = $fixture['LastName'];
+        $owner['EmailAddress'] = $fixture['EmailAddress'];
+        $shortDate = date("l jS",strtotime($fixture['FixtureDate']));
+        $time = $fixture['FixtureTime'];
+
+        $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress
+        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE WantsToPlay = TRUE AND Fixtureid = :Fixtureid
+        ORDER BY FirstName, LastName;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $toList = $stmt->fetchall(\PDO::FETCH_ASSOC);
+
+        $email['shortDate'] = $shortDate;
+        $email['owner'] = $owner;
+        $email['fixtureTime'] = $time;
+        $email['requests'] = $this->getRequestedBookings($fixtureId);
+        return ['email' => $email, 'recipients' => $toList];
+    }
+    
     public function setInvitationsSent($fixtureId)
     {
         $sql = "UPDATE Fixtures SET InvitationsSent = TRUE WHERE Fixtureid = :Fixtureid;";
         $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
     }
+
+    public function getInvitationsSent($fixtureId)
+    {
+        $sql = "SELECT InvitationsSent FROM Fixtures WHERE Fixtureid = :Fixtureid;";
+        return (int)$this->pdo->runSQL($sql,['Fixtureid' => $fixtureId])->fetchColumn();
+    }
+
 }
