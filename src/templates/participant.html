@@ -45,14 +45,18 @@ delete</a>
 {% if participant.CourtsBooked is null %}
 <p>Has not said whether any courts have been booked</p>    
 <a class="pure-button" href="participantNoBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
-    I didn't book any court</a>
+    I didn't book a court</a>
 {% endif %}
 
-{% if bookings|length <2 %}
+{% if bookings|length < 2 %}
 <a class="pure-button" 
     href="participantBook?type=Booked&fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
-    Report a court booking</a>
-    <br>
+    Report a booking</a>
+    <br><br>
+{% endif %}
+{% if bookings|length == 1 and participant.CourtsBooked == 0 %}
+<a class="pure-button" href="participantSetBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&value=1">
+    I only booked one court</a>
 {% endif %}
 
 
@@ -61,4 +65,3 @@ delete</a>
 <br><br>
 
 {% endblock %}
-

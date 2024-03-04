@@ -34,7 +34,7 @@ public function __invoke(Request $request, Response $response): Response
         return $view->render($response, 'serieseditform.html', 
         ['seriesid' => $seriesId, 'owner' => $series['SeriesOwner'],
         'day' => $series['SeriesWeekday'], 'time' => substr($series['SeriesTime'],0,5),
-        'courts' => $series['SeriesCourts'], 'users' => $users
+        'courts' => $series['SeriesCourts'], 'autoEmail' => $series['AutoEmail'], 'users' => $users
         ]);   
     }
 }

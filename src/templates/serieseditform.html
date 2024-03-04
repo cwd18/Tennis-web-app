@@ -46,7 +46,12 @@
 
 <label for="courts">Courts</label>
 <input type="text" pattern="\d{1,2}-\d{1,2}(?:, \d{1,2}-\d{1,2})*" 
-name="courts" id="courts" value="{{ courts }}"">
+name="courts" id="courts" value="{{ courts }}"/>
+<br>
+
+<label for="autoEmail" class="pure-checkbox">
+<input name="autoEmail" type="checkbox" id="autoEmail" value="1" {{ autoEmail ? 'checked' : ''}}/> Automatic emails
+</label>
 
 <script>
 document.getElementById("owner").value="{{ owner }}"

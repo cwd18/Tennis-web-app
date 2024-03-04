@@ -51,14 +51,12 @@ class Fixtures
         return $r;
     }
 
-    public function updateBasicFixtureData($fixtureId, $date, $time, $courts)
+    public function updateBasicFixtureData($fixtureId, $time, $courts)
     {
-        $sql = "UPDATE Fixtures SET FixtureDate = :FixtureDate, 
-        FixtureTime = :FixtureTime, FixtureCourts = :FixtureCourts
+        $sql = "UPDATE Fixtures SET FixtureTime = :FixtureTime, FixtureCourts = :FixtureCourts
         WHERE Fixtureid = :Fixtureid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
-        $stmt->bindParam('FixtureDate', $date, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureCourts', $courts, \PDO::PARAM_STR); 
         $stmt->execute();

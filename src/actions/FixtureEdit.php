@@ -20,8 +20,6 @@ final class FixtureEdit
     {
         $params = $request->getParsedBody();
         $fixtureId = (int)$params['fixtureid'];
-        $owner = $params['owner'];
-        $date = $params['date'];
         $time = $params['time'];
         $courts = $params['courts'];
         $m = $this->container->get('Model');
@@ -31,7 +29,7 @@ final class FixtureEdit
             $response->getBody()->write($error);
             return $response;
         }
-        $f->updateBasicFixtureData($fixtureId, $date, $time, $courts);
+        $f->updateBasicFixtureData($fixtureId, $time, $courts);
         return $response
         ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
         ->withStatus(302);

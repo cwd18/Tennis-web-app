@@ -86,7 +86,7 @@ class Series
 
     public function getBasicSeriesData($seriesId) : array
     {
-        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts
+        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts, AutoEmail
         FROM FixtureSeries WHERE Seriesid = :Seriesid;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
@@ -124,18 +124,19 @@ class Series
         return $seriesId;
     }
 
-    public function updateBasicSeriesData($seriesId, $owner, $day, $time, $courts)
+    public function updateBasicSeriesData($seriesId, $owner, $day, $time, $courts, $autoEmail)
     {
         $sql = "UPDATE FixtureSeries 
         SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, 
-        SeriesTime = :SeriesTime, SeriesCourts = :SeriesCourts
+        SeriesTime = :SeriesTime, SeriesCourts = :SeriesCourts, AutoEmail = :AutoEmail
         WHERE Seriesid = :Seriesid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
-        $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR); 
+        $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR);
+        $stmt->bindParam('AutoEmail', $autoEmail, \PDO::PARAM_INT);
         $stmt->execute();
     }
 
