@@ -39,7 +39,7 @@ class Fixtures
         $fixtureDate = $stmt->fetchColumn();
         $bookingTime = "07:30";
         $bookingDt2 = strtotime($fixtureDate . " " . $bookingTime);
-        $bookingDt1 = $bookingDt2 - 7 * 26 * 60 * 60; // 7 days earlier
+        $bookingDt1 = $bookingDt2 - 7 * 24 * 60 * 60; // 7 days earlier
         $nowDt = time();
         if ($nowDt < $bookingDt1) {
             $r = -1;
@@ -328,7 +328,8 @@ class Fixtures
     {
         // Get Fixture data
         $sql="SELECT Fixtures.Seriesid, FirstName, LastName, 
-        FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, FixtureCourts, InvitationsSent
+        FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, FixtureCourts, 
+        Fixtures.TargetCourts, InvitationsSent
         FROM Fixtures JOIN Users ON Fixtures.FixtureOwner = Users.Userid 
         JOIN FixtureSeries ON Fixtures.Seriesid = FixtureSeries.Seriesid
         WHERE Fixtureid = :Fixtureid;";
@@ -340,6 +341,7 @@ class Fixtures
         $description = date("l jS \of F Y", strtotime($row['FixtureDate']));
         $fixtureTime = $row['FixtureTime'];
         $fixtureCourts = $row['FixtureCourts'];
+        $targetCourts = $row['TargetCourts'];
         $invitationsSent = $row['InvitationsSent'];
 
         // Calculate booking time slots
@@ -469,7 +471,7 @@ class Fixtures
         'decliners' => $declineList,  'abstainers' => $abstainList,
         'inBookingWindow' => $inBookingWindow, 'requestedBookings' =>$requestedBookings,
         'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
-        'bookings' => $bookingViewGrid, 'courts' => $fixtureCourts];
+        'bookings' => $bookingViewGrid, 'courts' => $fixtureCourts, 'targetCourts' => $targetCourts];
         return $fixture;
     }
 

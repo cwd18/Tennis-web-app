@@ -44,7 +44,8 @@ class Series
     public function getSeries($seriesId) : array
     {
         // Retrieve basic series data...
-        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, SeriesTime, SeriesCourts, AutoEmail
+        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, SeriesTime, 
+        SeriesCourts, TargetCourts, AutoEmail
         FROM Users JOIN FixtureSeries ON Users.Userid = FixtureSeries.SeriesOwner
         WHERE Seriesid = :Seriesid;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
@@ -54,6 +55,7 @@ class Series
         $owner['FirstName'] = $row['FirstName'];
         $owner['LastName'] = $row['LastName'];
         $seriesCourts = $row['SeriesCourts'];
+        $targetCourts = $row['TargetCourts'];
         $autoEmail = $row['AutoEmail'];
 
         // Get upcoming two fixtures (there should only be two)
@@ -79,8 +81,9 @@ class Series
 
         // return all series data
         $series = ['seriesid' => $seriesId, 'description' => $description,
-         'owner' => $owner, 'courts' => $seriesCourts, 'autoEmail' => $autoEmail,
-        'participants' => $ParticipantList, 'fixtures' => $fixtureList, 'next2fixtures' => $next2Fixtures];
+         'owner' => $owner, 'courts' => $seriesCourts, 'targetCourts' => $targetCourts, 
+         'autoEmail' => $autoEmail, 'participants' => $ParticipantList, 
+         'fixtures' => $fixtureList, 'next2fixtures' => $next2Fixtures];
         return $series;
     }
 
