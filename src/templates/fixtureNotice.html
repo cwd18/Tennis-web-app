@@ -27,6 +27,15 @@
 </ol>
 {% endif %}
 
+{% if decliners|length >0 %}
+<p><b>Can't play:</b></p>
+<ol>
+    {% for n in decliners %}
+    <li>{{ n.FirstName }} {{ n.LastName }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+
 {% if players|length == 0 and reserves|length == 0 %}
 <p>No players or reserves yet</p>
 {% endif %}
@@ -55,7 +64,7 @@
 
 {% if inBookingWindow != 0 %}
 {% if requestedBookings|length > 0 %}
-<b>Booking requests...</b><br>
+<p><b>Booking requests:</b></p>
 <table class="pure-table">
     <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
     {% for r in requestedBookings %}
