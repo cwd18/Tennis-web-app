@@ -31,13 +31,12 @@ class Email {
     {
         $this->phpmailer->addReplyTo($replyTo);
         $this->phpmailer->setFrom("tennisfixtures42@gmail.com");
-        $this->phpmailer->addAddress($to);                           // To email address
-        $this->phpmailer->Subject = $subject;                        // Subject of email
-        $this->phpmailer->Body    = '<!DOCTYPE html><html lang="en-us"><body>'
-            . $message . '</body></html>';                              // Body of email
-        $this->phpmailer->AltBody = $altmessage;            // Plain text body
-        $this->phpmailer->send();                                   // Send the email
+        $this->phpmailer->addAddress($to);
+        $this->phpmailer->Subject = $subject;
+        $this->phpmailer->Body    = $message;  // HTML body
+        $this->phpmailer->AltBody = $altmessage; // Plain text body
+        $this->phpmailer->send();     
         $this->phpmailer->clearAllRecipients(); 
-        return true;                                                 // Return true
+        return true;
     }
 }

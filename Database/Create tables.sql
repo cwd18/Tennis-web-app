@@ -76,6 +76,8 @@ SessionData varchar(1024) COLLATE utf8_unicode_ci,
 PRIMARY KEY (Sessionid)
 );
 CREATE TABLE EventLog (
+Seq INT(8) NOT NULL auto_increment,
 EventTime DATETIME DEFAULT NULL,
-EventMessage varchar(1024)
+EventMessage varchar(1024),
+PRIMARY KEY (Seq)
 );

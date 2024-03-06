@@ -8,7 +8,6 @@ class Automate
     public function runAutomation($model)
     {
         // Called to run automated tasks
-        
         $m = $model;
         $pdo = $m->db;
         $eventLog = $m->getEventLog();
@@ -29,20 +28,19 @@ class Automate
                 $fixtureId = $s->latestFixture($seriesId);
                 if ($todayWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
-                    $this->sendBookingEmails($model, $fixtureId);
+                    $this->sendBookingEmails($m, $fixtureId);
                 }
                 if ($tomorrowWeekday == $row['SeriesWeekday']) {
                     $eventLog->write("Sending invitation emails for series $seriesId");
-                    $this->sendInvitationEmails($model, $fixtureId);
+                    $this->sendInvitationEmails($m, $fixtureId);
                 }
             }
         }
         $eventLog->write("Day $todayWeekday automation completed");
     }
 
-    public function sendInvitationEmails($model, $fixtureId)
+    public function sendInvitationEmails($m, $fixtureId)
     {
-        $m = $model;
         $f = $m->getFixtures();
         $server = $m->getServer();
         $em = $f->getPlayInvitations($fixtureId);
@@ -66,9 +64,8 @@ class Automate
         $f->setInvitationsSent($fixtureId);
     }
 
-    public function sendBookingEmails($model, $fixtureId)
+    public function sendBookingEmails($m, $fixtureId)
     {
-        $m = $model;
         $f = $m->getFixtures();
         $server = $m->getServer();
         $em = $f->getBookingRequests($fixtureId);

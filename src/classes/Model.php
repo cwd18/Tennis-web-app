@@ -27,7 +27,6 @@ class Model
         $this->email = new Email($email_config, $this->db, $server, $twig);
         $this->server = $server;
         $this->twig = $twig;
-        $this->eventLog = new EventLog($this->db);
         $this->automate = new Automate();
         $sessionHandler = new SessionHandler($this->db);
         session_set_save_handler($sessionHandler, true);
@@ -73,6 +72,9 @@ class Model
 
     public function getEventLog()
     {
+        if ($this->eventLog === null) {
+            $this->eventLog = new EventLog($this->db);
+        }
         return $this->eventLog;
     }
 
