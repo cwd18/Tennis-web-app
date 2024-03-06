@@ -8,20 +8,22 @@ class Automate
     public function runAutomation($model)
     {
         // Called to run automated tasks
+        
         $m = $model;
         $pdo = $m->db;
         $eventLog = $m->getEventLog();
         $s = $m->getSeries();
 
-        $eventLog->write('runAutomation called');
+        $todayWeekday = date('N') - 1; // 0 for Monday, 6 for Sunday
+        $tomorrowWeekday = ($todayWeekday + 1) % 7;
+        $eventLog->write("Day $todayWeekday automation starting");
 
         $sql = "SELECT Seriesid, SeriesWeekday, AutoEmail FROM FixtureSeries;";
         $statement = $pdo->runSQL($sql);
         $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
-        $todayWeekday = date('N') - 1; // 0 for Monday, 6 for Sunday
-        $tomorrowWeekday = ($todayWeekday + 1) % 7;
         foreach ($rows as $row) {
             $seriesId = $row['Seriesid'];
+            $eventLog->write("Processing series $seriesId");
             $s->ensure2FutureFixtures($seriesId);
             if ($row['AutoEmail']) {
                 $fixtureId = $s->latestFixture($seriesId);
@@ -35,6 +37,7 @@ class Automate
                 }
             }
         }
+        $eventLog->write("Day $todayWeekday automation completed");
     }
 
     public function sendInvitationEmails($model, $fixtureId)
@@ -61,7 +64,6 @@ class Automate
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
         $f->setInvitationsSent($fixtureId);
-
     }
 
     public function sendBookingEmails($model, $fixtureId)
@@ -83,12 +85,10 @@ class Automate
         foreach ($recipients as $to) {
             $message = $twig->render('emailBookingBase.html', ['altmessage' => false, 'email' => $email, 
             'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
-            $altmessage = strip_tags($twig->render('emailBookingBase.html', ['altmessage' => true, 'email' => $email, 
-            'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
+            $altmessage = strip_tags($twig->render('emailBookingBase.html', ['altmessage' => true, 
+            'email' => $email, 'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
         $f->setInvitationsSent($fixtureId);
-
     }
-
 }

@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Book a court at 07:30 for {{ email.shortDate }}</h2>
+{% if invitationsSent == 0 %}
+<h2>Subject: {{ email.subject }}</h2>
+{% else %}    
+<h2>Subject: Book a court at 07:30 for {{ email.shortDate }}</h2>
+{% endif %}
+
 
 <p>Reply to: {{ email.owner.FirstName }} {{ email.owner.LastName }}</p>
 
@@ -11,8 +16,6 @@
 {{ t.FirstName }} {{t.LastName}} ({{ t.EmailAddress }})<br>
 {% endfor %}
 </details>
-
-{% set emailBody = false %}
 
 {% set to = recipients[0] %}
 {% if invitationsSent == 0 %}

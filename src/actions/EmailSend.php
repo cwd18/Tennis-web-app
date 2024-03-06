@@ -27,7 +27,13 @@ final class EmailSend
             $response->getBody()->write($error);
             return $response;
         }
-        $m->getAutomate()->sendInvitationEmails($m, $fixtureId);
+        $a = $m->getAutomate();
+        $invitationsSent = $f->getInvitationsSent($fixtureId);
+        if ($invitationsSent == 0 ) {
+            $a->sendInvitationEmails($m, $fixtureId);
+        } else {
+            $a->sendBookingEmails($m, $fixtureId);
+        }
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);
