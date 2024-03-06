@@ -46,7 +46,7 @@ class EventLog
     
     public function list() : array
     {
-        $sql = "SELECT * FROM (SELECT * FROM EventLog ORDER BY Seq DESC LIMIT 10) AS EventLog1 ORDER By seq;";
+        $sql = "SELECT * FROM (SELECT * FROM EventLog ORDER BY Seq DESC LIMIT 20) AS EventLog1 ORDER By seq;";
         $rows = $this->pdo->runSQL($sql)->fetchall(\PDO::FETCH_ASSOC);
         return $rows;
     }

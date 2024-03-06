@@ -40,7 +40,7 @@ final class ParticipantAddBooking
         if (strcmp($m->sessionRole(),'User') == 0) {
             $outPath = $countBookings == 2 ?
             "/fixturenotice?fixtureid=$fixtureId" : 
-            "/participantBook?fixtureid=$fixtureId&userid=$userId";
+            "/participantBook?fixtureid=$fixtureId&userid=$userId&type=$type";
         }
         return $response
             ->withHeader('Location', $outPath)
