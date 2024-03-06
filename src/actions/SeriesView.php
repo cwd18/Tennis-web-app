@@ -27,7 +27,6 @@ final class SeriesView
             return $response;
         }
         $s = $m->getSeries();
-        $s->ensure2FutureFixtures($seriesId);
         $series = $s->getSeries($seriesId);
         if (strcmp($m->sessionRole(),'Admin') == 0) {
             $token=$m->getTokens()->getOrCreateToken($series['owner']['Userid'], 'Owner', $seriesId);

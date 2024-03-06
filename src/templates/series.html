@@ -3,6 +3,7 @@
 <div class="header">
 <h1>{{ description }}</h1>
 
+{% if next2fixtures|length > 0 %}
 <table class="pure-table">
 <tr>
 <td><b>Next fixtures</b></td>
@@ -10,6 +11,9 @@
 <td><a href="fixture?fixtureid={{ n.Fixtureid}}">{{ n.FixtureDate|date("jS \\o\\f F") }}</a></td>
 {% endfor %}
 </tr></table>
+{% else %}
+<p>No future fixtures</p>
+{% endif %}
 
 <p>Series owner: {{ owner.FirstName}} {{owner.LastName }}
 {% if Role == 'Admin' %}
@@ -59,7 +63,7 @@
 </table>
 </details>
 {% else %}
-<p>No fixtures in this series</p>
+<p>No past fixtures</p>
 {% endif %}
 
 {% if Role == 'Admin' %}

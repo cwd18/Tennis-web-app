@@ -69,8 +69,8 @@
     <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
     {% for r in requestedBookings %}
         <tr>
-        <td>{{ r.FirstName}} {{ r.LastName}}</td>
-        <td>{{ r.CourtNumber}}</td>
+        <td>{{ r.FirstName }} {{ r.LastName }}</td>
+        <td>{{ r.CourtNumber }}</td>
         <td>{{ r.BookingTime }}</td>
         </tr>
     {% endfor %}

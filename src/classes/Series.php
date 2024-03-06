@@ -17,26 +17,33 @@ class Series
     public function seriesDescription($weekday, $time)
     {
         $dayname = date('l', strtotime("Monday +$weekday days"));
-        $hhmm = substr($time,0,5);
-        $description = $dayname . ' at ' . $hhmm;
+        $description = $dayname . ' at ' . $time;
         return $description;
     }
 
     public function fixtureDescription($datestr)
     {
         $date = strtotime($datestr);
-        return date("l jS \of F Y",$date);
+        return date("l jS \of F Y", $date);
     }
   
     public function getAllSeries() : array
     {
-        $sql = "SELECT Seriesid, SeriesWeekday, SeriesTime FROM FixtureSeries;";
-        $statement = $this->pdo->runSQL($sql);
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
+        $todayDate = date('Y-m-d');
+        $sql = "SELECT FixtureSeries.Seriesid, SeriesWeekday, 
+        LEFT(SeriesTime, 5) AS SeriesTime, AutoEmail, COUNT(FixtureId) AS FutureFixtures
+        FROM FixtureSeries LEFT JOIN Fixtures ON FixtureSeries.Seriesid = Fixtures.Seriesid
+        WHERE Fixtures.FixtureDate >= :today OR Fixtures.FixtureDate IS NULL
+        GROUP BY FixtureSeries.Seriesid;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
+        $stmt->execute();
+        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         $series = (array) null;
         foreach ($rows as $row) {
             $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
-            $series[] = ['seriesid' => $row['Seriesid'], 'description' => $description];
+            $series[] = ['seriesid' => $row['Seriesid'], 'description' => $description, 
+            'autoEmail' => $row['AutoEmail'], 'futureFixtures' => $row['FutureFixtures']];
         }
         return $series;
     }
@@ -44,7 +51,7 @@ class Series
     public function getSeries($seriesId) : array
     {
         // Retrieve basic series data...
-        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, SeriesTime, 
+        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, LEFT(SeriesTime,5) AS SeriesTime, 
         SeriesCourts, TargetCourts, AutoEmail
         FROM Users JOIN FixtureSeries ON Users.Userid = FixtureSeries.SeriesOwner
         WHERE Seriesid = :Seriesid;";
@@ -58,7 +65,7 @@ class Series
         $targetCourts = $row['TargetCourts'];
         $autoEmail = $row['AutoEmail'];
 
-        // Get upcoming two fixtures (there should only be two)
+        // Get upcoming two fixtures (there should only be two - or zero if the series has just been created)
         $todayDate = date('Y-m-d');
         $sql = "SELECT Fixtureid, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate >= :today 
@@ -104,11 +111,12 @@ class Series
 
     public function getNextFixtureDate($seriesId) : string
     {
+        // Get the next fixture date, including today
         $sql = "SELECT SeriesWeekday FROM FixtureSeries WHERE Seriesid = :Seriesid;";
         $weekDay = $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchColumn();
         // Calculate the date of the next fixture
         $dayname = date('l', strtotime("Monday +$weekDay days"));
-        $nextFixtureDt = strtotime("next $dayname");
+        $nextFixtureDt = strtotime("next $dayname", strtotime("-1 days")); // start from yesterday to include today
         return date("y-m-d", $nextFixtureDt);
     }
 

@@ -2,10 +2,18 @@
 {% block content %}
 
 <h2>Tennis fixture series</h2>
-{% for series in serieslist %}
-<p><a href="series?seriesid={{ series.seriesid }}">{{ series.description }}</a></p>
-{% endfor %}
+<table class="pure-table">
+    <thead><th>Series</th><th>Automated emails</th><th>Future fixtures</th></tr></thead>
+    {% for s in serieslist %}
+    <tr>
+    <td><a href="series?seriesid={{ s.seriesid }}">{{ s.description }}</a></td>
+    <td>{{ s.autoEmail ? 'Enabled' : 'Disabled' }}</td>
+    <td>{{ s.futureFixtures }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
+<br>
 <a class="pure-button" href="seriesaddform">Add a series</a>
 <br><br>
 <a class="pure-button" href="userlist">Users</a>
