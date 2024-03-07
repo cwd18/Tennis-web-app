@@ -23,13 +23,14 @@ public function __invoke(Request $request, Response $response): Response
         $day = $params['day'];
         $time = $params['time'];
         $courts = $params['courts'];
+        $targetCourts = $params['targetcourts'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkAdmin())) {
             $response->getBody()->write($error);
             return $response;
         }
         $s = $m->getSeries();
-        $s->addSeries($owner, $day, $time, $courts);
+        $s->addSeries($owner, $day, $time, $courts, $targetCourts);
         return $response
           ->withHeader('Location', "/serieslist")
           ->withStatus(302);

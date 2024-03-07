@@ -96,7 +96,7 @@ class Series
 
     public function getBasicSeriesData($seriesId) : array
     {
-        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts, AutoEmail
+        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts, TargetCourts, AutoEmail
         FROM FixtureSeries WHERE Seriesid = :Seriesid;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
@@ -120,26 +120,28 @@ class Series
         return date("y-m-d", $nextFixtureDt);
     }
 
-    public function addSeries($owner, $day, $time, $courts)
+    public function addSeries($owner, $day, $time, $courts, $targetCourts)
     {
-        $sql = "INSERT INTO FixtureSeries (SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts) 
-        VALUES (:SeriesOwner, :SeriesWeekday, :SeriesTime, :SeriesCourts);";
+        $sql = "INSERT INTO FixtureSeries 
+        (SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts, TargetCourts) 
+        VALUES (:SeriesOwner, :SeriesWeekday, :SeriesTime, :SeriesCourts, :TargetCourts);";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR); 
+        $stmt->bindParam('TargetCourts', $targetCourts, \PDO::PARAM_STR); 
         $stmt->execute();
         $seriesId = $this->pdo->lastInsertId();
         $this->addUsers($seriesId, array((int)$owner));
         return $seriesId;
     }
 
-    public function updateBasicSeriesData($seriesId, $owner, $day, $time, $courts, $autoEmail)
+    public function updateBasicSeriesData($seriesId, $owner, $day, $time, $courts, $targetCourts, $autoEmail)
     {
         $sql = "UPDATE FixtureSeries 
         SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, 
-        SeriesTime = :SeriesTime, SeriesCourts = :SeriesCourts, AutoEmail = :AutoEmail
+        SeriesTime = :SeriesTime, SeriesCourts = :SeriesCourts, TargetCourts = :TargetCourts, AutoEmail = :AutoEmail
         WHERE Seriesid = :Seriesid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
@@ -147,6 +149,7 @@ class Series
         $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR);
+        $stmt->bindParam('TargetCourts', $targetCourts, \PDO::PARAM_STR);
         $stmt->bindParam('AutoEmail', $autoEmail, \PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -254,24 +257,28 @@ class Series
         $fixtureOwner = $seriesRow['SeriesOwner'];
         $fixtureTime = $seriesRow['SeriesTime'];
         $fixtureCourts = $seriesRow['SeriesCourts'];
+        $targetCourts = $seriesRow['TargetCourts'];
         $fixtureId = $this->checkFixtureExists($seriesId, $fixtureDate);
         if ($fixtureId != false) {
             return $fixtureId;
         }
-        $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts)
-        VALUES (:Seriesid, :FixtureOwner, :FixtureDate, :FixtureTime, :FixtureCourts);";
+        $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts, TargetCourts)
+        VALUES (:Seriesid, :FixtureOwner, :FixtureDate, :FixtureTime, :FixtureCourts, :TargetCourts);";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureOwner', $fixtureOwner, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureDate', $fixtureDate, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureTime', $fixtureTime, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureCourts', $fixtureCourts, \PDO::PARAM_STR); 
+        $stmt->bindParam('TargetCourts', $targetCourts, \PDO::PARAM_STR); 
         $stmt->execute();
         $fixtureId = (int)$this->pdo->lastInsertId();
+
         // Add fixture participants
         $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid)
         SELECT '$fixtureId', Userid FROM SeriesCandidates WHERE Seriesid = :Seriesid;";
         $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
+
         // Copy any court booking requests from any previous fixture
         $sql = "SELECT Fixtureid FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate < :FixtureDate
@@ -279,6 +286,10 @@ class Series
         $previousFixtureId = $this->pdo->runSQL($sql,
             ['Seriesid' => $seriesId, 'FixtureDate' => $fixtureDate])->fetchcolumn();
         if ($previousFixtureId == false) {
+            $numParticipants = $this->pdo->runSQL(
+                "SELECT COUNT(*) FROM FixtureParticipants WHERE Fixtureid = $fixtureId;")->fetchColumn();
+            $range = explode("-", $targetCourts);
+            // todo: add code to generate booking requests
             return $fixtureId; // no previous fixture
         }
         $sql ="INSERT INTO CourtBookings (Fixtureid, BookingTime, CourtNumber, BookingType)

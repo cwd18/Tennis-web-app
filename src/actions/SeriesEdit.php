@@ -23,6 +23,7 @@ final class SeriesEdit
         $day = $params['day'];
         $time = $params['time'];
         $courts = $params['courts'];
+        $targetCourts = $params['targetcourts'];
         $autoEmail = array_key_exists('autoEmail', $params);
 
         $m = $this->container->get('Model');
@@ -32,7 +33,7 @@ final class SeriesEdit
         }
         $s = $m->getSeries();
         $owner = array_key_exists('owner', $params) ? $params['owner'] : $s->getOwner($seriesId);
-        $s->updateBasicSeriesData($seriesId, $owner, $day, $time, $courts, $autoEmail);
+        $s->updateBasicSeriesData($seriesId, $owner, $day, $time, $courts, $targetCourts, $autoEmail);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")
           ->withStatus(302);
