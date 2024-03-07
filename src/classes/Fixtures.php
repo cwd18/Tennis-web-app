@@ -612,7 +612,38 @@ class Fixtures
     public function getInvitationsSent($fixtureId)
     {
         $sql = "SELECT InvitationsSent FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        return (int)$this->pdo->runSQL($sql,['Fixtureid' => $fixtureId])->fetchColumn();
+        return (int)$this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId])->fetchColumn();
     }
+
+    public function createBookingRequests($fixtureId) 
+    {
+        // Automatically create booking requests
+        // Delete any existing requests
+        $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
+        $this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId]);
+        // Get users
+        $sql = "SELECT Userid FROM FixtureParticipants WHERE Fixtureid = :Fixtureid";
+        $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId])->fetchall(\PDO::FETCH_ASSOC);
+        // Get times/courts to book
+        $sql = "SELECT LEFT(FixtureTime, 5) AS FixtureTime, TargetCourts 
+        FROM Fixtures WHERE FixtureId = :Fixtureid;";
+        $row = $this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId])->fetchall(\PDO::FETCH_ASSOC);
+        // Create requests
+        $range = explode("-", $row['TargetCourts']);
+        $time[0] = $row['FixtureTime']; 
+        $time[1] = date('H:i', strtotime($time[0]) + 60 * 60);
+        $u = 0;
+        for ($c = $range[0]; $c<= $range[1]; $c++) {
+            foreach ($time as $t) {
+                if ($u >= count($userIds)) {
+                    return; // run out of users
+                }
+                $userId = $userIds[$u++];
+                $this->addCourtBooking($fixtureId, $userId, $t, $c, 'Request');
+            }
+        }
+
+    }
+
 
 }

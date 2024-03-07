@@ -286,10 +286,6 @@ class Series
         $previousFixtureId = $this->pdo->runSQL($sql,
             ['Seriesid' => $seriesId, 'FixtureDate' => $fixtureDate])->fetchcolumn();
         if ($previousFixtureId == false) {
-            $numParticipants = $this->pdo->runSQL(
-                "SELECT COUNT(*) FROM FixtureParticipants WHERE Fixtureid = $fixtureId;")->fetchColumn();
-            $range = explode("-", $targetCourts);
-            // todo: add code to generate booking requests
             return $fixtureId; // no previous fixture
         }
         $sql ="INSERT INTO CourtBookings (Fixtureid, BookingTime, CourtNumber, BookingType)
@@ -298,7 +294,7 @@ class Series
         $this->pdo->runSQL($sql,['Fixtureid' => $previousFixtureId]);
         return $fixtureId;
     }
-
+  
     private function checkFixtureExists($seriesId, $fixtureDate) : int
     {
         // returns Fixtureid or zero if fixture does not exist
