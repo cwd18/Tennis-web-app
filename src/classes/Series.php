@@ -237,7 +237,7 @@ class Series
         $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
         $stmt->execute();
         $fixtureId = $stmt->fetchColumn();
-        return $fixtureId == false ? 0 : $fixtureId;
+        return $fixtureId = (int)$fixtureId;
     }
 
     public function latestFixture($seriesId) : int
@@ -259,8 +259,8 @@ class Series
         $fixtureCourts = $seriesRow['SeriesCourts'];
         $targetCourts = $seriesRow['TargetCourts'];
         $fixtureId = $this->checkFixtureExists($seriesId, $fixtureDate);
-        if ($fixtureId != false) {
-            return $fixtureId;
+        if ($fixtureId != 0) {
+            return $fixtureId; // fixture already exists
         }
         $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts, TargetCourts)
         VALUES (:Seriesid, :FixtureOwner, :FixtureDate, :FixtureTime, :FixtureCourts, :TargetCourts);";

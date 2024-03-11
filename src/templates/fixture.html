@@ -55,7 +55,8 @@
 
 {% if abstainers|length >0 %}
 <details>
-    <summary>{{ abstainers|length }} {{ invitationsSent ? 'people have not responded' : 'participants' }}</summary>
+    <summary>{{ abstainers|length }} {{ invitationsSent or inBookingWindow >= 0 
+        ? 'people have not responded' : 'participants' }}</summary>
     <ol>
     {% for n in abstainers %}
     <li><a href="{{ linkbase }}{{ n.Userid }}">
