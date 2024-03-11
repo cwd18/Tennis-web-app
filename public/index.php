@@ -9,6 +9,9 @@ use Twig\Extra\Markdown\DefaultMarkdown;
 use Twig\Extra\Markdown\MarkdownRuntime;
 use Twig\RuntimeLoader\RuntimeLoaderInterface;
 use TennisApp\Model;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Google\Cloud\Logging\LoggingClient;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -28,7 +31,15 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 // Add Error Handling Middleware
-$app->addErrorMiddleware(true, true, true);
+if (array_key_exists('GAE_APPLICATION', $_SERVER)) {
+    $logging = new LoggingClient(); // Google logging client
+    $logger = $logging->psrLogger('TennisApp');
+} else {
+    $logger = new Logger('TennisApp'); // Monolog
+    $streamHandler = new StreamHandler('../logs/app.log');
+    $logger->pushHandler($streamHandler);
+}
+$app->addErrorMiddleware(true, true, true, $logger);
 
 // Create Twig
 $twig = Twig::create(__DIR__ . '/../src/templates', ['cache' => false, 'debug' => true]);
@@ -53,7 +64,7 @@ $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
 
-// Token-based entry
+// Token-based app entry
 $app->get('/start/{token}', \TennisApp\Action\Start::class);
 
 // Create user routes

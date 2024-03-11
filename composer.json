@@ -6,7 +6,9 @@
         "php-di/php-di": "^7.0",
         "phpmailer/phpmailer": "^6.9",
         "twig/markdown-extra": "^3.8",
-        "erusev/parsedown": "^1.7"
+        "erusev/parsedown": "^1.7",
+        "monolog/monolog": "^3.5",
+        "google/cloud-logging": "^1.29"
     },
     "autoload": {
         "psr-4": {

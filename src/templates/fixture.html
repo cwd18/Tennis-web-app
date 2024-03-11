@@ -7,6 +7,16 @@
 <p>Fixture owner: {{ owner.FirstName }} {{ owner.LastName }}</p>
 <p>Courts: {{ courts }}</p>
 <p>Courts to book: {{ targetCourts }}</p>
+<p>{{ invitationsSent ? 'Invitations have been sent' : 'Invitations have not been sent' }}</p>
+{% if inBookingWindow == -1 %}
+<p>Not yet able to book</p>
+{% endif %}
+{% if inBookingWindow == 0 %}
+<p>Booking is open</p>
+{% endif %}
+{% if inBookingWindow == 1 %}
+<p>This is a historical fixture</p>
+{% endif %}
 <a class="pure-button" href="fixtureeditform?fixtureid={{ fixtureid }}">Edit fixture data</a>
 <br><br>
 
@@ -45,7 +55,7 @@
 
 {% if abstainers|length >0 %}
 <details>
-    <summary>{{ abstainers|length }} people haven't responded</summary>
+    <summary>{{ abstainers|length }} {{ invitationsSent ? 'people have not responded' : 'participants' }}</summary>
     <ol>
     {% for n in abstainers %}
     <li><a href="{{ linkbase }}{{ n.Userid }}">
