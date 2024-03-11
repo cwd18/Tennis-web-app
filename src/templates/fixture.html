@@ -70,7 +70,7 @@
 
 {% if players|length >0 or reserves|length >0 or abstainers|length >0 %}
 <a class="pure-button" href="fixturewantstoplayform?fixtureid={{ fixtureid }}">Set wants to play</a>
-<a class="pure-button" href="fixturesetbookersplaying?fixtureid={{ fixtureid }}">Set bookers playing</a>
+<a class="pure-button" href="fixturesetbookersplaying?fixtureid={{ fixtureid }}">Auto set playing</a>
 <br><br>
 <a class="pure-button" href="fixturesetplayingform?fixtureid={{ fixtureid }}">Set playing</a>
 <a class="pure-button" href="fixtureresetplaying?fixtureid={{ fixtureid }}">Reset playing</a>
@@ -84,7 +84,11 @@
 
 {% if inBookingWindow >= 0 %}
     {% if bookings|length >1 %}
-        <b>Booked courts...</b><br>
+        <b>Booked courts:</b>
+        <br>
+        {% for key, num in capacity %}
+           {{ key }} start: {{ num * 4 }} places<br>
+        {% endfor %}
         <table class="pure-table">
         {% for key, r in bookings %}
         {% if key == 0 %}<thead>{% endif %}

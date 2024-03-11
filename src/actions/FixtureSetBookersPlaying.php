@@ -27,7 +27,7 @@ final class FixtureSetBookersPlaying
             $response->getBody()->write($error);
             return $response;
         }
-        $f->setBookersPlaying($fixtureId);
+        $f->setAutoPlaying($fixtureId);
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);

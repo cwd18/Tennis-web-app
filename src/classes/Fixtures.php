@@ -167,6 +167,27 @@ class Fixtures
         $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
     }
 
+    public function setAutoPlaying($fixtureId)
+    {
+        // Automatically set playing
+        $this->resetPlaying($fixtureId);
+        $capacity = $this->getCapacity($fixtureId);
+        if (count($capacity) == 0) {
+            return;
+        }
+        $numPlayers = 1000;
+        foreach ($capacity as $time => $count) {
+            $numPlayers = $numPlayers > $count ?: $count;
+        }
+        $numPlayers *= 4;
+        $sql = "UPDATE FixtureParticipants
+        SET WantsToPlay =  TRUE, IsPlaying = TRUE
+        WHERE FixtureParticipants.Fixtureid = :Fixtureid        
+        AND (WantsToPlay = TRUE OR WantsToPlay IS NULL) AND IsPlaying = FALSE
+        ORDER BY CourtsBooked DESC, AcceptTime LIMIT $numPlayers;";
+        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+    }
+
     public function setPlaying($fixtureId, $userIds)
     {
         $sql = "UPDATE FixtureParticipants SET IsPlaying = TRUE
@@ -402,6 +423,8 @@ class Fixtures
 
         // get requested bookings
         $requestedBookings = $this->getRequestedBookings($fixtureId);
+
+        $capacity = $this->getCapacity($fixtureId);
         
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";
@@ -468,7 +491,7 @@ class Fixtures
         'description' => $description, 'time' => $fixtureTime,
         'owner' => $owner, 'invitationsSent' => $invitationsSent,
         'players' => $playerList, 'reserves' => $reserveList, 
-        'decliners' => $declineList,  'abstainers' => $abstainList,
+        'decliners' => $declineList,  'abstainers' => $abstainList, 'capacity' => $capacity,
         'inBookingWindow' => $inBookingWindow, 'requestedBookings' =>$requestedBookings,
         'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
         'bookings' => $bookingViewGrid, 'courts' => $fixtureCourts, 'targetCourts' => $targetCourts];
@@ -645,5 +668,30 @@ class Fixtures
 
     }
 
+    public function getCapacity($fixtureId) : array
+    {
+    // return the number of players that can play for 2 hours given booked courts
+    $sql ="SELECT LEFT(FixtureTime, 5) AS FixtureTime, LEFT(BookingTime, 5) AS BookingTime, 
+    COUNT(CourtNumber) AS NumCourts
+    FROM Fixtures JOIN CourtBookings ON Fixtures.Fixtureid = CourtBookings.FixtureId
+    WHERE Fixtures.FixtureId = :Fixtureid
+    GROUP BY BookingTime
+    ORDER BY BookingTime;";
+    $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+    $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
+    $numTimeSlots = count($rows);
+    if ($numTimeSlots == 0) {
+        return $rows; // empty array
+    }
+    if ($numTimeSlots == 2) {
+        $capacity[$rows[0]['BookingTime']] = min($rows[0]['NumCourts'], $rows[1]['NumCourts']);
+    } else if ($numTimeSlots > 2) {
+        $capacity[$rows[0]['BookingTime']] = min($rows[0]['NumCourts'], $rows[1]['NumCourts']);
+        $capacity[$rows[1]['BookingTime']] = min($rows[1]['NumCourts'], $rows[2]['NumCourts']);
+    } else {
+        $capacity[] = null;
+    }
+    return $capacity;
+    }
 
 }
