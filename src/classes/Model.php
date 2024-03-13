@@ -5,13 +5,12 @@ namespace TennisApp;
 
 class Model
 {
-    public $db = null; 
+    public Database $db; 
     protected $email = null;
     protected $server = null;
     protected $twig = null;
     protected $users = null;
-    protected $series = null;
-    protected $fixtures = null; 
+    protected SeriesList $seriesList;
     protected $tokens = null; 
     protected $eventLog = null; 
     protected $automate;
@@ -24,6 +23,7 @@ class Model
         $username = $db_config['username'];
         $password = $db_config['password'];
         $this->db = new Database($dsn, $username, $password);
+        $this->seriesList = new SeriesList($this->db);
         $this->email = new Email($email_config, $this->db, $server, $twig);
         $this->server = $server;
         $this->twig = $twig;
@@ -41,20 +41,19 @@ class Model
         return $this->users;
     }
 
-    public function getSeries()
+    public function getSeriesList()
     {
-        if ($this->series === null) {
-            $this->series = new Series($this->db);
-        }
-        return $this->series;
+        return $this->seriesList;
     }
 
-    public function getFixtures()
+    public function getSeries(int $seriesId)
     {
-        if ($this->fixtures === null) {
-            $this->fixtures = new Fixtures($this->db);
-        }
-        return $this->fixtures;
+        return new Series($this->db, $seriesId);
+    }
+
+    public function getFixture(int $fixtureId)
+    {
+        return new Fixture($this->db, $fixtureId);
     }
 
     public function getTokens()
@@ -112,7 +111,7 @@ class Model
         return "Not authorised: $role";
     }
 
-    public function checkOwner($seriesId) : ?string
+    public function checkOwner(int $seriesId) : ?string
     {
         $role = $this->sessionRole();
         if (strcmp($role, 'Admin') == 0) {
@@ -127,14 +126,14 @@ class Model
         return "Not authorised: $role";
     }
 
-    public function checkUser($fixtureId) : ?string
+    public function checkUser(int $fixtureId) : ?string
     {
         $role = $this->sessionRole();
         if (strcmp($role, 'Admin') == 0) {
             return NULL;
         }
         if (strcmp($role, 'Owner') == 0) {
-            $seriesId = $this->getFixtures()->getSeriesid($fixtureId);
+            $seriesId = $this->getFixture($fixtureId)->getSeriesid();
             if ($_SESSION['Otherid'] == $seriesId) {
                 return NULL;
             }

@@ -2,8 +2,8 @@
 
 {% block content %}
 
-<h2>{{ description }}</h2>
-<h2 style="color:red;">{{ time }} start</h2>
+<h2>{{ base.description }}</h2>
+<h2 style="color:red;">{{ base.FixtureTime }} start</h2>
 
 {% if players|length >0 %}
 <p><b>Playing:</b></p>
@@ -81,7 +81,7 @@
 {% endif %}
 
 <br>
-<a class="pure-button" href="fixturenotice?fixtureid={{ fixtureid }}">Refresh</a>
+<a class="pure-button" href="fixturenotice?fixtureid={{ base.Fixtureid }}">Refresh</a>
 
 <br><br><br><br>
 

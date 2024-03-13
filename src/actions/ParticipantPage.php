@@ -28,14 +28,14 @@ final class ParticipantPage
             return $response;
         }
         $view = Twig::fromRequest($request);
-        $f = $m->getFixtures();
-        if ($f->getWantsToPlay($fixtureId, $userId) == NULL) {
+        $f = $m->getFixture($fixtureId);
+        if ($f->getWantsToPlay($userId) == NULL) {
             return $view->render($response, 'participantInvite.html', 
-            $f->getInvitationData($fixtureId, $userId));
+            $f->getInvitationData($userId));
         }
-        if ($f->getCourtsBooked($fixtureId, $userId) == NULL and $f->inBookingWindow($fixtureId) == 0) {
+        if ($f->getCourtsBooked($userId) == NULL and $f->inBookingWindow($fixtureId) == 0) {
             return $view->render($response, 'participantBook.html', 
-            $f->getBookingFormData($fixtureId, $userId, 'Booked'));
+            $f->getBookingFormData($userId, 'Booked'));
         }
         $fixture = $f->getFixture($fixtureId);
         return $view->render($response, 'fixtureNotice.html', $fixture);   

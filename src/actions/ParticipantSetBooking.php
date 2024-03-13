@@ -23,8 +23,8 @@ final class ParticipantSetBooking
         $userId = (int)$params['userid'];
         $value = $params['value'];
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $f->setCourtsBooked($fixtureId, $userId, $value);
+        $f = $m->getFixture($fixtureId);
+        $f->setCourtsBooked($userId, $value);
         $outPath = "/participant?fixtureid=$fixtureId&userid=$userId";
         if (strcmp($m->sessionRole(),'User') == 0) {
             $outPath = "/fixturenotice?fixtureid=$fixtureId";

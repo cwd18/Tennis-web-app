@@ -22,13 +22,13 @@ final class FixtureDelUsersForm
         $params = $request->getQueryParams();
         $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $seriesId = $f->getSeriesid($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $seriesId = $f->getSeriesid();
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;
         }
-        $users = $f->getFixtureNonBookers($fixtureId, 'Booked');
+        $users = $f->getFixtureNonBookers('Booked');
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 

@@ -23,15 +23,15 @@ final class ParticipantView
         $fixtureId = (int)$params['fixtureid'];
         $userId = $params['userid'];
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $seriesId = $f->getSeriesid($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $seriesId = $f->getSeriesid();
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;
         }
-        $fixture = $f->getFixture($fixtureId);
-        $u = $f->getParticipantData($fixtureId, $userId);
-        $brows = $f->getParticipantBookings($fixtureId, $userId, 'Booked');
+        $fixture = $f->getFixtureData();
+        $u = $f->getParticipantData($userId);
+        $brows = $f->getParticipantBookings($userId, 'Booked');
         $bookings=null;
         $n=0;
         foreach ($brows as $b) {

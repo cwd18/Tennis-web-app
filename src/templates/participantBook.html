@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
+{% set fixtureid = fixture.base.Fixtureid %}
+
 <h2>{{ participant.FirstName }} {{ participant.LastName }}</h2> 
-<p>For {{ fixture.description }}</p>
+<p>For {{ fixture.base.description }}</p>
 
 {% if bookings|length >0 %}
 <p>Has booked 
@@ -12,7 +14,7 @@ court {{ b.court }} at {{ b.time }}
 {% endif %}
 </p>
 
-{% set href = "participantAddBooking?fixtureid=%d&userid=%d&type=%s"|format(fixture.fixtureid, participant.Userid, bookingType) %}
+{% set href = "participantAddBooking?fixtureid=%d&userid=%d&type=%s"|format(fixtureid, participant.Userid, bookingType) %}
 
 {% for time in fixture.bookingtimes %}
 {% if time != usedBookingTime %}
@@ -31,17 +33,17 @@ court {{ b.court }} at {{ b.time }}
 
 {% if Role == 'User' %}
     {% if bookings|length == 0 %}
-    <a class="pure-button" href="participantSetBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&value=0">
+    <a class="pure-button" href="participantSetBooking?fixtureid={{ fixtureid }}&userid={{ participant.Userid }}&value=0">
         I didn't book any court</a>
     {% else %}
-    <a class="pure-button" href="participantSetBooking?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}&value=1">
+    <a class="pure-button" href="participantSetBooking?fixtureid={{ fixtureid }}&userid={{ participant.Userid }}&value=1">
         I only booked one court</a>
     {% endif %}
 {% elseif bookingType == 'Booked' %}
-<a class="pure-button" href="participant?fixtureid={{ fixture.fixtureid }}&userid={{ participant.Userid }}">
+<a class="pure-button" href="participant?fixtureid={{ fixtureid }}&userid={{ participant.Userid }}">
     Back</a>
 {% else %}
-<a class="pure-button" href="fixture?fixtureid={{ fixture.fixtureid }}}">
+<a class="pure-button" href="fixture?fixtureid={{ fixtureid }}">
     Back</a>
 {% endif %}
 

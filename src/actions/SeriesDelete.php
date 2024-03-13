@@ -25,8 +25,8 @@ public function __invoke(Request $request, Response $response): Response
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
-        $s->deleteSeries($seriesId);
+        $s = $m->getSeries($seriesId);
+        $s->deleteSeries();
         return $response
           ->withHeader('Location', "/serieslist")
           ->withStatus(302);

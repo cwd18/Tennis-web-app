@@ -27,11 +27,11 @@ final class ParticipantWantsToPlay
             $response->getBody()->write($error);
             return $response;
         }
-        $f = $m->getFixtures();
+        $f = $m->getFixture($fixtureId);
         if ($wantsToPlay) {
-            $f->setWantsToPlay($fixtureId, $userId);
+            $f->setWantsToPlay($userId);
         } else {
-            $f->setWantsNotToPlay($fixtureId, $userId);
+            $f->setWantsNotToPlay($userId);
         }
         $outPath = strcmp($m->sessionRole(),'User') == 0 ? "/fixturenotice?fixtureid=$fixtureId" :
          "/participant?fixtureid=$fixtureId&userid=$userId";

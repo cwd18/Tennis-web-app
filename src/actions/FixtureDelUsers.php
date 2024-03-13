@@ -26,13 +26,13 @@ final class FixtureDelUsers
             }
         }
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $seriesId = $f->getSeriesid($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $seriesId = $f->getSeriesid();
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;
         }
-        $f->deleteFixtureUsers($fixtureId, $userIds);
+        $f->deleteFixtureUsers($userIds);
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);

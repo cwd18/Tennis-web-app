@@ -2,12 +2,14 @@
 
 {% block content %}
 
-<h2>{{ description }}</h2>
-<h2>{{ time }} start</h2>
-<p>Fixture owner: {{ owner.FirstName }} {{ owner.LastName }}</p>
-<p>Courts: {{ courts }}</p>
-<p>Courts to book: {{ targetCourts }}</p>
-<p>{{ invitationsSent ? 'Invitations have been sent' : 'Invitations have not been sent' }}</p>
+{% set fixtureid = base.Fixtureid %}
+
+<h2>{{ base.description }}</h2>
+<h2>{{ base.FixtureTime }} start</h2>
+<p>Fixture owner: {{ ownerName.FirstName }} {{ ownerName.LastName }}</p>
+<p>Courts: {{ base.FixtureCourts }}</p>
+<p>Courts to book: {{ base.TargetCourts }}</p>
+<p>{{ base.InvitationsSent ? 'Invitations have been sent' : 'Invitations have not been sent' }}</p>
 {% if inBookingWindow == -1 %}
 <p>Not yet able to book</p>
 {% endif %}
@@ -55,7 +57,7 @@
 
 {% if abstainers|length >0 %}
 <details>
-    <summary>{{ abstainers|length }} {{ invitationsSent or inBookingWindow >= 0 
+    <summary>{{ abstainers|length }} {{ base.InvitationsSent or inBookingWindow >= 0 
         ? 'people have not responded' : 'participants' }}</summary>
     <ol>
     {% for n in abstainers %}
@@ -70,7 +72,7 @@
 
 {% if players|length >0 or reserves|length >0 or abstainers|length >0 %}
 <a class="pure-button" href="fixturewantstoplayform?fixtureid={{ fixtureid }}">Set wants to play</a>
-<a class="pure-button" href="fixturesetbookersplaying?fixtureid={{ fixtureid }}">Auto set playing</a>
+<a class="pure-button" href="fixturesetautoplaying?fixtureid={{ fixtureid }}">Auto set playing</a>
 <br><br>
 <a class="pure-button" href="fixturesetplayingform?fixtureid={{ fixtureid }}">Set playing</a>
 <a class="pure-button" href="fixtureresetplaying?fixtureid={{ fixtureid }}">Reset playing</a>
@@ -115,7 +117,7 @@
     <br><br>
 {% endif %}
 
-{% set emailSubject = invitationsSent ? 'booking requests' : 'invitations' %}
+{% set emailSubject = base.InvitationsSent ? 'booking requests' : 'invitations' %}
 
 <br><br>
 <a class="pure-button" href="emailConfirm?fixtureid={{ fixtureid }}">Email {{ emailSubject }}</a>
@@ -124,12 +126,12 @@
 <a class="pure-button" href="fixturenotice?fixtureid={{ fixtureid }}" target="_blank">Review fixture notice</a>
 
 <br><br>
-<a class="pure-button" href="series?seriesid={{ seriesid }}">Back to series</a>
+<a class="pure-button" href="series?seriesid={{ base.Seriesid }}">Back to series</a>
 
 {% if Role == 'Admin' %}
 <br><br>
 <a class="pure-button" 
-href="fixturedeleteform?seriesid={{ seriesid }}&fixtureid={{ fixtureid }}">Delete fixture</a>
+href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">Delete fixture</a>
 {% endif %}
 
 <br><br><br><br>

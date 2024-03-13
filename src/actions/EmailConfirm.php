@@ -1,5 +1,5 @@
 <?php
-# Email invitations
+# Email invitations or booking request
 
 namespace TennisApp\Action;
 
@@ -22,17 +22,17 @@ final class EmailConfirm
         $params = $request->getQueryParams();
         $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $seriesId = $f->getSeriesid($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $seriesId = $f->getSeriesid();
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;
         }
-        $invitationsSent = $f->getInvitationsSent($fixtureId);
+        $invitationsSent = $f->getInvitationsSent();
         if ($invitationsSent == 0 ) {
-            $em = $f->getPlayInvitations($fixtureId);
+            $em = $f->getPlayInvitations();
         } else {
-            $em = $f->getBookingRequests($fixtureId);
+            $em = $f->getBookingRequests();
         }
         $email = $em['email'];
         $recipients = $em['recipients'];

@@ -6,8 +6,8 @@
     <thead><th>Series</th><th>Automated emails</th><th>Future fixtures</th></tr></thead>
     {% for s in serieslist %}
     <tr>
-    <td><a href="series?seriesid={{ s.seriesid }}">{{ s.description }}</a></td>
-    <td>{{ s.autoEmail ? 'Enabled' : 'Disabled' }}</td>
+    <td><a href="series?seriesid={{ s.base.Seriesid }}">{{ s.base.description }}</a></td>
+    <td>{{ s.base.AutoEmail ? 'Enabled' : 'Disabled' }}</td>
     <td>{{ s.futureFixtures }}</td>
     </tr>
     {% endfor %}

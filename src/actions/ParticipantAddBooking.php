@@ -25,14 +25,14 @@ final class ParticipantAddBooking
         $time = $params['time'];
         $type = $params['type'];
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $f->addCourtBooking($fixtureId, $userId, $time, $court, $type);
+        $f = $m->getFixture($fixtureId);
+        $f->addCourtBooking($userId, $time, $court, $type);
         if (strcmp($type, 'Booked') == 0) {
-            $countBookings = $f->countParticipantBookings($fixtureId, $userId, $type);
+            $countBookings = $f->countParticipantBookings($userId, $type);
             if ($countBookings == 1) {
-                $f->setCourtsBooked($fixtureId, $userId, FALSE); // first court booked
+                $f->setCourtsBooked($userId, FALSE); // first court booked
             } else {
-                $f->setCourtsBooked($fixtureId, $userId, TRUE); // second court booked
+                $f->setCourtsBooked($userId, TRUE); // second court booked
             }
         }
         $outPath = strcmp($type, 'Booked') == 0 ? "/participant?fixtureid=$fixtureId&userid=$userId":

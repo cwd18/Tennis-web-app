@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class SeriesList
+final class SeriesListView
 {
     private $container;
 
@@ -27,7 +27,7 @@ public function __invoke(Request $request, Response $response): Response
         $tokens = $m->getTokens();
         $token = $tokens->getOrCreateToken(1, 'Auto', 0);
         $autoUrl = "/start/$token";
-        $s = $m->getSeries();
+        $s = $m->getSeriesList();
         $l = $m->getEventLog();
         $sqlTime = $m->db->runSQL("SELECT RIGHT(NOW(),8);")->fetchColumn();
         $view = Twig::fromRequest($request);

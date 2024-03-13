@@ -26,8 +26,8 @@ public function __invoke(Request $request, Response $response): Response
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
-        $users = $s->getSeriesUsers($seriesId);
+        $s = $m->getSeries($seriesId);
+        $users = $s->getSeriesUsers();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 

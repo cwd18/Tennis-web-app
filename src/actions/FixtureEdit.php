@@ -23,13 +23,13 @@ final class FixtureEdit
         $time = $params['time'];
         $courts = $params['courts'];
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $seriesId = $f->getSeriesid($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $seriesId = $f->getSeriesid();
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;
         }
-        $f->updateBasicFixtureData($fixtureId, $time, $courts);
+        $f->updateBasicFixtureData($time, $courts);
         return $response
         ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
         ->withStatus(302);

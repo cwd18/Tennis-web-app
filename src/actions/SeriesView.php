@@ -26,11 +26,11 @@ final class SeriesView
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
-        $series = $s->getSeries($seriesId);
+        $s = $m->getSeries($seriesId);
+        $series = $s->getSeriesData();
         if (strcmp($m->sessionRole(),'Admin') == 0) {
-            $token=$m->getTokens()->getOrCreateToken($series['owner']['Userid'], 'Owner', $seriesId);
-            $series['owner']['Link'] = sprintf("%s/start/%s",$m->getServer(), $token);
+            $token=$m->getTokens()->getOrCreateToken($series['base']['SeriesOwner'], 'Owner', $seriesId);
+            $series['base']['Link'] = sprintf("%s/start/%s",$m->getServer(), $token);
         }
         $view = Twig::fromRequest($request);
         return $view->render($response, 'series.html', $series);

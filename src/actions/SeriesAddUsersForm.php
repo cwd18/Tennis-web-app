@@ -26,8 +26,8 @@ final class SeriesAddUsersForm
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
-        $users = $s->getSeriesCandidates($seriesId);
+        $s = $m->getSeries($seriesId);
+        $users = $s->getSeriesCandidates();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 

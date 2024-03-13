@@ -31,9 +31,9 @@ final class SeriesEdit
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
-        $owner = array_key_exists('owner', $params) ? $params['owner'] : $s->getOwner($seriesId);
-        $s->updateBasicSeriesData($seriesId, $owner, $day, $time, $courts, $targetCourts, $autoEmail);
+        $s = $m->getSeries($seriesId);
+        $owner = array_key_exists('owner', $params) ? $params['owner'] : $s->getOwner();
+        $s->updateBasicSeriesData($owner, $day, $time, $courts, $targetCourts, $autoEmail);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")
           ->withStatus(302);

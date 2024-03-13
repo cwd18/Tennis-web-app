@@ -26,10 +26,10 @@ final class SeriesDeleteForm
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
+        $s = $m->getSeries($seriesId);
         $series = $s->getBasicSeriesData($seriesId);
         $lines[] = "Are you sure you want to delete the below series?";
-        $lines[] = $s->seriesDescription($series['SeriesWeekday'], $series['SeriesTime']);
+        $lines[] = $series['description'];
         $view = Twig::fromRequest($request);
         return $view->render($response, 'opconfirm.html', ['op' => "Delete series", 
         'continuelink' => "seriesdelete?seriesid=$seriesId", 

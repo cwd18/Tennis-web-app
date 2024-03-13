@@ -26,8 +26,8 @@ final class FixtureNotice
             $response->getBody()->write($error);
             return $response;
         }
-        $f = $m->getFixtures();
-        $fixture = $f->getFixture($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $fixture = $f->getFixtureData();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'fixtureNotice.html', $fixture);   
     }

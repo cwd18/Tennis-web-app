@@ -3,39 +3,49 @@ declare(strict_types=1);
 
 namespace TennisApp;
 
-class Fixtures
+class Fixture
 {
-    protected $pdo;
+    protected Database $pdo;
+    protected int $fixtureId;
+    protected $base;
 
-    public function __construct($pdo)
+    public function __construct(Database $pdo, int $fixtureId)
     {
         $this->pdo = $pdo;
+        $this->fixtureId = $fixtureId;
+        $this->setBase();
     }
 
-    public function getSeriesid($fixtureId) : int|bool
+    private function setBase()
     {
-        $sql = "SELECT Seriesid FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        return $stmt->fetchColumn();
-    }
-
-    public function getBasicFixtureData($fixtureId) : array
-    {
-        $sql = "SELECT Fixtureid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts
+        // Retrieve basic fixture data...
+        $sql = "SELECT Fixtureid, Seriesid, FixtureOwner, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, 
+        FixtureCourts, TargetCourts, InvitationsSent
         FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $row;
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        $this->base = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->base['description'] = date("l jS \of F Y", strtotime($this->base['FixtureDate']));
+        ;
+    }
+    
+    public function getSeriesid() : int
+    {
+        return $this->base['Seriesid'];
     }
 
-    public function inBookingWindow($fixtureId) : int
+    public function getBasicFixtureData() : array
+    {
+        return $this->base;
+    }
+
+    public function inBookingWindow() : int
     {
         // Return 0 if the current time is inside the booking window for this fixture
         // Return -1 if the current time is earlier than the booking window
         // Return +1 if the current time is later than the booking window
         // The booking window is the week before 07:30 on the fixture data
         $sql = "SELECT FixtureDate FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $fixtureDate = $stmt->fetchColumn();
         $bookingTime = "07:30";
         $bookingDt2 = strtotime($fixtureDate . " " . $bookingTime);
@@ -51,154 +61,144 @@ class Fixtures
         return $r;
     }
 
-    public function updateBasicFixtureData($fixtureId, $time, $courts)
+    public function updateBasicFixtureData($time, $courts)
     {
         $sql = "UPDATE Fixtures SET FixtureTime = :FixtureTime, FixtureCourts = :FixtureCourts
         WHERE Fixtureid = :Fixtureid;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('FixtureCourts', $courts, \PDO::PARAM_STR); 
         $stmt->execute();
     }
 
-    public function deleteFixture($fixtureId)
+    public function deleteFixture()
     {
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid = :Fixtureid;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $sql = "DELETE FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
     }
 
-    public function getFixtureCandidates($fixtureId) : array
+    public function getFixtureCandidates() : array
     {
         // Return list of possible candidate participants to add to the fixture, 
         // which excludes existing participants
         $sql = "SELECT Userid, FirstName, LastName FROM Users
         WHERE Users.Userid NOT IN (SELECT Userid FROM FixtureParticipants WHERE Fixtureid = :Fixtureid)
         ORDER BY FirstName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
-    public function getFixtureParticipants($fixtureId) : array
+    public function getFixtureParticipants() : array
     {
         // Return list of fixture participants
         $sql = "SELECT Users.Userid, FirstName, LastName 
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE  Fixtureid = :Fixtureid
         ORDER BY FirstName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
-    public function getWantToPlay($fixtureId) : array
+    public function getWantToPlay() : array
     {
         // Return list of users who want to play and are currently not playing
         $sql = "SELECT Users.Userid, FirstName, LastName 
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid AND WantsToPlay = TRUE AND IsPlaying = FALSE
         ORDER BY FirstName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
-    public function getWantToPlayCandidates($fixtureId) : array
+    public function getWantToPlayCandidates() : array
     {
         // Return list of users who have not yet declared they want to play
         $sql = "SELECT Users.Userid, FirstName, LastName 
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid AND WantsToPlay IS NULL
         ORDER BY FirstName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
-    public function getParticipantData($fixtureId, $userId) : array|bool
+    public function getParticipantData($userId) : array|bool
     {
         $sql = "SELECT Users.Userid, FirstName, LastName, WantsToPlay, IsPlaying, CourtsBooked 
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid AND FixtureParticipants.Userid = :Userid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row;
     }
 
-    public function getWantsToPlay($fixtureId, $userId) : ?int
+    public function getWantsToPlay($userId) : ?int
     {
         $sql = "SELECT WantsToPlay FROM FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
         return $stmt->fetchColumn();
     }
     
-    public function getCourtsBooked($fixtureId, $userId) : ?int
+    public function getCourtsBooked($userId) : ?int
     {
         // Return the value of the CourtsBooked column, which is initially NULL but sent to FALSE
         // when user has indicated they did not book any court
         $sql = "SELECT CourtsBooked FROM FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
         return $stmt->fetchColumn();
     }
     
-    public function setCourtsBooked(int $fixtureId, int $userId, bool $val)
+    public function setCourtsBooked(int $userId, bool $val)
     {
         $sql = "UPDATE FixtureParticipants SET CourtsBooked = :val 
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $this->pdo->runSQL($sql, ['val' => $val, 'Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $this->pdo->runSQL($sql, ['val' => $val, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
     }
     
-    public function setBookersPlaying($fixtureId)
-    {
-        // Set bookers to playing unless they have declared they don't want to play
-        $sql = "UPDATE FixtureParticipants
-        JOIN CourtBookings ON FixtureParticipants.Fixtureid = CourtBookings.Fixtureid
-        AND FixtureParticipants.Userid = CourtBookings.UserId
-        SET WantsToPlay =  TRUE, IsPlaying = TRUE
-        WHERE BookingType = 'Booked' AND FixtureParticipants.Fixtureid = :Fixtureid        
-        AND (WantsToPlay = TRUE OR WantsToPlay IS NULL) AND IsPlaying = FALSE;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-    }
-
-    public function setAutoPlaying($fixtureId)
+    public function setAutoPlaying()
     {
         // Automatically set playing
-        $this->resetPlaying($fixtureId);
-        $capacity = $this->getCapacity($fixtureId);
+        $this->resetPlaying();
+        $capacity = $this->getCapacity();
         if (count($capacity) == 0) {
             return;
         }
-        $numPlayers = 1000;
-        foreach ($capacity as $time => $count) {
-            $numPlayers = $numPlayers > $count ?: $count;
+        $numPlayers = 1000; // initial high enough value
+        foreach ($capacity as $count) {
+            if ($count < $numPlayers) {
+                $numPlayers = $count;
+            }
         }
         $numPlayers *= 4;
         $sql = "UPDATE FixtureParticipants
-        SET WantsToPlay =  TRUE, IsPlaying = TRUE
+        SET IsPlaying = TRUE
         WHERE FixtureParticipants.Fixtureid = :Fixtureid        
-        AND (WantsToPlay = TRUE OR WantsToPlay IS NULL) AND IsPlaying = FALSE
+        AND WantsToPlay = TRUE AND IsPlaying = FALSE
         ORDER BY CourtsBooked DESC, AcceptTime LIMIT $numPlayers;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
     }
 
-    public function setPlaying($fixtureId, $userIds)
+    public function setPlaying($userIds)
     {
         $sql = "UPDATE FixtureParticipants SET IsPlaying = TRUE
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);        
+            $stmt->execute(['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);        
         }
     }
 
-    public function setWantsToPlay($fixtureId, $userIds)
+    public function setWantsToPlay($userIds)
     {
         // Set participant(s) to want to play and update AcceptTime to current time if NULL
         $dateTimeNow = date("Y-m-d H:i:s");
@@ -211,51 +211,51 @@ class Fixtures
         $stmt = $this->pdo->prepare($sql);
         if (is_array($userIds)) {
             foreach ($userIds as $userId) {
-                $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId, 'DTnow' => $dateTimeNow]);        
+                $stmt->execute(['Fixtureid' => $this->fixtureId, 'Userid' => $userId, 'DTnow' => $dateTimeNow]);        
             } 
         } else {
-            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userIds, 'DTnow' => $dateTimeNow]);        
+            $stmt->execute(['Fixtureid' => $this->fixtureId, 'Userid' => $userIds, 'DTnow' => $dateTimeNow]);        
         }
     }
 
-    public function setWantsNotToPlay($fixtureId, $userId)
+    public function setWantsNotToPlay($userId)
     {
         $sql = "UPDATE FixtureParticipants SET WantsToPlay = FALSE, IsPlaying = FALSE 
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
     }
 
-    public function resetPlaying($fixtureId)
+    public function resetPlaying()
     {
         $sql = "UPDATE FixtureParticipants SET IsPlaying = FALSE
         WHERE Fixtureid = :Fixtureid;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
     }
 
-    public function addUsers($fixtureId, $userIds)
+    public function addUsers($userIds)
     {
         // Add users to the fixture
         $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid) 
         VALUES (:Fixtureid, :Userid);";
         $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+            $stmt->execute(['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
         }
     }
 
-    public function getFixtureUsers($fixtureId) : array
+    public function getFixtureUsers() : array
     {
         // Return list of existing participants
         $sql = "SELECT Users.Userid, FirstName, LastName 
         FROM Users JOIN FixtureParticipants ON Users.Userid=FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid
         ORDER BY FirstName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
-    public function getFixtureNonBookers($fixtureId, $type) : array
+    public function getFixtureNonBookers($type) : array
     {
         // Return list of existing participants that have not booked or requested
         $sql = "SELECT Users.Userid, FirstName, LastName 
@@ -264,27 +264,27 @@ class Fixtures
         AND Users.Userid NOT IN 
         (SELECT Userid FROM CourtBookings WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid2)
         ORDER BY FirstName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid1' => $fixtureId, 'BookingType' => $type, 'Fixtureid2' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid1' => $this->fixtureId, 'BookingType' => $type, 'Fixtureid2' => $this->fixtureId]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
-    public function deleteFixtureUsers($fixtureId, $userIds)
+    public function deleteFixtureUsers($userIds)
     {
         // Delete specified users from this fixture 
         $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $stmt->execute(['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+            $stmt->execute(['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
             }
     }
 
-    public function addCourtBooking($fixtureId, $bookerId, $time, $court, $type)
+    public function addCourtBooking($bookerId, $time, $court, $type)
     {
         $sql="INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber, BookingType)
         VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber, :BookingType);";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('Bookerid', $bookerId, \PDO::PARAM_INT);
         $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
@@ -292,13 +292,13 @@ class Fixtures
         $stmt->execute();
     }
 
-    public function deleteCourtBooking($fixtureId, $userId, $time, $court, $type)
+    public function deleteCourtBooking($userId, $time, $court, $type)
     {
         $sql = "DELETE FROM CourtBookings WHERE BookingType = :BookingType 
         AND Fixtureid = :Fixtureid AND Userid = :Userid
         AND BookingTime = :BookingTime AND CourtNumber = :CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('Userid', $userId, \PDO::PARAM_INT);
         $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
@@ -306,11 +306,11 @@ class Fixtures
         $stmt->execute();
     }
 
-    private function getAvailableCourts($fixtureId, $time, $type) : array
+    private function getAvailableCourts($time, $type) : array
     {
         // Return a list of available courts for the passed time
         $sql = "SELECT FixtureCourts FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $fixtureCourts = explode(",", str_replace(' ','',$row['FixtureCourts']));
         $sql = "SELECT CourtNumber FROM CourtBookings 
@@ -318,7 +318,7 @@ class Fixtures
         ORDER BY CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR); 
-        $stmt->bindParam('Fixtureid', $fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
         $stmt->execute();
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
@@ -345,28 +345,16 @@ class Fixtures
         return $courts;
     }
 
-    public function getFixture(int $fixtureId) : array
+    public function getFixtureData() : array
     {
-        // Get Fixture data
-        $sql="SELECT Fixtures.Seriesid, FirstName, LastName, 
-        FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, FixtureCourts, 
-        Fixtures.TargetCourts, InvitationsSent
-        FROM Fixtures JOIN Users ON Fixtures.FixtureOwner = Users.Userid 
-        JOIN FixtureSeries ON Fixtures.Seriesid = FixtureSeries.Seriesid
-        WHERE Fixtureid = :Fixtureid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $seriesId = $row['Seriesid'];
-        $owner['FirstName'] = $row['FirstName'];
-        $owner['LastName'] = $row['LastName'];
-        $description = date("l jS \of F Y", strtotime($row['FixtureDate']));
-        $fixtureTime = $row['FixtureTime'];
-        $fixtureCourts = $row['FixtureCourts'];
-        $targetCourts = $row['TargetCourts'];
-        $invitationsSent = $row['InvitationsSent'];
+        // Augment Fixture data
+        $stmt = $this->pdo->runSQL(
+            "SELECT FirstName, LastName FROM Users WHERE Userid = :Userid",
+            ['Userid' => $this->base['FixtureOwner']]);
+        $ownerName = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         // Calculate booking time slots
-        $bookingBase = $fixtureTime;
+        $bookingBase = $this->base['FixtureTime'];
         $bookingRange = 2;
         if ($bookingBase=='08:30') {
             $bookingBase = '07:30';
@@ -388,7 +376,7 @@ class Fixtures
         WHERE FixtureParticipants.Fixtureid = :Fixtureid 
         AND IsPlaying = TRUE
         ORDER BY CourtsBooked DESC, AcceptTime, FirstName, LastName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $playerList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Get people who have accepted but not marked to play...
@@ -397,7 +385,7 @@ class Fixtures
         WHERE FixtureParticipants.Fixtureid = :Fixtureid 
         AND IsPlaying = FALSE AND WantsToPlay = TRUE
         ORDER BY CourtsBooked DESC, AcceptTime, FirstName, LastName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $reserveList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Get decliners...
@@ -406,7 +394,7 @@ class Fixtures
         WHERE Fixtureid = :Fixtureid 
         AND WantsToPlay = FALSE
         ORDER BY FirstName, LastName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $declineList = $stmt->fetchall(\PDO::FETCH_ASSOC);
         
         // Get abstainers (people who haven't responded to invitation)...
@@ -415,23 +403,23 @@ class Fixtures
         WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
         AND WantsToPlay IS NULL
         ORDER BY FirstName, LastName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $abstainList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Are we in the booking window for this fixture
-        $inBookingWindow = $this->inBookingWindow($fixtureId);
+        $inBookingWindow = $this->inBookingWindow();
 
         // get requested bookings
-        $requestedBookings = $this->getRequestedBookings($fixtureId);
+        $requestedBookings = $this->getRequestedBookings();
 
-        $capacity = $this->getCapacity($fixtureId);
+        $capacity = $this->getCapacity();
         
         // Get court bookings into grid with columns (court, booking time, bookers)
         $bookingGrid[0][0] = "Court";
         $sql = "SELECT DISTINCT BookingTime FROM CourtBookings 
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid 
         ORDER BY BookingTime;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         $c=1;
@@ -444,7 +432,7 @@ class Fixtures
 
         $sql="SELECT DISTINCT CourtNumber FROM CourtBookings 
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid ORDER BY CourtNumber;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         $r=1;
         foreach ($rows as $row) {
@@ -457,7 +445,7 @@ class Fixtures
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid 
         ORDER BY CourtNumber, BookingTime;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (count($rows) > 0) {
             foreach ($rows as $row) {
@@ -487,28 +475,26 @@ class Fixtures
         }
 
         // return all fixture data
-        $fixture = ['seriesid' => $seriesId, 'fixtureid' => $fixtureId,
-        'description' => $description, 'time' => $fixtureTime,
-        'owner' => $owner, 'invitationsSent' => $invitationsSent,
+        $fixture = ['base' => $this->base, 'ownerName' => $ownerName,
         'players' => $playerList, 'reserves' => $reserveList, 
         'decliners' => $declineList,  'abstainers' => $abstainList, 'capacity' => $capacity,
         'inBookingWindow' => $inBookingWindow, 'requestedBookings' =>$requestedBookings,
         'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
-        'bookings' => $bookingViewGrid, 'courts' => $fixtureCourts, 'targetCourts' => $targetCourts];
+        'bookings' => $bookingViewGrid];
         return $fixture;
     }
 
-    public function getParticipantBookings(int $fixtureId, int $userId, $type) : array
+    public function getParticipantBookings(int $userId, $type) : array
     {
         $sql = "SELECT CourtNumber, BookingTime FROM CourtBookings
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND Userid = :Userid
         ORDER BY BookingTime;";
-        $stmt = $this->pdo->runSQL($sql,['BookingType' => $type, 'Fixtureid' => $fixtureId, 'Userid' => $userId]); 
+        $stmt = $this->pdo->runSQL($sql,['BookingType' => $type, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]); 
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $rows;
     }
 
-    public function getRequestedBookings(int $fixtureId) : array
+    public function getRequestedBookings() : array
     {
         // Get the current list of booking requests for this fixture
         // Returns an empty array if no requests yet
@@ -516,24 +502,24 @@ class Fixtures
         FROM CourtBookings JOIN Users ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = 'Request' AND Fixtureid = :Fixtureid 
         ORDER BY BookingTime, CourtNumber;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]); 
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]); 
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $rows;
     }
 
-    public function countParticipantBookings(int $fixtureId, int $userId, $type) : int
+    public function countParticipantBookings(int $userId, $type) : int
     {
         $sql = "SELECT COUNT(CourtNumber) FROM CourtBookings
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $stmt = $this->pdo->runSQL($sql,['BookingType' => $type, 'Fixtureid' => $fixtureId, 'Userid' => $userId]); 
+        $stmt = $this->pdo->runSQL($sql,['BookingType' => $type, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]); 
         return $stmt->fetchColumn();
     }
 
-    public function getBookingFormData(int $fixtureId, int $userId, $type) : array
+    public function getBookingFormData(int $userId, $type) : array
     {
-        $fixture = $this->getFixture($fixtureId);
-        $u = $this->getParticipantData($fixtureId, $userId);
-        $brows = $this->getParticipantBookings($fixtureId, $userId, $type);
+        $fixture = $this->getFixtureData();
+        $u = $this->getParticipantData($userId);
+        $brows = $this->getParticipantBookings($userId, $type);
         $bookings=null;
         $n=0;
         foreach ($brows as $b) {
@@ -543,7 +529,7 @@ class Fixtures
         }
 
         foreach ($fixture['bookingtimes'] as $time) {
-            $courts[$time] = $this->getAvailableCourts($fixtureId, $time, $type);
+            $courts[$time] = $this->getAvailableCourts($time, $type);
         }
 
         $usedBookingTime = "";
@@ -560,24 +546,24 @@ class Fixtures
         'courts' => $courts];   
     }
 
-    public function getInvitationData(int $fixtureId, int $userId) : array
+    public function getInvitationData(int $userId) : array
     {
         // Get data for asking user if they want to play om participant web page
         $sql = "SELECT Fixtureid, Users.Userid, FirstName, LastName, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime
         FROM Fixtures, Users WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId, 'Userid' => $userId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $row['FixtureDate'] = date("l jS",strtotime($row['FixtureDate']));
         return $row;
     }
 
-    public function getPlayInvitations($fixtureId) : array
+    public function getPlayInvitations() : array
     {
         // Get information for creating invitation to play emails
         $sql = "SELECT FirstName, LastName, EmailAddress, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime
         FROM Fixtures JOIN Users ON Userid = FixtureOwner
         WHERE Fixtureid = :Fixtureid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $fixture = $stmt->fetch(\PDO::FETCH_ASSOC);
         $owner['FirstName'] = $fixture['FirstName'];
         $owner['LastName'] = $fixture['LastName'];
@@ -589,7 +575,7 @@ class Fixtures
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE WantsToPlay IS NULL AND Fixtureid = :Fixtureid
         ORDER BY FirstName, LastName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $toList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         $email['subject'] = "Tennis $shortDate";
@@ -598,13 +584,13 @@ class Fixtures
         return ['email' => $email, 'recipients' => $toList];
     }
 
-    public function getBookingRequests($fixtureId) : array
+    public function getBookingRequests() : array
     {
         // Get information for creating booking request emails
         $sql = "SELECT FirstName, LastName, EmailAddress, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime
         FROM Fixtures JOIN Users ON Userid = FixtureOwner
         WHERE Fixtureid = :Fixtureid;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $fixture = $stmt->fetch(\PDO::FETCH_ASSOC);
         $owner['FirstName'] = $fixture['FirstName'];
         $owner['LastName'] = $fixture['LastName'];
@@ -616,41 +602,41 @@ class Fixtures
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE WantsToPlay = TRUE AND Fixtureid = :Fixtureid
         ORDER BY FirstName, LastName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $toList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         $email['shortDate'] = $shortDate;
         $email['owner'] = $owner;
         $email['fixtureTime'] = $time;
-        $email['requests'] = $this->getRequestedBookings($fixtureId);
+        $email['requests'] = $this->getRequestedBookings();
         return ['email' => $email, 'recipients' => $toList];
     }
     
-    public function setInvitationsSent($fixtureId)
+    public function setInvitationsSent()
     {
         $sql = "UPDATE Fixtures SET InvitationsSent = TRUE WHERE Fixtureid = :Fixtureid;";
-        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
     }
 
-    public function getInvitationsSent($fixtureId)
+    public function getInvitationsSent()
     {
         $sql = "SELECT InvitationsSent FROM Fixtures WHERE Fixtureid = :Fixtureid;";
-        return (int)$this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId])->fetchColumn();
+        return (int)$this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchColumn();
     }
 
-    public function createBookingRequests($fixtureId) 
+    public function createBookingRequests() 
     {
         // Automatically create booking requests
         // Delete any existing requests
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
-        $this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId]);
+        $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
         // Get users
         $sql = "SELECT Userid FROM FixtureParticipants WHERE Fixtureid = :Fixtureid";
-        $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId])->fetchall(\PDO::FETCH_ASSOC);
+        $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
         // Get times/courts to book
         $sql = "SELECT LEFT(FixtureTime, 5) AS FixtureTime, TargetCourts 
         FROM Fixtures WHERE FixtureId = :Fixtureid;";
-        $row = $this->pdo->runSQL($sql, ['Fixtureid' => $fixtureId])->fetchall(\PDO::FETCH_ASSOC);
+        $row = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
         // Create requests
         $range = explode("-", $row['TargetCourts']);
         $time[0] = $row['FixtureTime']; 
@@ -662,13 +648,13 @@ class Fixtures
                     return; // run out of users
                 }
                 $userId = $userIds[$u++];
-                $this->addCourtBooking($fixtureId, $userId, $t, $c, 'Request');
+                $this->addCourtBooking($userId, $t, $c, 'Request');
             }
         }
 
     }
 
-    public function getCapacity($fixtureId) : array
+    public function getCapacity() : array
     {
     // return the number of players that can play for 2 hours given booked courts
     $sql ="SELECT LEFT(FixtureTime, 5) AS FixtureTime, LEFT(BookingTime, 5) AS BookingTime, 
@@ -677,7 +663,7 @@ class Fixtures
     WHERE Fixtures.FixtureId = :Fixtureid
     GROUP BY BookingTime
     ORDER BY BookingTime;";
-    $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+    $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
     $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
     $numTimeSlots = count($rows);
     if ($numTimeSlots == 0) {

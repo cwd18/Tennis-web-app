@@ -5,32 +5,31 @@ namespace TennisApp;
 
 class Automate
 {
-    public function runAutomation($model)
+    public function runAutomation(Model $m)
     {
         // Called to run automated tasks
-        $m = $model;
-        $pdo = $m->db;
         $eventLog = $m->getEventLog();
-        $s = $m->getSeries();
 
         $todayWeekday = date('N') - 1; // 0 for Monday, 6 for Sunday
         $tomorrowWeekday = ($todayWeekday + 1) % 7;
+
         $eventLog->write("Day $todayWeekday automation starting");
 
-        $sql = "SELECT Seriesid, SeriesWeekday, AutoEmail FROM FixtureSeries;";
-        $statement = $pdo->runSQL($sql);
-        $rows = $statement->fetchall(\PDO::FETCH_ASSOC);
-        foreach ($rows as $row) {
-            $seriesId = $row['Seriesid'];
-            $eventLog->write("Processing series $seriesId");
-            $s->ensure2FutureFixtures($seriesId);
-            if ($row['AutoEmail']) {
-                $fixtureId = $s->latestFixture($seriesId);
-                if ($todayWeekday == $row['SeriesWeekday']) {
+        $seriesList = $m->getSeriesList()->getAllSeries();
+
+        foreach ($seriesList as $series) {
+            $seriesId = $series['base']['Seriesid'];
+            $s = $m->getSeries($seriesId);
+            $eventLog->write(sprintf("Processing series %s (%s)", $seriesId, $series['base']['description']));
+            $s->ensure2FutureFixtures();
+            if ($series['base']['AutoEmail']) {
+                $fixtureId = $s->latestFixture();
+                $weekday = $series['base']['SeriesWeekday'];
+                if ($todayWeekday == $weekday) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
                     $this->sendBookingEmails($m, $fixtureId);
                 }
-                if ($tomorrowWeekday == $row['SeriesWeekday']) {
+                if ($tomorrowWeekday == $weekday) {
                     $eventLog->write("Sending invitation emails for series $seriesId");
                     $this->sendInvitationEmails($m, $fixtureId);
                 }
@@ -39,11 +38,11 @@ class Automate
         $eventLog->write("Day $todayWeekday automation completed");
     }
 
-    public function sendInvitationEmails($m, $fixtureId)
+    public function sendInvitationEmails(Model $m, int $fixtureId)
     {
-        $f = $m->getFixtures();
+        $f = $m->getFixture($fixtureId);
         $server = $m->getServer();
-        $em = $f->getPlayInvitations($fixtureId);
+        $em = $f->getPlayInvitations();
         $email = $em['email'];
         $recipients = $em['recipients'];
         $tokens = $m->getTokens();
@@ -61,14 +60,14 @@ class Automate
             'email' => $email, 'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
-        $f->setInvitationsSent($fixtureId);
+        $f->setInvitationsSent();
     }
 
-    public function sendBookingEmails($m, $fixtureId)
+    public function sendBookingEmails(Model $m, int $fixtureId)
     {
-        $f = $m->getFixtures();
+        $f = $m->getFixture($fixtureId);
         $server = $m->getServer();
-        $em = $f->getBookingRequests($fixtureId);
+        $em = $f->getBookingRequests();
         $email = $em['email'];
         $recipients = $em['recipients'];
         $tokens = $m->getTokens();
@@ -86,6 +85,6 @@ class Automate
             'email' => $email, 'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
-        $f->setInvitationsSent($fixtureId);
+        $f->setInvitationsSent();
     }
 }

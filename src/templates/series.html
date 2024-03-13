@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="header">
-<h1>{{ description }}</h1>
+<h1>{{ base.description }}</h1>
 
 {% if next2fixtures|length > 0 %}
 <table class="pure-table">
@@ -15,18 +15,23 @@
 <p>No future fixtures</p>
 {% endif %}
 
-<p>Series owner: {{ owner.FirstName}} {{owner.LastName }}
+<p>Series owner: {{ base.FirstName }} {{ base.LastName }}
 {% if Role == 'Admin' %}
- (<a href="{{ owner.Link }}">owner access link</a>) 
+ (<a href="{{ base.Link }}">owner access link</a>) 
 {% endif %}
 </p>
 
-<p>Courts: {{ courts }}</p>
-<p>Courts to book: {{ targetCourts }}</p>
+<p>Courts: {{ base.SeriesCourts }}</p>
+<p>Courts to book: {{ base.TargetCourts }}</p>
+{% if base.AutoEmail %}
 
-<p>Email automation is {{ autoEmail ? 'enabled' : 'disabled' }}</p>
+<p style="color:red;">Email automation is enabled</p>
+{% else %}
+<p>Email automation is disabled</p>
+{% endif %}
 
 </div>
+
 <div class="content">
 <a class="pure-button" href="serieseditform?seriesid={{ seriesid }}">Edit series data</a>
 

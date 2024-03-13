@@ -30,8 +30,8 @@ final class SeriesAddUsers
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
-        $s->addUsers($seriesId, $userIds);
+        $s = $m->getSeries($seriesId);
+        $s->addUsers($userIds);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")
           ->withStatus(302);

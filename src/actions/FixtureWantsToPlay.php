@@ -26,13 +26,13 @@ final class FixtureWantsToPlay
             }
         }
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $seriesId = $f->getSeriesid($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $seriesId = $f->getSeriesid();
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;
         }
-        $f->setWantsToPlay($fixtureId, $userIds);
+        $f->setWantsToPlay($userIds);
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);

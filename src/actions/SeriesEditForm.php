@@ -28,12 +28,11 @@ public function __invoke(Request $request, Response $response): Response
         }
         $u = $m->getUsers();
         $users = $u->getAllUsers();
-        $s = $m->getSeries();
-        $series = $s->getBasicSeriesData($seriesId);
+        $series = $m->getSeries($seriesId)->getBasicSeriesData();
         $view = Twig::fromRequest($request);
         return $view->render($response, 'serieseditform.html', 
         ['seriesid' => $seriesId, 'owner' => $series['SeriesOwner'],
-        'day' => $series['SeriesWeekday'], 'time' => substr($series['SeriesTime'],0,5),
+        'day' => $series['SeriesWeekday'], 'time' => $series['SeriesTime'],
         'courts' => $series['SeriesCourts'], 'targetCourts' => $series['TargetCourts'], 
         'autoEmail' => $series['AutoEmail'], 'users' => $users
         ]);   

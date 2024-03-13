@@ -23,9 +23,9 @@ final class ParticipantBook
         $fixtureId = (int)$params['fixtureid'];
         $userId = $params['userid'];
         $type = $params['type'];
-        $model = $this->container->get('Model');
-        $f = $model->getFixtures();
-        $bookingFormData = $f->getBookingFormData($fixtureId, $userId, $type);
+        $m = $this->container->get('Model');
+        $f = $m->getFixture($fixtureId);
+        $bookingFormData = $f->getBookingFormData($userId, $type);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'participantBook.html', $bookingFormData);
     }

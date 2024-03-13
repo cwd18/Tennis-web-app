@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class FixtureSetBookersPlaying
+final class FixtureSetAutoPlaying
 {
     private $container;
 
@@ -21,13 +21,13 @@ final class FixtureSetBookersPlaying
         $params = $request->getQueryParams();
         $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
-        $f = $m->getFixtures();
-        $seriesId = $f->getSeriesid($fixtureId);
+        $f = $m->getFixture($fixtureId);
+        $seriesId = $f->getSeriesid();
         if (is_string($error = $m->checkOwner($seriesId))) {
             $response->getBody()->write($error);
             return $response;
         }
-        $f->setAutoPlaying($fixtureId);
+        $f->setAutoPlaying();
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);

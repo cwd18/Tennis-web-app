@@ -26,7 +26,7 @@ final class FixtureDelete
             $response->getBody()->write($error);
             return $response;
         }
-        $f = $m->getFixtures();
+        $f = $m->getFixture($fixtureId);
         $f->deleteFixture($fixtureId);
         return $response
           ->withHeader('Location', "/series?seriesid=$seriesId")

@@ -1,6 +1,9 @@
 <p>Hi {{ to.FirstName }}</p>
 
-<h3>Please book as follows for {{ email.shortDate }}:</h3>
+<h3>Please book a court for {{ email.shortDate }}</h3>
+
+{% if email.requests|length > 0 %}
+<p>Please book as follows:</p>
 <table class="pure-table">
     <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
     {% for r in email.requests %}
@@ -11,8 +14,9 @@
         </tr>
     {% endfor %}
 </table>
+{% endif %}
 
-<p>After 0730, please record which courts you booked (or that you didn't book a court) by following 
+<p>After 07:30, please record which courts you booked (or that you didn't book a court) by following 
     <a href = "{{ server }}/start/{{ to.Token }}">this personal link</a>.</p>
 
 {% if altmessage %}

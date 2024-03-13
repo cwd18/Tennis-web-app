@@ -29,7 +29,7 @@ public function __invoke(Request $request, Response $response): Response
             $response->getBody()->write($error);
             return $response;
         }
-        $s = $m->getSeries();
+        $s = $m->getSeriesList();
         $s->addSeries($owner, $day, $time, $courts, $targetCourts);
         return $response
           ->withHeader('Location', "/serieslist")

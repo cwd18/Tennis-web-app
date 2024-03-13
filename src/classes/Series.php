@@ -7,18 +7,28 @@ use TennisApp\Fixtures;
 
 class Series
 {
-    public $pdo;
+    private readonly Database $pdo;
+    private int $seriesId;
+    protected $base;
 
-    public function __construct($pdo)
+    public function __construct(Database $pdo, int $seriesId)
     {
         $this->pdo = $pdo;
+        $this->seriesId = $seriesId;
+        $this->setBase();
     }
 
-    public function seriesDescription($weekday, $time)
+    private function setBase()
     {
-        $dayname = date('l', strtotime("Monday +$weekday days"));
-        $description = $dayname . ' at ' . $time;
-        return $description;
+        // Retrieve basic series data...
+        $sql = "SELECT Seriesid, SeriesOwner, FirstName, LastName, SeriesWeekday, LEFT(SeriesTime,5) AS SeriesTime, 
+        SeriesCourts, TargetCourts, AutoEmail
+        FROM Users JOIN FixtureSeries ON Users.Userid = FixtureSeries.SeriesOwner
+        WHERE Seriesid = :Seriesid;";
+        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId]);
+        $this->base = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->base['dayname'] = date('l', strtotime("Monday +" . $this->base['SeriesWeekday'] . " days"));
+        $this->base['description'] = $this->base['dayname'] . ' at ' . $this->base['SeriesTime'];
     }
 
     public function fixtureDescription($datestr)
@@ -27,45 +37,11 @@ class Series
         return date("l jS \of F Y", $date);
     }
   
-    public function getAllSeries() : array
+    public function getSeriesData() : array
     {
-        $todayDate = date('Y-m-d');
-        $sql = "SELECT FixtureSeries.Seriesid, SeriesWeekday, 
-        LEFT(SeriesTime, 5) AS SeriesTime, AutoEmail, COUNT(FixtureId) AS FutureFixtures
-        FROM FixtureSeries LEFT JOIN Fixtures ON FixtureSeries.Seriesid = Fixtures.Seriesid
-        WHERE Fixtures.FixtureDate >= :today OR Fixtures.FixtureDate IS NULL
-        GROUP BY FixtureSeries.Seriesid;";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
-        $stmt->execute();
-        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
-        $series = (array) null;
-        foreach ($rows as $row) {
-            $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
-            $series[] = ['seriesid' => $row['Seriesid'], 'description' => $description, 
-            'autoEmail' => $row['AutoEmail'], 'futureFixtures' => $row['FutureFixtures']];
-        }
-        return $series;
-    }
-
-    public function getSeries($seriesId) : array
-    {
-        // Retrieve basic series data...
-        $sql = "SELECT Users.Userid, FirstName, LastName, SeriesWeekday, LEFT(SeriesTime,5) AS SeriesTime, 
-        SeriesCourts, TargetCourts, AutoEmail
-        FROM Users JOIN FixtureSeries ON Users.Userid = FixtureSeries.SeriesOwner
-        WHERE Seriesid = :Seriesid;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        $description = $this->seriesDescription($row['SeriesWeekday'], $row['SeriesTime']);
-        $owner['Userid'] =  $row['Userid'];
-        $owner['FirstName'] = $row['FirstName'];
-        $owner['LastName'] = $row['LastName'];
-        $seriesCourts = $row['SeriesCourts'];
-        $targetCourts = $row['TargetCourts'];
-        $autoEmail = $row['AutoEmail'];
-
+        // Get series data for series view
         // Get upcoming two fixtures (there should only be two - or zero if the series has just been created)
+        $seriesId = $this->seriesId;
         $todayDate = date('Y-m-d');
         $sql = "SELECT Fixtureid, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate >= :today 
@@ -84,67 +60,53 @@ class Series
         }
 
         // Get past fixtures...
-        $fixtureList = $this->getPastFixtures($seriesId, 5);
+        $fixtureList = $this->getPastFixtures(8);
 
         // return all series data
-        $series = ['seriesid' => $seriesId, 'description' => $description,
-         'owner' => $owner, 'courts' => $seriesCourts, 'targetCourts' => $targetCourts, 
-         'autoEmail' => $autoEmail, 'participants' => $ParticipantList, 
+        $seriesData = ['seriesid' => $seriesId, 'base' => $this->base, 'participants' => $ParticipantList, 
          'fixtures' => $fixtureList, 'next2fixtures' => $next2Fixtures];
-        return $series;
+        return $seriesData;
     }
 
-    public function getBasicSeriesData($seriesId) : array
+    public function getBasicSeriesData() : array
     {
-        $sql = "SELECT Seriesid, SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts, TargetCourts, AutoEmail
-        FROM FixtureSeries WHERE Seriesid = :Seriesid;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        return $row;
+        return $this->base;
     }
 
-    public function getOwner($seriesId) : int
+    public function getOwnerid() : int
     {
-        $sql = "SELECT SeriesOwner FROM FixtureSeries WHERE Seriesid = :Seriesid;";
-        return $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchColumn();
+        return $this->base['owner']['Userid'];
     }
 
-    public function getNextFixtureDate($seriesId) : string
+    public function getNextFixtureDate() : string
     {
         // Get the next fixture date, including today
-        $sql = "SELECT SeriesWeekday FROM FixtureSeries WHERE Seriesid = :Seriesid;";
-        $weekDay = $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchColumn();
-        // Calculate the date of the next fixture
-        $dayname = date('l', strtotime("Monday +$weekDay days"));
+        $dayname = $this->base['dayname'];
         $nextFixtureDt = strtotime("next $dayname", strtotime("-1 days")); // start from yesterday to include today
         return date("y-m-d", $nextFixtureDt);
     }
 
-    public function addSeries($owner, $day, $time, $courts, $targetCourts)
+    public function countFutureFixtures() : int
     {
-        $sql = "INSERT INTO FixtureSeries 
-        (SeriesOwner, SeriesWeekday, SeriesTime, SeriesCourts, TargetCourts) 
-        VALUES (:SeriesOwner, :SeriesWeekday, :SeriesTime, :SeriesCourts, :TargetCourts);";
+        $todayDate = date('Y-m-d');
+        $sql = "SELECT COUNT(FixtureId) 
+        FROM FixtureSeries JOIN Fixtures ON FixtureSeries.Seriesid = Fixtures.Seriesid
+        WHERE Fixtures.FixtureDate >= :today AND FixtureSeries.Seriesid = :Seriesid;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
-        $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
-        $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
-        $stmt->bindParam('SeriesCourts', $courts, \PDO::PARAM_STR); 
-        $stmt->bindParam('TargetCourts', $targetCourts, \PDO::PARAM_STR); 
+        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
+        $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
         $stmt->execute();
-        $seriesId = $this->pdo->lastInsertId();
-        $this->addUsers($seriesId, array((int)$owner));
-        return $seriesId;
+        return (int)$stmt->fetchColumn();
     }
 
-    public function updateBasicSeriesData($seriesId, $owner, $day, $time, $courts, $targetCourts, $autoEmail)
+    public function updateBasicSeriesData($owner, $day, $time, $courts, $targetCourts, $autoEmail)
     {
         $sql = "UPDATE FixtureSeries 
         SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, 
         SeriesTime = :SeriesTime, SeriesCourts = :SeriesCourts, TargetCourts = :TargetCourts, AutoEmail = :AutoEmail
         WHERE Seriesid = :Seriesid;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesOwner', $owner, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesWeekday', $day, \PDO::PARAM_INT);
         $stmt->bindParam('SeriesTime', $time, \PDO::PARAM_STR); 
@@ -152,80 +114,79 @@ class Series
         $stmt->bindParam('TargetCourts', $targetCourts, \PDO::PARAM_STR);
         $stmt->bindParam('AutoEmail', $autoEmail, \PDO::PARAM_INT);
         $stmt->execute();
+        $this->setBase();
     }
 
-    public function deleteSeries($seriesId)
+    public function deleteSeries()
     {
         // Delete any fixtures
         $sql = "SELECT Fixtureid FROM Fixtures WHERE Seriesid = :Seriesid;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
-        $fixtures = $statement->fetchall(\PDO::FETCH_ASSOC);
-        $f = new Fixtures($this->pdo);
-        foreach ($fixtures as $fixture) {
-            $fixtureId = $fixture['Fixtureid'];
-            $f->deleteFixture($fixtureId);
+        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId]);
+        while ($fixtureId = $stmt->fetchColumn()) {
+            $f = new Fixture($this->pdo, $fixtureId);
+            $f->deleteFixture();
         }
         // Delete any candidates
         $sql = "DELETE FROM SeriesCandidates WHERE Seriesid = :Seriesid;";
-        $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
+        $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId]);
         // Delete the series
         $sql = "DELETE FROM FixtureSeries WHERE Seriesid = :Seriesid;";
-        $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
+        $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId]);
     }
 
-    public function getSeriesUsers($seriesId)
+    public function getSeriesUsers()
     {
         // Return list of users for this series 
         $sql = "SELECT Users.Userid, FirstName, LastName 
         FROM Users JOIN SeriesCandidates ON Users.Userid = SeriesCandidates.Userid
         WHERE Seriesid = :Seriesid 
         ORDER BY FirstName, LastName;";
-        $statement = $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
+        $statement = $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId]);
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
     
-    public function deleteSeriesUsers($seriesId, $userIds)
+    public function deleteSeriesUsers($userIds)
     {
         // Delete specified users from this series 
         $sql = "DELETE FROM SeriesCandidates WHERE Seriesid = :Seriesid AND Userid = :Userid;";
         $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $stmt->execute(['Seriesid' => $seriesId, 'Userid' => $userId]);
+            $stmt->execute(['Seriesid' => $this->seriesId, 'Userid' => $userId]);
         }
     }
 
-    public function getSeriesCandidates($seriesId) : array
+    public function getSeriesCandidates() : array
     {
         // Return list of possible candidate participants to add to the series, 
         // which excludes existing participants
         $sql = "SELECT Userid, FirstName, LastName FROM Users
         WHERE Users.Userid NOT IN (SELECT Userid FROM SeriesCandidates WHERE Seriesid = :Seriesid)
         ORDER BY FirstName, LastName;";
-        $users = $this->pdo->runSQL($sql,['Seriesid' => $seriesId])->fetchall(\PDO::FETCH_ASSOC);
+        $users = $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId])->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }
 
-    public function addUsers($seriesId, $userIds)
+    public function addUsers($userIds)
     {
         // Add users to the series
         $sql = "INSERT INTO SeriesCandidates (Seriesid, Userid) VALUES (:Seriesid, :Userid);";
         $stmt = $this->pdo->prepare($sql);
         foreach ($userIds as $userId) {
-            $stmt->execute(['Seriesid' => $seriesId, 'Userid' => $userId]);
+            $stmt->execute(['Seriesid' => $this->seriesId, 'Userid' => $userId]);
         }
     }
 
-    public function ensure2FutureFixtures($seriesId)
+    public function ensure2FutureFixtures()
     {
         // Ensure that the next two future fixtures exist
-        $nextFixtureDate = $this->getNextFixtureDate($seriesId);
-        $this->addFixture($seriesId, $nextFixtureDate); // does nothing if fixture already exists
+        $nextFixtureDate = $this->getNextFixtureDate();
+        $this->addFixture($nextFixtureDate); // does nothing if fixture already exists
         $nextFixtureDatePlus = date("y-m-d",strtotime($nextFixtureDate) + 7 * 86400);
-        $this->addFixture($seriesId, $nextFixtureDatePlus); // does nothing if fixture already exists
+        $this->addFixture($nextFixtureDatePlus); // does nothing if fixture already exists
     }
 
-    public function nextFixture($seriesId) : int
+    public function nextFixture() : int
     {
         // return fixtureid of next fixture or zero if there isn't one
         $todayDate = date('Y-m-d');
@@ -233,32 +194,33 @@ class Series
         WHERE Seriesid = :Seriesid AND FixtureDate > :today
         ORDER BY FixtureDate LIMIT 1;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
         $stmt->execute();
         $fixtureId = $stmt->fetchColumn();
         return $fixtureId = (int)$fixtureId;
     }
 
-    public function latestFixture($seriesId) : int
+    public function latestFixture() : int
     {
         // return fixtureid of the latest fixture or zero if there isn't one
         $sql = "SELECT Fixtureid FROM Fixtures 
         WHERE Seriesid = :Seriesid ORDER BY FixtureDate DESC LIMIT 1;";
-        $stmt = $this->pdo->runSQL($sql, ['Seriesid' => $seriesId]);
+        $stmt = $this->pdo->runSQL($sql, ['Seriesid' => $this->seriesId]);
         return (int)$stmt->fetchColumn();
     }
 
-    private function addFixture($seriesId, $fixtureDate) : int
+    private function addFixture($fixtureDate) : int
     {
         // Add a fixture at specified date and return the fixtureid
         // If the fixture already exists, return the fixtureid of that fixture
+        $seriesId = $this->seriesId;
         $seriesRow = $this->getBasicSeriesData($seriesId);
         $fixtureOwner = $seriesRow['SeriesOwner'];
         $fixtureTime = $seriesRow['SeriesTime'];
         $fixtureCourts = $seriesRow['SeriesCourts'];
         $targetCourts = $seriesRow['TargetCourts'];
-        $fixtureId = $this->checkFixtureExists($seriesId, $fixtureDate);
+        $fixtureId = $this->checkFixtureExists($fixtureDate);
         if ($fixtureId != 0) {
             return $fixtureId; // fixture already exists
         }
@@ -295,20 +257,21 @@ class Series
         return $fixtureId;
     }
   
-    private function checkFixtureExists($seriesId, $fixtureDate) : int
+    private function checkFixtureExists($fixtureDate) : int
     {
         // returns Fixtureid or zero if fixture does not exist
         $sql = "SELECT Fixtureid FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate = :FixtureDate;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
+        $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureDate', $fixtureDate, \PDO::PARAM_STR); 
         $stmt->execute();
         return (int)$stmt->fetchColumn(); 
     }
     
-    private function getPastFixtures($seriesId, $count) : array
+    private function getPastFixtures($count) : array
     {
+        $seriesId = $this->seriesId;
         $todayDate = date('Y-m-d');
         $sql = "SELECT Fixtureid, FixtureDate, FixtureTime FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate < :today
