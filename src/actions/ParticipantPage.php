@@ -33,11 +33,11 @@ final class ParticipantPage
             return $view->render($response, 'participantInvite.html', 
             $f->getInvitationData($userId));
         }
-        if ($f->getCourtsBooked($userId) == NULL and $f->inBookingWindow($fixtureId) == 0) {
+        if ($f->getCourtsBooked($userId) == NULL and $f->inBookingWindow() == 0) {
             return $view->render($response, 'participantBook.html', 
             $f->getBookingFormData($userId, 'Booked'));
         }
-        $fixture = $f->getFixture($fixtureId);
+        $fixture = $f->getFixtureData();
         return $view->render($response, 'fixtureNotice.html', $fixture);   
     }
 }
