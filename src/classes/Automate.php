@@ -5,6 +5,9 @@ namespace TennisApp;
 
 class Automate
 {
+    public const EMAIL_INVITATION = 0;
+    public const EMAIL_BOOKING = 1;
+
     public function runAutomation(Model $m)
     {
         // Called to run automated tasks
@@ -27,64 +30,50 @@ class Automate
                 $weekday = $series['base']['SeriesWeekday'];
                 if ($todayWeekday == $weekday) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
-                    $this->sendBookingEmails($m, $fixtureId);
+                    $this->sendEmails($m, $fixtureId, Automate::EMAIL_BOOKING);
                 }
                 if ($tomorrowWeekday == $weekday) {
                     $eventLog->write("Sending invitation emails for series $seriesId");
-                    $this->sendInvitationEmails($m, $fixtureId);
+                    $this->sendEmails($m, $fixtureId, Automate::EMAIL_INVITATION);
                 }
             }
         }
         $eventLog->write("Day $todayWeekday automation completed");
     }
 
-    public function sendInvitationEmails(Model $m, int $fixtureId)
+    public function sendEmails(Model $m, int $fixtureId, int $emailType)
     {
         $f = $m->getFixture($fixtureId);
         $server = $m->getServer();
-        $em = $f->getPlayInvitations();
-        $email = $em['email'];
-        $recipients = $em['recipients'];
+        $base = $f->getBasicFixtureData();
         $tokens = $m->getTokens();
+        $e = $m->getEmail();
+        $twig = $m->getTwig();
+        $replyTo = $base['OwnerEmail'];
+
+        if ($emailType == Automate::EMAIL_INVITATION) {
+            $recipients = $f->getWannaPlayRecipients();
+            $subject = "Tennis " . $base['shortDate'];
+            $twigFile = 'emailWannaPlay.html';
+        } else if ($emailType == Automate::EMAIL_BOOKING){
+            $recipients = $f->getBookingRequestRecipients();
+            $subject = "Book a court at 07:30 for " . $base['shortDate'];
+            $twigFile = 'emailBookingBase.html';
+            $base['requests'] = $f->getRequestedBookings();
+        } else {
+            throw new \Exception("Unknown email type");
+        }
         foreach ($recipients as &$recipient) {
             $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
         }
-        $subject = $email['subject'];
-        $e = $m->getEmail();
-        $twig = $m->getTwig();
-        $replyTo = $email['owner']['EmailAddress'];
         foreach ($recipients as $to) {
-            $message = $twig->render('emailWannaPlay.html', ['altmessage' => false, 'email' => $email, 
-            'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
-            $altmessage = strip_tags($twig->render('emailWannaPlay.html', ['altmessage' => true, 
-            'email' => $email, 'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
+            $message = $twig->render($twigFile, ['altmessage' => false,
+            'base' => $base, 'to' => $to, 'server' => $server]);
+            $altmessage = strip_tags($twig->render($twigFile, ['altmessage' => true, 
+            'base' => $base, 'to' => $to, 'server' => $server]));
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
         $f->setInvitationsSent();
     }
 
-    public function sendBookingEmails(Model $m, int $fixtureId)
-    {
-        $f = $m->getFixture($fixtureId);
-        $server = $m->getServer();
-        $em = $f->getBookingRequests();
-        $email = $em['email'];
-        $recipients = $em['recipients'];
-        $tokens = $m->getTokens();
-        foreach ($recipients as &$recipient) {
-            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
-        }
-        $subject = "Book a court at 07:30 for " . $email['shortDate'];
-        $e = $m->getEmail();
-        $twig = $m->getTwig();
-        $replyTo = $email['owner']['EmailAddress'];
-        foreach ($recipients as $to) {
-            $message = $twig->render('emailBookingBase.html', ['altmessage' => false, 'email' => $email, 
-            'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]);
-            $altmessage = strip_tags($twig->render('emailBookingBase.html', ['altmessage' => true, 
-            'email' => $email, 'to' => $to, 'server' => $server, 'fixtureid' => $fixtureId]));
-            $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
-        }
-        $f->setInvitationsSent();
-    }
 }

@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% if invitationsSent == 0 %}
+{% if base.InvitationsSent == 0 %}
 <h2>Subject: {{ email.subject }}</h2>
 {% else %}    
-<h2>Subject: Book a court at 07:30 for {{ email.shortDate }}</h2>
+<h2>Subject: {{ subject }}</h2>
 {% endif %}
 
 
-<p>Reply to: {{ email.owner.FirstName }} {{ email.owner.LastName }}</p>
+<p>Reply to: {{ base.OwnerFirstName }} {{ base.OwnerLastName }}</p>
 
 <details>
 <summary>{{ recipients|length }} recipients</summary>
@@ -18,7 +18,7 @@
 </details>
 
 {% set to = recipients[0] %}
-{% if invitationsSent == 0 %}
+{% if base.InvitationsSent == 0 %}
 {% include "emailWannaPlay.html" %}
 {% else %}    
 {% include "emailBooking.html" %}

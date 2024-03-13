@@ -28,22 +28,23 @@ final class EmailConfirm
             $response->getBody()->write($error);
             return $response;
         }
-        $invitationsSent = $f->getInvitationsSent();
-        if ($invitationsSent == 0 ) {
-            $em = $f->getPlayInvitations();
+        $base = $f->getBasicFixtureData();
+        if ($base['InvitationsSent'] == 0 ) {
+            $recipients = $f->getWannaPlayRecipients();
+            $subject = "Tennis " . $base['shortDate'];
         } else {
-            $em = $f->getBookingRequests();
+            $recipients = $f->getBookingRequestRecipients();
+            $subject = "Book a court at 07:30 for " . $base['shortDate'];
+            $base['requests'] = $f->getRequestedBookings();
         }
-        $email = $em['email'];
-        $recipients = $em['recipients'];
         $tokens = $m->getTokens();
         foreach ($recipients as &$recipient) {
             $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
         }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'emailConfirm.html', ['invitationsSent' => $invitationsSent, 
-        'email' => $email, 'recipients' => $recipients,
-        'server' => $m->getServer(), 'fixtureid' => $fixtureId,
+        return $view->render($response, 'emailConfirm.html', ['base' => $base, 
+        'subject' => $subject, 'recipients' => $recipients,
+        'server' => $m->getServer(), 
         'continuelink' => "emailSend?fixtureid=$fixtureId", 
         'cancellink' => "fixture?fixtureid=$fixtureId"]);
     }

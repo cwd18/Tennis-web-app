@@ -31,12 +31,6 @@ class Series
         $this->base['description'] = $this->base['dayname'] . ' at ' . $this->base['SeriesTime'];
     }
 
-    public function fixtureDescription($datestr)
-    {
-        $date = strtotime($datestr);
-        return date("l jS \of F Y", $date);
-    }
-  
     public function getSeriesData() : array
     {
         // Get series data for series view
@@ -60,11 +54,11 @@ class Series
         }
 
         // Get past fixtures...
-        $fixtureList = $this->getPastFixtures(8);
+        $pastFixtures = $this->getPastFixtures(8);
 
         // return all series data
         $seriesData = ['seriesid' => $seriesId, 'base' => $this->base, 'participants' => $ParticipantList, 
-         'fixtures' => $fixtureList, 'next2fixtures' => $next2Fixtures];
+         'pastFixtures' => $pastFixtures, 'next2fixtures' => $next2Fixtures];
         return $seriesData;
     }
 
@@ -102,8 +96,8 @@ class Series
     public function updateBasicSeriesData($owner, $day, $time, $courts, $targetCourts, $autoEmail)
     {
         $sql = "UPDATE FixtureSeries 
-        SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, 
-        SeriesTime = :SeriesTime, SeriesCourts = :SeriesCourts, TargetCourts = :TargetCourts, AutoEmail = :AutoEmail
+        SET SeriesOwner = :SeriesOwner, SeriesWeekday = :SeriesWeekday, SeriesTime = :SeriesTime, 
+        SeriesCourts = :SeriesCourts, TargetCourts = :TargetCourts, AutoEmail = :AutoEmail
         WHERE Seriesid = :Seriesid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
@@ -273,7 +267,7 @@ class Series
     {
         $seriesId = $this->seriesId;
         $todayDate = date('Y-m-d');
-        $sql = "SELECT Fixtureid, FixtureDate, FixtureTime FROM Fixtures 
+        $sql = "SELECT Fixtureid FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate < :today
         ORDER BY FixtureDate DESC LIMIT :Count;";
         $stmt = $this->pdo->prepare($sql);
@@ -281,17 +275,12 @@ class Series
         $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
         $stmt->bindParam('Count', $count, \PDO::PARAM_INT);
         $stmt->execute();
-        $result = $stmt->fetchall(\PDO::FETCH_ASSOC);
-        if (empty($result)) {
-            return $result;
+        $pastFixtures = [];
+        while ($fixtureId = $stmt->fetchColumn()) {
+            $f = new Fixture($this->pdo, $fixtureId);
+            $pastFixtures[] = $f->getBasicFixtureData();
         }
-        foreach ($result as $row) {
-            $description = $this->fixtureDescription($row['FixtureDate']);
-            $time = substr($row['FixtureTime'],0,5);
-            $fixtures[] = ['fixtureid' => $row['Fixtureid'], 'description' => $description, 
-            'date' => $row['FixtureDate'], 'time' => $time];
-        }
-        return $fixtures;
+        return $pastFixtures;
     }
 
 }

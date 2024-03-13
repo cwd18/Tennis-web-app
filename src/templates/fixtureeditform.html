@@ -4,7 +4,7 @@
 <form class="pure-form pure-form-stacked" action="fixtureedit" method="post">
 <fieldset>
 <legend>Edit fixture</legend>
-<input type="hidden" name="fixtureid" value="{{ fixtureid }}">
+<input type="hidden" name="fixtureid" value="{{ fixture.Fixtureid }}">
 
 <label for="time">Start time</label>
 <select name="time" id="time">
@@ -25,10 +25,16 @@
 
 <label for="courts">Courts</label>
 <input type="text" pattern="\d{1,2}-\d{1,2}(?:, \d{1,2}-\d{1,2})*" 
-name="courts" id="courts" value="{{ courts }}"">
+name="courts" id="courts" value="{{ fixture.FixtureCourts }}"/>
+
+<label for="targetcourts">Target courts</label>
+<input type="text" pattern="\d{1,2}-\d{1,2}(?:, \d{1,2}-\d{1,2})*" 
+name="targetcourts" id="targetcourts" value="{{ fixture.TargetCourts }}"/>
+<br>
+
 
 <script>
-document.getElementById("time").value="{{ time }}"
+document.getElementById("time").value="{{ fixture.FixtureTime }}"
 </script>
 
 <br>
@@ -38,6 +44,6 @@ document.getElementById("time").value="{{ time }}"
 </form>
 
 <br><br>
-<a class="pure-button" href="fixture?fixtureid={{ fixtureid }}">Cancel any input</a>
+<a class="pure-button" href="fixture?fixtureid={{ fixture.Fixtureid }}">Cancel any input</a>
 
 {% endblock %}

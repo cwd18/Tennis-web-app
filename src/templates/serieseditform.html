@@ -4,7 +4,7 @@
 <form class="pure-form pure-form-stacked" action="seriesedit" method="post">
 <fieldset>
 <legend>Edit series</legend>
-<input type="hidden" name="seriesid" value="{{ seriesid }}">
+<input type="hidden" name="seriesid" value="{{ series.Seriesid }}">
 
 {% if Role == 'Admin' %}
 <label for="owner">Series Owner</label>
@@ -42,25 +42,24 @@
 <option>18:30</option>
 <option>19:30</option>
 </select>
-<br>
 
 <label for="courts">Courts</label>
 <input type="text" pattern="\d{1,2}-\d{1,2}(?:, \d{1,2}-\d{1,2})*" 
-name="courts" id="courts" value="{{ courts }}"/>
-<br>
+name="courts" id="courts" value="{{ series.SeriesCourts }}"/>
+
 <label for="targetcourts">Target courts</label>
 <input type="text" pattern="\d{1,2}-\d{1,2}(?:, \d{1,2}-\d{1,2})*" 
-name="targetcourts" id="targetcourts" value="{{ targetCourts }}"/>
-<br>
+name="targetcourts" id="targetcourts" value="{{ series.TargetCourts }}"/>
+
 
 <label for="autoEmail" class="pure-checkbox">
-<input name="autoEmail" type="checkbox" id="autoEmail" value="1" {{ autoEmail ? 'checked' : ''}}/> Automatic emails
+<input name="autoEmail" type="checkbox" id="autoEmail" value="1" {{ series.AutoEmail ? 'checked' : ''}}/> Automatic emails
 </label>
 
 <script>
-document.getElementById("owner").value="{{ owner }}"
-document.getElementById("day").value="{{ day }}"
-document.getElementById("time").value="{{ time }}"
+document.getElementById("owner").value="{{ series.SeriesOwner }}"
+document.getElementById("day").value="{{ series.SeriesWeekday }}"
+document.getElementById("time").value="{{ series.SeriesTime }}"
 </script>
 
 <br>
@@ -71,6 +70,6 @@ document.getElementById("time").value="{{ time }}"
 </form>
 
 <br><br>
-<a class="pure-button" href="series?seriesid={{ seriesid }}">Cancel any input</a>
+<a class="pure-button" href="series?seriesid={{ series.Seriesid }}">Cancel any input</a>
 
 {% endblock %}

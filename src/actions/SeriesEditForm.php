@@ -30,11 +30,6 @@ public function __invoke(Request $request, Response $response): Response
         $users = $u->getAllUsers();
         $series = $m->getSeries($seriesId)->getBasicSeriesData();
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'serieseditform.html', 
-        ['seriesid' => $seriesId, 'owner' => $series['SeriesOwner'],
-        'day' => $series['SeriesWeekday'], 'time' => $series['SeriesTime'],
-        'courts' => $series['SeriesCourts'], 'targetCourts' => $series['TargetCourts'], 
-        'autoEmail' => $series['AutoEmail'], 'users' => $users
-        ]);   
+        return $view->render($response, 'serieseditform.html', ['series' => $series, 'users' => $users]);
     }
 }

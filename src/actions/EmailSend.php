@@ -30,9 +30,9 @@ final class EmailSend
         $a = $m->getAutomate();
         $invitationsSent = $f->getInvitationsSent($fixtureId);
         if ($invitationsSent == 0 ) {
-            $a->sendInvitationEmails($m, $fixtureId);
+            $a->sendEmails($m, $fixtureId, $a::EMAIL_INVITATION);
         } else {
-            $a->sendBookingEmails($m, $fixtureId);
+            $a->sendEmails($m, $fixtureId, $a::EMAIL_BOOKING);
         }
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")

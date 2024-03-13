@@ -1,12 +1,12 @@
 <p>Hi {{ to.FirstName }}</p>
 
-<h3>Please book a court for {{ email.shortDate }}</h3>
+<h3>Please book a court for {{ base.shortDate }}</h3>
 
-{% if email.requests|length > 0 %}
+{% if base.requests|length > 0 %}
 <p>Please book as follows:</p>
 <table class="pure-table">
     <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
-    {% for r in email.requests %}
+    {% for r in base.requests %}
         <tr{{ r.Userid == to.Userid ? ' style="color:red;"' : '' }}>
         <td>{{ r.FirstName}} {{ r.LastName}}</td>
         <td>{{ r.CourtNumber}}</td>
@@ -25,4 +25,4 @@ Link: {{ server }}/start/{{ to.Token }}
 
 <p>Regards,</p>
 
-<p>{{ email.owner.FirstName }}</p>
+<p>{{ base.OwnerFirstName }}</p>

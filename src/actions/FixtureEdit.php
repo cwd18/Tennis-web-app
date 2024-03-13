@@ -22,6 +22,7 @@ final class FixtureEdit
         $fixtureId = (int)$params['fixtureid'];
         $time = $params['time'];
         $courts = $params['courts'];
+        $targetCourts = $params['targetcourts'];
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
@@ -29,7 +30,7 @@ final class FixtureEdit
             $response->getBody()->write($error);
             return $response;
         }
-        $f->updateBasicFixtureData($time, $courts);
+        $f->updateBasicFixtureData($time, $courts, $targetCourts);
         return $response
         ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
         ->withStatus(302);

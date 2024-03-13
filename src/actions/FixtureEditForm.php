@@ -32,10 +32,6 @@ final class FixtureEditForm
         $users = $u->getAllUsers();
         $fixture = $f->getBasicFixtureData($fixtureId);
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'fixtureeditform.html', 
-        ['fixtureid' => $fixtureId, 'owner' => $fixture['FixtureOwner'],
-        'date' => $fixture['FixtureDate'], 'time' => substr($fixture['FixtureTime'],0,5),
-        'courts' => $fixture['FixtureCourts'], 'users' => $users
-        ]);   
+        return $view->render($response, 'fixtureeditform.html', ['fixture' => $fixture, 'users' => $users]);   
     }
 }
