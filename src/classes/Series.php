@@ -244,9 +244,9 @@ class Series
         if ($previousFixtureId == false) {
             return $fixtureId; // no previous fixture
         }
-        $sql ="INSERT INTO CourtBookings (Fixtureid, BookingTime, CourtNumber, BookingType)
-        SELECT '$fixtureId', BookingTime, CourtNumber, BookingType FROM CourtBookings
-        WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
+        $sql = "INSERT INTO CourtBookings (Fixtureid, BookingTime, CourtNumber, BookingType, Userid)
+        SELECT $fixtureId AS FixtureId, BookingTime, CourtNumber, BookingType, Userid 
+        FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
         $this->pdo->runSQL($sql,['Fixtureid' => $previousFixtureId]);
         return $fixtureId;
     }
