@@ -593,7 +593,7 @@ class Fixture
 
     public function getInvitationsSent() : bool
     {
-        return $this->base['InvitationsSent'];
+        return (bool)$this->base['InvitationsSent'];
     }
 
     public function createBookingRequests() 

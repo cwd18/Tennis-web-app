@@ -1,23 +1,21 @@
 <p>Hi {{ to.FirstName }}</p>
 
-<h3>Please book a court for {{ base.shortDate }}</h3>
+<h3>At 07:30, please book a court for {{ base.shortDate }}</h3>
 
 {% if base.requests|length > 0 %}
-<p>Please book as follows:</p>
+<p>If your name appears in the below, please go for the requested court and time (otherwise book anything you can get).</p>
 <table class="pure-table">
-    <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
-    {% for r in base.requests %}
-        <tr{{ r.Userid == to.Userid ? ' style="color:red;"' : '' }}>
-        <td>{{ r.FirstName}} {{ r.LastName}}</td>
-        <td>{{ r.CourtNumber}}</td>
-        <td>{{ r.BookingTime }}</td>
-        </tr>
-    {% endfor %}
+<thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
+{% for r in base.requests %}
+<tr{{ r.Userid == to.Userid ? ' style="color:red;"' : '' }}>
+<td>{{ r.FirstName}} {{ r.LastName}}</td><td>{{ r.CourtNumber}}</td><td>{{ r.BookingTime }}</td>
+</tr>
+{% endfor %}
 </table>
 {% endif %}
 
 <p>After 07:30, please record which courts you booked (or that you didn't book a court) by following 
-    <a href = "{{ server }}/start/{{ to.Token }}">this personal link</a>.</p>
+<a href = "{{ server }}/start/{{ to.Token }}">this personal link</a>.</p>
 
 {% if altmessage %}
 Link: {{ server }}/start/{{ to.Token }}

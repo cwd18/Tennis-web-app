@@ -57,7 +57,7 @@ class Automate
             $twigFile = 'emailWannaPlay.html';
         } else if ($emailType == Automate::EMAIL_BOOKING){
             $recipients = $f->getBookingRequestRecipients();
-            $subject = "Book a court at 07:30 for " . $base['shortDate'];
+            $subject = "Book a court for " . $base['shortDate'];
             $twigFile = 'emailBookingBase.html';
             $base['requests'] = $f->getRequestedBookings();
         } else {
@@ -69,8 +69,11 @@ class Automate
         foreach ($recipients as $to) {
             $message = $twig->render($twigFile, ['altmessage' => false,
             'base' => $base, 'to' => $to, 'server' => $server]);
-            $altmessage = strip_tags($twig->render($twigFile, ['altmessage' => true, 
-            'base' => $base, 'to' => $to, 'server' => $server]));
+            $altmessage = $twig->render($twigFile, ['altmessage' => true, 
+            'base' => $base, 'to' => $to, 'server' => $server]);
+            $altmessage = str_replace(['</tr><tr>', '</thead><thead>'], "\n", $altmessage);
+            $altmessage = str_replace(['</td><td>', '</th><th>'], "\t", $altmessage);
+            $altmessage = strip_tags($altmessage);
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
         $f->setInvitationsSent();

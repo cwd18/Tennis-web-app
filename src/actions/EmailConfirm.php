@@ -34,7 +34,7 @@ final class EmailConfirm
             $subject = "Tennis " . $base['shortDate'];
         } else {
             $recipients = $f->getBookingRequestRecipients();
-            $subject = "Book a court at 07:30 for " . $base['shortDate'];
+            $subject = "Book a court for " . $base['shortDate'];
             $base['requests'] = $f->getRequestedBookings();
         }
         $tokens = $m->getTokens();
