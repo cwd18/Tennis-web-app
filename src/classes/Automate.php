@@ -21,13 +21,13 @@ class Automate
         $seriesList = $m->getSeriesList()->getAllSeries();
 
         foreach ($seriesList as $series) {
-            $seriesId = $series['base']['Seriesid'];
+            $seriesId = $series['Seriesid'];
             $s = $m->getSeries($seriesId);
-            $eventLog->write(sprintf("Processing series %s (%s)", $seriesId, $series['base']['description']));
+            $eventLog->write(sprintf("Processing series %s (%s)", $seriesId, $series['description']));
             $s->ensure2FutureFixtures();
-            if ($series['base']['AutoEmail']) {
+            if ($series['AutoEmail']) {
                 $fixtureId = $s->latestFixture();
-                $weekday = $series['base']['SeriesWeekday'];
+                $weekday = $series['SeriesWeekday'];
                 if ($todayWeekday == $weekday) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_BOOKING);

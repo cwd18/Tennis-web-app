@@ -3,11 +3,11 @@
 
 <h2>Tennis fixture series</h2>
 <table class="pure-table">
-    <thead><th>Series</th><th>Automated emails</th><th>Future fixtures</th></tr></thead>
+    <thead><tr></tr><th>Series</th><th>Automated emails</th><th>Future fixtures</th></tr></thead>
     {% for s in serieslist %}
     <tr>
-    <td><a href="series?seriesid={{ s.base.Seriesid }}">{{ s.base.description }}</a></td>
-    <td>{{ s.base.AutoEmail ? 'Enabled' : 'Disabled' }}</td>
+    <td><a href="series?seriesid={{ s.Seriesid }}">{{ s.description }}</a></td>
+    <td>{{ s.AutoEmail ? 'Enabled' : 'Disabled' }}</td>
     <td>{{ s.futureFixtures }}</td>
     </tr>
     {% endfor %}
@@ -26,6 +26,9 @@
 {% for l in log %}
 {{ l.EventTime }}: {{l.EventMessage}}<br>
 {% endfor %}
+
+<br><br>
+<a class="pure-button" href="testReact">Test React</a>
 
 <br><br>
 {% endblock %}

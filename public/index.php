@@ -122,4 +122,10 @@ $app->get('/participantSetBooking', \TennisApp\Action\ParticipantSetBooking::cla
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);
 $app->get('/emailSend', \TennisApp\Action\EmailSend::class);
 
+// Test React page
+$app->get('/testReact', \TennisApp\Action\TestReact::class);
+
+// APIs
+$app->get('/api/serieslist', \TennisApp\Action\ApiSeriesList::class);
+
 $app->run();

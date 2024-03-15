@@ -31,8 +31,8 @@ class SeriesList
         while ($seriesId = $stmt->fetchColumn()) {
             $s = $this->createSeries($seriesId);
             $base = $s->getBasicSeriesData();
-            $futureFixtures = $s->countFutureFixtures();
-            $seriesList[] = ['base' => $base, 'futureFixtures' => $futureFixtures];
+            $base['futureFixtures'] = $s->countFutureFixtures();
+            $seriesList[] = $base;
         }
         return $seriesList;
     }
