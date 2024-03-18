@@ -32,7 +32,7 @@ final class FixtureDelRequest
         }
         $f->deleteCourtBooking($userId, $time, $court, 'Request');
         return $response
-          ->withHeader('Location', "/fixture?fixtureid=$fixtureId&userid=$userId")
+          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
           ->withStatus(302);
       }
 }

@@ -28,12 +28,9 @@ final class FixtureAddRequests
             $response->getBody()->write($error);
             return $response;
         }
-        $users = $f->getFixtureNonBookers('Request');
-        $requestedBookings = $f->getRequestedBookings($fixtureId);
-        $view = Twig::fromRequest($request);
-        return $view->render($response, 'fixtureAddRequests.html', 
-        ['users' => $users, 
-        'requestedBookings' => $requestedBookings,
-        'fixtureid' => $fixtureId]);
+        $f->createBookingRequests();
+        return $response
+          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
+          ->withStatus(302);
     }
 }

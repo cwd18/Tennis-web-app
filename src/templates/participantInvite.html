@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Hello {{ FirstName }}</h2>
+<h2>Hi {{ participant.FirstName }}</h2>
 
-<p>Would you like to play tennis on {{ FixtureDate }} at {{ FixtureTime }}?</p>
+<p>Would you like to play tennis on {{ fixture.shortDate }} at {{ fixture.FixtureTime }}?</p>
 
-{% set href = 'participantWantsToPlay?fixtureid=' ~ Fixtureid ~ 
-'&userid=' ~ Userid ~ '&WantsToPlay=' %}
+{% set href = 'participantWantsToPlay?fixtureid=' ~ fixture.Fixtureid ~ 
+'&userid=' ~ participant.Userid ~ '&WantsToPlay=' %}
 
 <a class="pure-button" href="{{ href }}1">I would like to play</a>
 <br><br>

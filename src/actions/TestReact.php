@@ -25,6 +25,6 @@ final class TestReact
             return $response;
         }
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'testReact.html', ['ReactPage' => true]);
+        return $view->render($response, 'testReact.html', []);
     }
 }

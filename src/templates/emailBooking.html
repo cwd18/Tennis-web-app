@@ -5,10 +5,10 @@
 {% if base.requests|length > 0 %}
 <p>If your name appears in the below, please go for the requested court and time (otherwise book anything you can get).</p>
 <table class="pure-table">
-<thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
+<thead><th>Time</th><th>Court</th><th>Booker</th></tr></thead>
 {% for r in base.requests %}
 <tr{{ r.Userid == to.Userid ? ' style="color:red;"' : '' }}>
-<td>{{ r.FirstName}} {{ r.LastName}}</td><td>{{ r.CourtNumber}}</td><td class="no-wrap">{{ r.BookingTime }}</td>
+<td class="no-wrap">{{ r.BookingTime }}</td><td>{{ r.CourtNumber}}</td><td>{{ r.FirstName}} {{ r.LastName }}</td>
 </tr>
 {% endfor %}
 </table>

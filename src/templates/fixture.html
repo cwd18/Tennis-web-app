@@ -1,3 +1,6 @@
+{% set ReactPage = (inBookingWindow < 0) %} {# enable React component if before booking is possible #}
+
+
 {% extends "base.html" %}
 
 {% block content %}
@@ -6,7 +9,7 @@
 
 <h2>{{ base.description }}</h2>
 <h2>{{ base.FixtureTime }} start</h2>
-<p>Fixture owner: {{ ownerName.FirstName }} {{ ownerName.LastName }}</p>
+<p>Fixture owner: {{ base.OwnerFirstName }} {{ base.OwnerLastName }}</p>
 <p>Courts: {{ base.FixtureCourts }}</p>
 <p>Courts to book: {{ base.TargetCourts }}</p>
 <p>{{ base.InvitationsSent ? 'Invitations have been sent' : 'Invitations have not been sent' }}</p>
@@ -110,11 +113,29 @@
     {% endif %}
 {% endif %}
 
-{% if inBookingWindow != 0 %}
-    {{ include('requestedBookings.html') }}
-    <br>
-    <a class="pure-button" href="fixtureAddRequests?fixtureid={{ fixtureid }}">Add booking request</a>
+{% if ReactPage %}
+    <div id="booking-table"></div> {# React component #}
+{% else %}
+    {% if inBookingWindow != 0 %}
+    {% if requestedBookings|length > 0 %}
+    <p><b>Booking requests:</b></p>
+    <table class="pure-table">
+        <thead><th>Time</th><th>Court</th><th>Booker</th></tr></thead>
+        {% for r in requestedBookings %}
+            <tr>
+            <td>{{ r.BookingTime }}</td>
+            <td>{{ r.CourtNumber}}</td>
+            <td>{{ r.FirstName}} {{ r.LastName}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No booking requests</p>
+    <a class="pure-button" href="fixtureAddRequests?fixtureid={{ fixtureid }}">Create booking requests</a>
     <br><br>
+
+    {% endif %}
+    {% endif %}
 {% endif %}
 
 {% set emailSubject = base.InvitationsSent ? 'booking requests' : 'invitations' %}
@@ -137,5 +158,85 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
 {% endif %}
 
 <br><br><br><br>
+
+{% if ReactPage %}
+<script type="text/babel">
+    function BookingTable({ users }) {
+        const [bookingData, setBookingData] = React.useState([]);
+        React.useEffect(() => {
+            fetch('/api/bookingRequests/{{ fixtureid }}')
+            .then(response => response.json())
+            .then(setBookingData);
+        }, []);
+        const handleCourtChange = (event, index) => {
+            const { value } = event.target;
+            const newBookingData = bookingData.map((item, i) => {
+                if (i == index) {
+                    return { ...item, userid: Number(value) };
+                }
+                if (value != 0 && value == item.userid) {
+                    return { ...item, userid: 0 };
+                }
+                return item;
+            });
+            setBookingData(newBookingData);
+            const bookings = newBookingData.map(item => ({ time: item.time, court: item.court, userid: item.userid}));
+            fetch('/api/bookingRequests/{{ fixtureid }}', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookings),
+            });
+        };
+
+        return (
+            <div>
+                <p class="no-space-after"><b>Booking requests:</b></p>
+                <table class="pure-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Court</th>
+                            <th>Booker</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {bookingData.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.time}</td>
+                                <td>{item.court}</td>
+                                <td>
+                                    <select
+                                        id={item.time + '-' + item.court}   
+                                        value={item.userid}
+                                        onChange={(event) => handleCourtChange(event, index)}
+                                    >
+                                        {users.map((user, index) => (
+                                            <option key={index} value={user.Userid}>
+                                                {user.Userid == 0 ? 'None' : user.FirstName + ' ' + user.LastName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+    
+    fetch('/api/participants/{{ fixtureid }}')
+    .then(response => response.json())
+    .then(response => {
+        const container = document.getElementById('booking-table');
+        const root = ReactDOM.createRoot(container);
+        const users = response.unshift({ userid: 0, FirstName: 'None', LastName: '' });
+        root.render(<BookingTable users={response} />);
+    })
+
+</script>
+{% endif %}
 
 {% endblock %}

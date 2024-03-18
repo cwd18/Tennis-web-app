@@ -30,6 +30,9 @@ $container->set('Model', function () {
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
+// Parse json, form data and xml
+$app->addBodyParsingMiddleware();
+
 // Add Error Handling Middleware
 if (array_key_exists('GAE_APPLICATION', $_SERVER)) {
     $logging = new LoggingClient(); // Google logging client
@@ -113,10 +116,6 @@ $app->get('/fixtureDelRequest', \TennisApp\Action\FixtureDelRequest::class);
 $app->get('/participantPage', \TennisApp\Action\ParticipantPage::class);
 $app->get('/participant', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
-$app->get('/participantBook', \TennisApp\Action\ParticipantBook::class);
-$app->get('/participantAddBooking', \TennisApp\Action\ParticipantAddBooking::class);
-$app->get('/participantDelBooking', \TennisApp\Action\ParticipantDelBooking::class);
-$app->get('/participantSetBooking', \TennisApp\Action\ParticipantSetBooking::class);
 
 // Create email routes
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);
@@ -127,5 +126,10 @@ $app->get('/testReact', \TennisApp\Action\TestReact::class);
 
 // APIs
 $app->get('/api/serieslist', \TennisApp\Action\ApiSeriesList::class);
+$app->get('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantBookings::class);
+$app->put('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\ApiPutParticipantBookings::class);
+$app->get('/api/bookingRequests/{fixtureid}', \TennisApp\Action\ApiGetBookingRequests::class);
+$app->put('/api/bookingRequests/{fixtureid}', \TennisApp\Action\ApiPutBookingRequests::class);
+$app->get('/api/participants/{fixtureid}', \TennisApp\Action\ApiGetParticipants::class);
 
 $app->run();

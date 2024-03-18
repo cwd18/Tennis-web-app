@@ -31,25 +31,9 @@ final class ParticipantView
         }
         $fixture = $f->getFixtureData();
         $u = $f->getParticipantData($userId);
-        $brows = $f->getParticipantBookings($userId, 'Booked');
-        $bookings=null;
-        $n=0;
-        foreach ($brows as $b) {
-            $bookings[$n]['court'] = $b['CourtNumber'];
-            $bookings[$n]['time'] = substr($b['BookingTime'],0,5);
-            $n++;
-        }
-        $isPlaying = $u['IsPlaying']?"Yes":"No";
-        if (is_null($u['WantsToPlay'])) { 
-            $wantsToPlay = "Unknown"; 
-        } else { 
-            $wantsToPlay = $u['WantsToPlay'] ? "Yes" : "No"; 
-        }
-        $twigFile = $request->getUri()->getPath() . '.html';
+        $bookings = $f->getParticipantBookings($userId, 'Booked');
         $view = Twig::fromRequest($request);
-        return $view->render($response, $twigFile, 
-        ['fixture' => $fixture, 'participant' => $u,
-        'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
-        'bookings' => $bookings]);   
+        return $view->render($response, 'participant.html', 
+        ['fixture' => $fixture, 'participant' => $u, 'bookings' => $bookings]);   
     }
 }

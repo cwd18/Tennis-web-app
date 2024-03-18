@@ -19,8 +19,8 @@ class Fixture
     private function setBase()
     {
         // Retrieve basic fixture data...
-        $sql = "SELECT Fixtureid, Seriesid, 
-        FixtureOwner, FirstName AS OwnerFirstName, LastName AS OwnerLastName, EmailAddress AS OwnerEmail,
+        $sql = "SELECT Fixtureid, Seriesid, FixtureOwner, 
+        FirstName AS OwnerFirstName, LastName AS OwnerLastName, EmailAddress AS OwnerEmail,
         FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, 
         FixtureCourts, TargetCourts, InvitationsSent
         FROM Fixtures JOIN Users ON Fixtures.FixtureOwner = Users.Userid
@@ -30,6 +30,17 @@ class Fixture
         $fixtureDt = strtotime($this->base['FixtureDate']);
         $this->base['description'] = date("l jS \of F Y", $fixtureDt);
         $this->base['shortDate'] = date("l jS", $fixtureDt);
+
+        // Calculate booking time slots
+        $bookingBase = $this->base['FixtureTime'];
+        $bookingRange = 2;
+        if ($bookingBase=='08:30') {
+            $bookingBase = '07:30';
+            $bookingRange =3 ;
+        }
+        for ($n=0; $n<$bookingRange; $n++) {
+            $this->base['bookingTimes'][$n] = date("H:i",strtotime($bookingBase)+$n*3600);
+        }
     }
     
     public function getSeriesid() : int
@@ -66,7 +77,7 @@ class Fixture
     public function updateBasicFixtureData(string $time, string $courts, string $targetCourts)
     {
         $sql = "UPDATE Fixtures SET FixtureTime = :FixtureTime, 
-        FixtureCourts = :FixtureCourts, TargetCourts = :TargetCourts, 
+        FixtureCourts = :FixtureCourts, TargetCourts = :TargetCourts 
         WHERE Fixtureid = :Fixtureid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
@@ -155,19 +166,24 @@ class Fixture
     
     public function getCourtsBooked($userId) : ?int
     {
-        // Return the value of the CourtsBooked column, which is initially NULL but sent to FALSE
-        // when user has indicated they did not book any court
+        // Return the value of the CourtsBooked column, which remembers the highest number of courts booked
         $sql = "SELECT CourtsBooked FROM FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
         return $stmt->fetchColumn();
     }
     
-    public function setCourtsBooked(int $userId, bool $val)
+    public function setCourtsBooked(int $userId)
     {
-        $sql = "UPDATE FixtureParticipants SET CourtsBooked = :val 
-        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
-        $this->pdo->runSQL($sql, ['val' => $val, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
+        // Ratchet up the value of the CourtsBooked column if the user 
+        // has booked more courts than the current value
+        $count = $this->countParticipantBookings($userId, 'Booked');
+        $courtsBooked = $this->getCourtsBooked($userId);
+        if ($courtsBooked == null or $courtsBooked < $count) {
+            $sql = "UPDATE FixtureParticipants SET CourtsBooked = :val 
+            WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+            $this->pdo->runSQL($sql, ['val' => $count, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
+        }
     }
     
     public function setAutoPlaying()
@@ -284,6 +300,34 @@ class Fixture
             }
     }
 
+    public function setParticipantBookings(int $userId, array $bookings, $type = 'Booked')
+    {
+        // Set court bookings for a participant
+
+        // Delete existing bookings for this user
+        $sql = "DELETE FROM CourtBookings WHERE BookingType = :BookingType 
+        AND Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('Userid', $userId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR); 
+        $stmt->execute();
+
+        // Add the new user bookings
+        $sql="INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber, BookingType)
+        VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber, :BookingType);";
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($bookings as $booking) {
+            if ($booking['court'] == 0) { continue; }
+            $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+            $stmt->bindParam('Bookerid', $userId, \PDO::PARAM_INT);
+            $stmt->bindParam('BookingTime', $booking['time'], \PDO::PARAM_STR); 
+            $stmt->bindParam('CourtNumber', $booking['court'], \PDO::PARAM_INT);
+            $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR); 
+            $stmt->execute();
+        }
+    }
+
     public function addCourtBooking($bookerId, $time, $court, $type)
     {
         $sql="INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber, BookingType)
@@ -323,10 +367,11 @@ class Fixture
         $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
         $stmt->execute();
-        $excludedCourts[] = NULL;
+        $excludedCourts[] = [];
         while ($courtNumber = $stmt->fetchColumn()) {
             $excludedCourts[] = $courtNumber;
         }
+        $courts[0] = 0;
         foreach ($fixtureCourts as $rangeStr) {
             $range = explode("-", $rangeStr);
             $n1 = (int)$range[0];
@@ -341,36 +386,15 @@ class Fixture
                 }
                 if ($ok) { $courts[] = $n; }
             }
-            $courts[] = 0;
+            // $courts[] = 0;
         }
         return $courts;
     }
 
     public function getFixtureData() : array
     {
-        // Augment Fixture data
-        $stmt = $this->pdo->runSQL(
-            "SELECT FirstName, LastName FROM Users WHERE Userid = :Userid",
-            ['Userid' => $this->base['FixtureOwner']]);
-        $ownerName = $stmt->fetch(\PDO::FETCH_ASSOC);
+        // Get fixture data for display
 
-        // Calculate booking time slots
-        $bookingBase = $this->base['FixtureTime'];
-        $bookingRange = 2;
-        if ($bookingBase=='08:30') {
-            $bookingBase = '07:30';
-            $bookingRange =3 ;
-        }
-        for ($n=0; $n<$bookingRange; $n++) {
-            $bookingTimes[$n] = date("H:i",strtotime($bookingBase)+$n*3600);
-        }
-        $bookingTime1 = $bookingTimes[0];
-        $bookingTime2 = $bookingTimes[1];
-        if ($bookingRange==3) {
-            $bookingTime1 = $bookingTimes[1];
-            $bookingTime2 = $bookingTimes[2];
-        }
-        
         // Get players...
         $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, AcceptTime, CourtsBooked
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
@@ -476,23 +500,70 @@ class Fixture
         }
 
         // return all fixture data
-        $fixture = ['base' => $this->base, 'ownerName' => $ownerName,
+        $fixture = ['base' => $this->base,
         'players' => $playerList, 'reserves' => $reserveList, 
         'decliners' => $declineList,  'abstainers' => $abstainList, 'capacity' => $capacity,
         'inBookingWindow' => $inBookingWindow, 'requestedBookings' =>$requestedBookings,
-        'bookingtimes' => $bookingTimes, 'time1' => $bookingTime1, 'time2' => $bookingTime2,
         'bookings' => $bookingViewGrid];
         return $fixture;
     }
 
+    public function getParticipantBookingsTable(int $userId) : array
+    {
+        $bookings = $this->getParticipantBookings($userId, 'Booked');
+        $table=[];
+        foreach ($this->base['bookingTimes'] as $i => $time) {
+            $table[$i]['time'] = $time;
+            $table[$i]['court'] = 0;
+            foreach ($bookings as $b) {
+                if ($b['BookingTime'] == $time) {
+                    $table[$i]['court'] = $b['CourtNumber'];
+                }
+            }
+            $table[$i]['availableCourts'] = $this->getAvailableCourts($time, 'Booking');
+        }
+        return $table;
+    }
+
     public function getParticipantBookings(int $userId, $type) : array
     {
-        $sql = "SELECT CourtNumber, BookingTime FROM CourtBookings
+        $sql = "SELECT CourtNumber, LEFT(BookingTime, 5) AS BookingTime FROM CourtBookings
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND Userid = :Userid
         ORDER BY BookingTime;";
         $stmt = $this->pdo->runSQL($sql,['BookingType' => $type, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]); 
         $bookings = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $bookings;
+    }
+
+    public function getBookingRequestsTable() : array
+    {
+        // Get a table of booking requests for this fixture
+
+        // Get booking requests
+        $sql = "SELECT LEFT(BookingTime, 5) AS BookingTime, CourtNumber, Userid
+        FROM CourtBookings WHERE BookingType = 'Request' AND Fixtureid = :Fixtureid 
+        ORDER BY BookingTime, CourtNumber;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]); 
+        $bookingRequests = $stmt->fetchall(\PDO::FETCH_ASSOC);
+
+        // Create table
+        $range = explode("-", $this->base['TargetCourts']);
+        $time[0] = $this->base['FixtureTime']; 
+        $time[1] = date('H:i', strtotime($time[0]) + 60 * 60);
+        $i = 0;
+        foreach ($time as $t) {
+            for ($c = $range[0]; $c<= $range[1]; $c++) {
+                $table[$i]['time'] = $t;
+                $table[$i]['court'] = $c;
+                $table[$i]['userid'] = 0;
+                foreach ($bookingRequests as $b) {
+                    if ($b['BookingTime'] == $t and $b['CourtNumber'] == $c) {
+                        $table[$i]['userid'] = $b['Userid'];}
+                }
+                $i++;
+            }
+        }
+        return $table;
     }
 
     public function getRequestedBookings() : array
@@ -508,6 +579,17 @@ class Fixture
         return $bookingRequests;
     }
 
+    public function setBookingRequests($bookingRequests)
+    {
+        // Delete any existing requests
+        $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
+        $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
+        // Add the new requests
+        foreach ($bookingRequests as $request) {
+            $this->addCourtBooking($request['userid'], $request['time'], $request['court'], 'Request');
+        }
+    }
+
     public function countParticipantBookings(int $userId, $type) : int
     {
         $sql = "SELECT COUNT(CourtNumber) FROM CourtBookings
@@ -518,7 +600,6 @@ class Fixture
 
     public function getBookingFormData(int $userId, $type) : array
     {
-        $fixture = $this->getFixtureData();
         $u = $this->getParticipantData($userId);
         $brows = $this->getParticipantBookings($userId, $type);
         $bookings=null;
@@ -529,7 +610,7 @@ class Fixture
             $n++;
         }
 
-        foreach ($fixture['bookingtimes'] as $time) {
+        foreach ($this->base['bookingTimes'] as $time) {
             $courts[$time] = $this->getAvailableCourts($time, $type);
         }
 
@@ -541,7 +622,7 @@ class Fixture
         $isPlaying = $u['IsPlaying']?"Yes":"No";
         if (is_null($u['WantsToPlay'])) { $wantsToPlay = "Unknown"; }
         else { $wantsToPlay = $u['WantsToPlay']?"Yes":"No"; }
-        return ['fixture' => $fixture, 'bookingType' => $type, 'participant' => $u,
+        return ['fixture' => $this->base, 'bookingType' => $type, 'participant' => $u,
         'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
         'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime, 
         'courts' => $courts];   
@@ -605,21 +686,16 @@ class Fixture
         // Get users
         $sql = "SELECT Userid FROM FixtureParticipants WHERE Fixtureid = :Fixtureid";
         $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
-        // Get times/courts to book
-        $sql = "SELECT LEFT(FixtureTime, 5) AS FixtureTime, TargetCourts 
-        FROM Fixtures WHERE FixtureId = :Fixtureid;";
-        $row = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
         // Create requests
-        $range = explode("-", $row['TargetCourts']);
-        $time[0] = $row['FixtureTime']; 
+        $range = explode("-", $this->base['TargetCourts']);
+        $time[0] = $this->base['FixtureTime']; 
         $time[1] = date('H:i', strtotime($time[0]) + 60 * 60);
         $u = 0;
         for ($c = $range[0]; $c<= $range[1]; $c++) {
             foreach ($time as $t) {
                 if ($u >= count($userIds)) {
-                    return; // run out of users
-                }
-                $userId = $userIds[$u++];
+                    return;} // run out of users
+                $userId = $userIds[$u++]['Userid'];
                 $this->addCourtBooking($userId, $t, $c, 'Request');
             }
         }
