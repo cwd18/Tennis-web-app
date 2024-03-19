@@ -328,7 +328,7 @@ class Fixture
         }
     }
 
-    public function addCourtBooking($bookerId, $time, $court, $type)
+    private function addCourtBooking($bookerId, $time, $court, $type)
     {
         $sql="INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber, BookingType)
         VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber, :BookingType);";
@@ -355,17 +355,19 @@ class Fixture
         $stmt->execute();
     }
 
-    private function getAvailableCourts($time, $type) : array
+    private function getAvailableCourts($userId, $time, $type) : array
     {
-        // Return a list of available courts for the passed time
+        // Return a list of available courts for this user at the passed time
         $fixtureCourts = explode(",", str_replace(' ','',$this->base['FixtureCourts']));
         $sql = "SELECT CourtNumber FROM CourtBookings 
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND BookingTime = :BookingTime
+        AND Userid != :Userid
         ORDER BY CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR); 
         $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR); 
+        $stmt->bindParam('Userid', $userId, \PDO::PARAM_INT);
         $stmt->execute();
         $excludedCourts[] = [];
         while ($courtNumber = $stmt->fetchColumn()) {
@@ -386,7 +388,6 @@ class Fixture
                 }
                 if ($ok) { $courts[] = $n; }
             }
-            // $courts[] = 0;
         }
         return $courts;
     }
@@ -520,7 +521,7 @@ class Fixture
                     $table[$i]['court'] = $b['CourtNumber'];
                 }
             }
-            $table[$i]['availableCourts'] = $this->getAvailableCourts($time, 'Booking');
+            $table[$i]['availableCourts'] = $this->getAvailableCourts($userId, $time, 'Booked');
         }
         return $table;
     }
@@ -596,36 +597,6 @@ class Fixture
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->runSQL($sql,['BookingType' => $type, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]); 
         return (int)$stmt->fetchColumn();
-    }
-
-    public function getBookingFormData(int $userId, $type) : array
-    {
-        $u = $this->getParticipantData($userId);
-        $brows = $this->getParticipantBookings($userId, $type);
-        $bookings=null;
-        $n=0;
-        foreach ($brows as $b) {
-            $bookings[$n]['court'] = $b['CourtNumber'];
-            $bookings[$n]['time'] = substr($b['BookingTime'],0,5);
-            $n++;
-        }
-
-        foreach ($this->base['bookingTimes'] as $time) {
-            $courts[$time] = $this->getAvailableCourts($time, $type);
-        }
-
-        $usedBookingTime = "";
-        if (is_null($bookings)===false and sizeof($bookings)==1) {
-            $usedBookingTime = $bookings[0]['time'];
-        }
-
-        $isPlaying = $u['IsPlaying']?"Yes":"No";
-        if (is_null($u['WantsToPlay'])) { $wantsToPlay = "Unknown"; }
-        else { $wantsToPlay = $u['WantsToPlay']?"Yes":"No"; }
-        return ['fixture' => $this->base, 'bookingType' => $type, 'participant' => $u,
-        'isplaying' => $isPlaying, 'wantstoplay' => $wantsToPlay,
-        'bookings' => $bookings, 'usedBookingTime' => $usedBookingTime, 
-        'courts' => $courts];   
     }
 
     public function getInvitationData(int $userId) : array

@@ -131,7 +131,7 @@
     </table>
     {% else %}
     <p>No booking requests</p>
-    <a class="pure-button" href="fixtureAddRequests?fixtureid={{ fixtureid }}">Create booking requests</a>
+    <a class="pure-button" href="fixtureCreateRequests?fixtureid={{ fixtureid }}">Create booking requests</a>
     <br><br>
 
     {% endif %}
@@ -192,8 +192,8 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
 
         return (
             <div>
-                <p class="no-space-after"><b>Booking requests:</b></p>
-                <table class="pure-table">
+                <p className="no-space-after"><b>Booking requests:</b></p>
+                <table className="pure-table">
                     <thead>
                         <tr>
                             <th>Time</th>

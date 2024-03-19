@@ -1,14 +1,13 @@
 <?php
-# Present form to add a booking request to the specified fixture
+# Automatically create booking requests for this fixture
 
 namespace TennisApp\Action;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \Slim\Views\Twig;
 
-final class FixtureAddRequests
+final class FixtureCreateRequests
 {
     private $container;
 
