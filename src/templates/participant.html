@@ -1,4 +1,5 @@
-{# This template is used to display a participant's response to a fixture 
+{# For the Admin and Owner role, this provides the participant's view 
+For the User role, it enables the user to say which courts they booked
 If the current time is within the booking window, it includes a React component #}
 {% set fixtureid = fixture.base.Fixtureid %}
 {% set ReactPage = (fixture.inBookingWindow == 0) %}
@@ -6,17 +7,24 @@ If the current time is within the booking window, it includes a React component 
 {% extends "base.html" %}
 {% block content %}
 
+{% if Role == 'User' %} 
+<h3 class="no-space-after">{{ participant.FirstName }}, please indicate any booked courts</h3>
+for {{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}
+<br>
+{% else %} {# Role is Admin or Owner #}
+
 {% if participant.WantsToPlay is null %}
-{% set htext = "has not yet responded" %}
+    {% set htext = "has not yet responded" %}
 {% elseif participant.IsPlaying %}
-{% set htext = "is playing" %}
+    {% set htext = "is playing" %}
 {% elseif participant.Isplaying == false %}
-{% set htext = participant.WantsToPlay == true ? "wants to play" : "can't play" %}
+    {% set htext = participant.WantsToPlay == true ? "wants to play" : "can't play" %}
 {% endif %}
 
 
 <h2>{{ participant.FirstName }} {{ participant.LastName }} {{ htext }}</h2> 
 <p>{{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}</p>
+
 
 {% set href = "participantWantsToPlay?fixtureid=%d&userid=%d&WantsToPlay="|
     format(fixtureid, participant.Userid) %}
@@ -29,6 +37,7 @@ If the current time is within the booking window, it includes a React component 
     <a class="pure-button" href="{{ href }}1">Would now like to play</a>
 {% endif %}
 <br>
+{% endif %}
 
 {% if ReactPage %}
     <div id="booking-table"></div> {# React component #}
