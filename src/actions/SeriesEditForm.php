@@ -22,14 +22,12 @@ public function __invoke(Request $request, Response $response): Response
         $params = $request->getQueryParams();
         $seriesId = (int)$params['seriesid'];
         $m = $this->container->get('Model');
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $u = $m->getUsers();
         $users = $u->getAllUsers();
         $series = $m->getSeries($seriesId)->getBasicSeriesData();
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'serieseditform.html', ['series' => $series, 'users' => $users]);
     }
 }

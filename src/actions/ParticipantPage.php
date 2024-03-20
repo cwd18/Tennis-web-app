@@ -23,11 +23,9 @@ final class ParticipantPage
         $fixtureId = (int)$params['fixtureid'];
         $userId = (int)$params['userid'];
         $m = $this->container->get('Model');
-        if (is_string($error = $m->checkUser($fixtureId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
         $view = Twig::fromRequest($request);
+        if (is_string($error = $m->checkUser($fixtureId))) {
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $f = $m->getFixture($fixtureId);
         if ($f->getWantsToPlay($userId) == NULL) {
             $participant = $f->getParticipantData($userId);

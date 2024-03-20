@@ -6,6 +6,7 @@ namespace TennisApp\Action;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use \Slim\Views\Twig;
 
 final class Start
 {
@@ -22,10 +23,10 @@ final class Start
         $m = $this->container->get('Model');
         $t = $m->getTokens();
         $row = $t->checkToken($token);
+        $view = Twig::fromRequest($request);
         if ($row == FALSE) {
-            $response->getBody()->write("Token not found: $token");
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => "Token not found: $token"]);}
+
         $userId = $row['Userid'];
 
         $_SESSION['User'] = $userId;

@@ -22,15 +22,13 @@ final class SeriesDeleteForm
         $params = $request->getQueryParams();
         $seriesId = (int)$params['seriesid'];
         $m = $this->container->get('Model');
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkAdmin())) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $s = $m->getSeries($seriesId);
         $series = $s->getBasicSeriesData($seriesId);
         $lines[] = "Are you sure you want to delete the below series?";
         $lines[] = $series['description'];
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'opconfirm.html', ['op' => "Delete series", 
         'continuelink' => "seriesdelete?seriesid=$seriesId", 
         'cancellink' => "series?seriesid=$seriesId", 

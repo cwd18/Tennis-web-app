@@ -21,13 +21,11 @@ final class UserEdit
     {
         $params = $request->getQueryParams();
         $m = $this->container->get('Model');
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkAdmin())) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $u = $m->getUsers();
         $row = $u->getUser($params['Userid']);
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'useredit.html', $row);
       }
 }

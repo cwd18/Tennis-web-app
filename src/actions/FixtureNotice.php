@@ -22,13 +22,11 @@ final class FixtureNotice
         $params = $request->getQueryParams();
         $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkUser($fixtureId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $f = $m->getFixture($fixtureId);
         $fixture = $f->getFixtureData();
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'fixtureNotice.html', $fixture);   
     }
 }

@@ -20,17 +20,15 @@ final class SeriesListView
 public function __invoke(Request $request, Response $response): Response
     {
         $m = $this->container->get('Model');
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkAdmin())) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $tokens = $m->getTokens();
         $token = $tokens->getOrCreateToken(1, 'Auto', 0);
         $autoUrl = "/start/$token";
         $s = $m->getSeriesList();
         $l = $m->getEventLog();
         $sqlTime = $m->db->runSQL("SELECT RIGHT(NOW(),8);")->fetchColumn();
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'serieslist.html', 
             ['serieslist' => $s->getAllSeries(), 'phpTime' => date("H:i:s"), 'sqlTime' => $sqlTime,
             'autoUrl' => $autoUrl, 'log' => $l->list()]);

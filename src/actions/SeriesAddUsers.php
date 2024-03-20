@@ -6,6 +6,7 @@ namespace TennisApp\Action;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use \Slim\Views\Twig;
 
 final class SeriesAddUsers
 {
@@ -26,10 +27,9 @@ final class SeriesAddUsers
             }
         }
         $m = $this->container->get('Model');
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $s = $m->getSeries($seriesId);
         $s->addUsers($userIds);
         return $response

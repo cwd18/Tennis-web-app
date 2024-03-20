@@ -20,11 +20,9 @@ final class TestReact
     public function __invoke(Request $request, Response $response): Response
     {
         $m = $this->container->get('Model');
-        if (is_string($error = $m->checkAdmin())) {
-            $response->getBody()->write($error);
-            return $response;
-        }
         $view = Twig::fromRequest($request);
+        if (is_string($error = $m->checkAdmin())) {
+            return $view->render($response, 'error.html', ['error' => $error]);}
         return $view->render($response, 'testReact.html', []);
     }
 }

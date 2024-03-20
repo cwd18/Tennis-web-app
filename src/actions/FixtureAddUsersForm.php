@@ -24,12 +24,10 @@ final class FixtureAddUsersForm
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
-        if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
-        $users = $f->getFixtureCandidates($fixtureId);
         $view = Twig::fromRequest($request);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            return $view->render($response, 'error.html', ['error' => $error]);}
+        $users = $f->getFixtureCandidates($fixtureId);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 
         'legend' => 'Select users to add to fixture',

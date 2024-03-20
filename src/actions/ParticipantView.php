@@ -25,14 +25,12 @@ final class ParticipantView
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $fixture = $f->getFixtureData();
         $u = $f->getParticipantData($userId);
         $bookings = $f->getParticipantBookings($userId, 'Booked');
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'participant.html', 
         ['fixture' => $fixture, 'participant' => $u, 'bookings' => $bookings]);   
     }

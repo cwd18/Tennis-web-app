@@ -24,10 +24,9 @@ final class EmailConfirm
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $base = $f->getBasicFixtureData();
         if ($base['InvitationsSent'] == 0 ) {
             $recipients = $f->getWannaPlayRecipients();
@@ -41,7 +40,6 @@ final class EmailConfirm
         foreach ($recipients as &$recipient) {
             $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
         }
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'emailConfirm.html', ['base' => $base, 
         'subject' => $subject, 'recipients' => $recipients,
         'server' => $m->getServer(), 

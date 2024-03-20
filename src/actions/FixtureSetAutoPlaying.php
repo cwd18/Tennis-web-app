@@ -6,6 +6,7 @@ namespace TennisApp\Action;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use \Slim\Views\Twig;
 
 final class FixtureSetAutoPlaying
 {
@@ -23,10 +24,9 @@ final class FixtureSetAutoPlaying
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $f->setAutoPlaying();
         return $response
           ->withHeader('Location', "/fixture?fixtureid=$fixtureId")

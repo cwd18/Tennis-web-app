@@ -24,14 +24,12 @@ final class FixtureEditForm
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $u = $m->getUsers();
         $users = $u->getAllUsers();
         $fixture = $f->getBasicFixtureData($fixtureId);
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'fixtureeditform.html', ['fixture' => $fixture, 'users' => $users]);   
     }
 }

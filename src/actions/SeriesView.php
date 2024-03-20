@@ -22,17 +22,15 @@ final class SeriesView
         $params = $request->getQueryParams();
         $seriesId = (int)$params['seriesid'];
         $m = $this->container->get('Model');
+        $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $s = $m->getSeries($seriesId);
         $series = $s->getSeriesData();
         if (strcmp($m->sessionRole(),'Admin') == 0) {
             $token=$m->getTokens()->getOrCreateToken($series['base']['SeriesOwner'], 'Owner', $seriesId);
             $series['base']['Link'] = sprintf("%s/start/%s",$m->getServer(), $token);
         }
-        $view = Twig::fromRequest($request);
         return $view->render($response, 'series.html', $series);
     }
 }

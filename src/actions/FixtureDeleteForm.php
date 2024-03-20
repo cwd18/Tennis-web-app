@@ -22,12 +22,10 @@ final class FixtureDeleteForm
         $fixtureId = (int)$params['fixtureid'];
         $seriesId = (int)$params['seriesid'];
         $m = $this->container->get('Model');
-        if (is_string($error = $m->checkAdmin())) {
-            $response->getBody()->write($error);
-            return $response;
-        }
-        $lines[] = "Are you sure you want to delete fixture $fixtureId?";
         $view = Twig::fromRequest($request);
+        if (is_string($error = $m->checkAdmin())) {
+            return $view->render($response, 'error.html', ['error' => $error]);}
+        $lines[] = "Are you sure you want to delete fixture $fixtureId?";
         return $view->render($response, 'opconfirm.html', ['op' => "Delete fixture", 
         'continuelink' => "fixturedelete?fixtureid=$fixtureId&seriesid=$seriesId", 
         'cancellink' => "fixture?fixtureid=$fixtureId", 

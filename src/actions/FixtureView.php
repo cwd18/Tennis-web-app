@@ -25,12 +25,10 @@ final class FixtureView
         $m = $this->container->get('Model');
         $f = new Fixture($m->db, $fixtureId);
         $seriesId = $f->getSeriesid();
-        if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
-        $fixture = $f->getFixtureData();
         $view = Twig::fromRequest($request);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            return $view->render($response, 'error.html', ['error' => $error]);}
+        $fixture = $f->getFixtureData();
         return $view->render($response, 'fixture.html', $fixture);   
     }
 }

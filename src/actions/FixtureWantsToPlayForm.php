@@ -24,12 +24,10 @@ final class FixtureWantsToPlayForm
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
-        if (is_string($error = $m->checkOwner($seriesId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
-        $users = $f->getWantToPlayCandidates($fixtureId);
         $view = Twig::fromRequest($request);
+        if (is_string($error = $m->checkOwner($seriesId))) {
+            return $view->render($response, 'error.html', ['error' => $error]);}
+        $users = $f->getWantToPlayCandidates($fixtureId);
         return $view->render($response, 'usersselectform.html', 
         ['users' => $users, 
         'legend' => 'Select people who want to play',

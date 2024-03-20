@@ -22,9 +22,7 @@ public function __invoke(Request $request, Response $response, array $args): Res
         $userId = (int)$args['userid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUser($fixtureId))) {
-            $response->getBody()->write($error);
-            return $response;
-        }
+            return $view->render($response, 'error.html', ['error' => $error]);}
         $f = $m->getFixture($fixtureId);
         $bookings = $f->getParticipantBookingsTable($userId);
         $response->getBody()->write(json_encode($bookings));        
