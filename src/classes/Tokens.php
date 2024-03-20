@@ -19,11 +19,16 @@ class Tokens
             return $token; // token for this user already exists
         }
         $token = bin2hex(random_bytes(16));
-        $sql = "INSERT INTO Tokens (Token, Userid, TokenClass, Otherid, Expires)
-            VALUES (:Token, :Userid, :TokenClass, :Otherid, :Expires);";
-        $this->pdo->runSQL($sql,
-        ['Userid' => $userId, 'Token' => $token, 
-        'TokenClass' => $tokenClass, 'Otherid' => $otherId, 'Expires' => NULL]);
+        $dateNow = date("Y-m-d");
+        $sql = "INSERT INTO Tokens (Token, Userid, TokenClass, Otherid, Created)
+            VALUES (:Token, :Userid, :TokenClass, :Otherid, :DateNow);";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Token', $token, \PDO::PARAM_STR); 
+        $stmt->bindParam('Userid', $userId, \PDO::PARAM_INT);
+        $stmt->bindParam('TokenClass', $tokenClass, \PDO::PARAM_STR);
+        $stmt->bindParam('Otherid', $otherId, \PDO::PARAM_INT);
+        $stmt->bindParam('DateNow', $dateNow, \PDO::PARAM_STR); 
+        $stmt->execute();
         return $token;
     }
 

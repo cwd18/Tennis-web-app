@@ -65,7 +65,7 @@ Token char (32),
 Userid INT(8) NOT NULL,
 TokenClass ENUM ('User', 'Owner', 'Admin', 'Auto'),
 OtherId INT(8),
-Expires DATETIME DEFAULT NULL,
+Created DATE DEFAULT NULL,
 PRIMARY KEY (Token),
 FOREIGN KEY (Userid) REFERENCES Users(Userid)
 );
