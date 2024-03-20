@@ -115,28 +115,31 @@
 
 {% if ReactPage %}
     <div id="booking-table"></div> {# React component #}
+    {% set verb = requestedBookings|length == 0 ? 'Allocate' : 'Reallocate' %}
+    <br>
+    <a class="pure-button" href="fixtureCreateRequests?fixtureid={{ fixtureid }}">{{ verb }} booking requests</a>
+    <br>
 {% else %}
     {% if inBookingWindow != 0 %}
     {% if requestedBookings|length > 0 %}
-    <p><b>Booking requests:</b></p>
-    <table class="pure-table">
-        <thead><th>Time</th><th>Court</th><th>Booker</th></tr></thead>
-        {% for r in requestedBookings %}
-            <tr>
-            <td>{{ r.BookingTime }}</td>
-            <td>{{ r.CourtNumber}}</td>
-            <td>{{ r.FirstName}} {{ r.LastName}}</td>
-            </tr>
-        {% endfor %}
-    </table>
+        <p><b>Booking requests:</b></p>
+        <table class="pure-table">
+            <thead><th>Time</th><th>Court</th><th>Booker</th></tr></thead>
+            {% for r in requestedBookings %}
+                <tr>
+                <td>{{ r.BookingTime }}</td>
+                <td>{{ r.CourtNumber}}</td>
+                <td>{{ r.FirstName}} {{ r.LastName}}</td>
+                </tr>
+            {% endfor %}
+        </table>
     {% else %}
-    <p>No booking requests</p>
-    <a class="pure-button" href="fixtureCreateRequests?fixtureid={{ fixtureid }}">Create booking requests</a>
-    <br><br>
-
+        <p>No booking requests</p>
     {% endif %}
     {% endif %}
 {% endif %}
+
+
 
 {% set emailSubject = base.InvitationsSent ? 'booking requests' : 'invitations' %}
 
