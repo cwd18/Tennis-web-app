@@ -7,7 +7,7 @@
     {% for s in serieslist %}
     <tr>
     <td><a href="series?seriesid={{ s.Seriesid }}">{{ s.description }}</a></td>
-    <td>{{ s.AutoEmail ? 'Enabled' : 'Disabled' }}</td>
+    <td{{ s.AutoEmail ? ' style="color:red;"' : '' }}>{{ s.AutoEmail ? 'Enabled' : 'Disabled' }}</td>
     <td>{{ s.futureFixtures }}</td>
     </tr>
     {% endfor %}

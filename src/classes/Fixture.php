@@ -570,7 +570,7 @@ class Fixture
     public function getRequestedBookings() : array
     {
         // Get the current list of booking requests for this fixture
-        // Returns an empty array if no requests yet
+        // Returns an empty array if no requests for this fixture
         $sql = "SELECT Users.Userid, FirstName, LastName, CourtNumber, LEFT(BookingTime, 5) AS BookingTime 
         FROM CourtBookings JOIN Users ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = 'Request' AND Fixtureid = :Fixtureid 
@@ -657,7 +657,7 @@ class Fixture
         // Get users
         $sql = "SELECT Userid FROM FixtureParticipants WHERE Fixtureid = :Fixtureid";
         $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
-        // Create requests
+        // Create requests, allocating users to courts and times
         $range = explode("-", $this->base['TargetCourts']);
         $time[0] = $this->base['FixtureTime']; 
         $time[1] = date('H:i', strtotime($time[0]) + 60 * 60);

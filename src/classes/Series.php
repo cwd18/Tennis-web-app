@@ -216,8 +216,7 @@ class Series
         $targetCourts = $seriesRow['TargetCourts'];
         $fixtureId = $this->checkFixtureExists($fixtureDate);
         if ($fixtureId != 0) {
-            return $fixtureId; // fixture already exists
-        }
+            return $fixtureId;} // fixture already exists
         $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts, TargetCourts)
         VALUES (:Seriesid, :FixtureOwner, :FixtureDate, :FixtureTime, :FixtureCourts, :TargetCourts);";
         $stmt = $this->pdo->prepare($sql);
@@ -246,8 +245,10 @@ class Series
         }
         $sql = "INSERT INTO CourtBookings (Fixtureid, BookingTime, CourtNumber, BookingType, Userid)
         SELECT $fixtureId AS FixtureId, BookingTime, CourtNumber, BookingType, Userid 
-        FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
-        $this->pdo->runSQL($sql,['Fixtureid' => $previousFixtureId]);
+        FROM CourtBookings 
+        WHERE Fixtureid = :previousFixtureid AND BookingType = 'Request'
+        AND UserId IN (SELECT UserId FROM FixtureParticipants WHERE FixtureId = $fixtureId);";
+        $this->pdo->runSQL($sql,['previousFixtureid' => $previousFixtureId]);
         return $fixtureId;
     }
   
