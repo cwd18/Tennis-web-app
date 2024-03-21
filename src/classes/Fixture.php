@@ -185,26 +185,41 @@ class Fixture
             $this->pdo->runSQL($sql, ['val' => $count, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
         }
     }
+
+    private function countWantsToPlay() : int
+    {
+        // Return the number of participants who have declared they want to play
+        $sql = "SELECT COUNT(Userid) FROM FixtureParticipants
+        WHERE Fixtureid = :Fixtureid AND WantsToPlay = TRUE;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        return (int)$stmt->fetchColumn();
+    }
     
     public function setAutoPlaying()
     {
-        // Automatically set playing
-        $this->resetPlaying();
+        // Automatically set who is playing
+        $this->resetPlaying(); // set nobody playing
+
+        // Calculate number of courts available
         $capacity = $this->getCapacity();
         if (count($capacity) == 0) {
-            return;
-        }
-        $numPlayers = 1000; // initial high enough value
+            return;} // no courts available
+        $numCourts = 1000; // initial high enough value
         foreach ($capacity as $count) {
-            if ($count < $numPlayers) {
-                $numPlayers = $count;
+            if ($count < $numCourts) {
+                $numCourts = $count;
             }
         }
-        $numPlayers *= 4;
+
+        // Calculate how many people can play, which must be even
+        $numWantsToPlay = $this->countWantsToPlay();
+        $numPlayers = min(4 * $numCourts, $numWantsToPlay - $numWantsToPlay % 2);
+
+        // Set playing for the first $numPlayers who want to play, in priortiy order
         $sql = "UPDATE FixtureParticipants
         SET IsPlaying = TRUE
         WHERE FixtureParticipants.Fixtureid = :Fixtureid        
-        AND WantsToPlay = TRUE AND IsPlaying = FALSE
+        AND WantsToPlay = TRUE
         ORDER BY CourtsBooked DESC, AcceptTime LIMIT $numPlayers;";
         $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
     }
