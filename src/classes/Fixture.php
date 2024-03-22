@@ -543,6 +543,7 @@ class Fixture
 
     public function getParticipantBookings(int $userId, $type) : array
     {
+        // Get the current list of bookings of this type (Booked or Request) for this participant
         $sql = "SELECT CourtNumber, LEFT(BookingTime, 5) AS BookingTime FROM CourtBookings
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND Userid = :Userid
         ORDER BY BookingTime;";
@@ -554,6 +555,8 @@ class Fixture
     public function getBookingRequestsTable() : array
     {
         // Get a table of booking requests for this fixture
+        // The table has columns for time, court, and userid
+        // A userid of 0 means no request
 
         // Get booking requests
         $sql = "SELECT LEFT(BookingTime, 5) AS BookingTime, CourtNumber, Userid
@@ -643,9 +646,12 @@ class Fixture
     public function getBookingRequestRecipients() : array
     {
         // Get recipients for creating booking request emails
-        $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress
+        // Includes users who want to play, have not responded, or who are subject to a booking request
+        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, EmailAddress
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        WHERE WantsToPlay = TRUE AND Fixtureid = :Fixtureid
+        LEFT JOIN CourtBookings ON Users.Userid = CourtBookings.Userid AND BookingType = 'Request' 
+        WHERE (BookingType IS NOT NULL OR WantsToPlay = TRUE OR WantsToPlay IS NULL) 
+        AND FixtureParticipants.Fixtureid = :Fixtureid
         ORDER BY FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         return $stmt->fetchall(\PDO::FETCH_ASSOC);
