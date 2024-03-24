@@ -21,7 +21,9 @@ public function __invoke(Request $request, Response $response, array $args): Res
         $fixtureId = (int)$args['fixtureid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUser($fixtureId))) {
-            return $view->render($response, 'error.html', ['error' => $error]);}
+            $response->getBody()->write($error);        
+            return $response;
+        }
         $f = $m->getFixture($fixtureId);
         $table = $f->getBookingRequestsTable();
         $response->getBody()->write(json_encode($table));        

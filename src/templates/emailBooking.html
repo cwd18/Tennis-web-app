@@ -8,7 +8,7 @@
 <thead><th>Time</th><th>Court</th><th>Booker</th></tr></thead>
 {% for r in base.requests %}
 <tr{{ r.Userid == to.Userid ? ' style="color:red;"' : '' }}>
-<td class="no-wrap">{{ r.BookingTime }}</td><td>{{ r.CourtNumber}}</td><td>{{ r.FirstName}} {{ r.LastName }}</td>
+<td class="no-wrap">{{ r.BookingTime }}</td><td>{{ r.CourtNumber}}</td><td>{{ r.ShortName }}</td>
 </tr>
 {% endfor %}
 </table>

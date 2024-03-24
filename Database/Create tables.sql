@@ -5,6 +5,7 @@ Userid int(8) NOT NULL auto_increment,
 LastName varchar (50) NOT NULL,
 FirstName varchar (50) NOT NULL,
 EmailAddress varchar (50) NOT NULL unique,
+ShortName varchar (20),
 PRIMARY KEY (Userid)
 );
 CREATE TABLE FixtureSeries (

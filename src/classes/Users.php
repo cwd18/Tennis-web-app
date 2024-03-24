@@ -14,7 +14,8 @@ class Users
 
     public function getAllUsers() : array
     {
-        $sql = "SELECT Userid, FirstName, LastName FROM Users ORDER BY FirstName, LastName;";
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName 
+        FROM Users ORDER BY ShortName;";
         $statement = $this->pdo->runSQL($sql);
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
         return $users;
@@ -36,12 +37,15 @@ class Users
         $sql = "INSERT INTO Users (FirstName, LastName, EmailAddress)
         VALUES (:FirstName, :LastName, :EmailAddress);";
         $this->pdo->runSQL($sql, ['FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
-        return $this->pdo->lastInsertId();
+        $userId = $this->pdo->lastInsertId();
+        $this->generateShortNames();
+        return $userId;
     }
 
-    public function getUser($userId) : array
+    public function getUser(int $userId) : array
     {
-        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid = :Userid;";
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName 
+        FROM Users WHERE Userid = :Userid;";
         $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row;
@@ -72,6 +76,23 @@ class Users
         WHERE Userid = :Userid;";
         $this->pdo->runSQL($sql, ['Userid' => $userId, 
         'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
+        $this->generateShortNames();
+    }
+
+    private function generateShortNames() 
+    {
+        // Generate unique ShortName for each user, adding letter from LastName if necessary
+        // Set ShortName to FirstName for each user
+        // Assumes this will be enough to create a unique ShortName
+        $this->pdo->runSQL("UPDATE Users SET ShortName = FirstName;");
+        // Add first letter from LastName to any duplicate ShortNames
+        $sql = "UPDATE Users,
+        (SELECT UserId, C FROM Users,
+        (SELECT ShortName, COUNT(*) AS C FROM Users GROUP BY ShortName) AS T1
+        WHERE Users.ShortName = T1.ShortName) AS T2
+        SET ShortName = CONCAT(ShortName, ' ', LEFT(LastName, 1))
+        WHERE Users.Userid = T2.Userid AND C > 1;";
+        $this->pdo->runSQL($sql);
     }
 
 }

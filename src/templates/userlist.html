@@ -2,9 +2,17 @@
 {% block content %}
 
 <h2>Tennis users</h2>
-{% for user in userlist %}
-<a href=useredit?Userid={{ user.Userid }}>{{ user.FirstName }} {{ user.LastName }}</a><br>
-{% endfor %}
+<table class="pure-table">
+    <thead><tr></tr><th>Name</th><th>Short name</th><th>Email</th></tr></thead>
+    {% for u in userlist %}
+    <tr>
+    <td><a href=useredit?Userid={{ u.Userid }}>{{ u.FirstName}} {{ u.LastName }}</a></td>
+    <td>{{ u.ShortName }}</td>
+    <td>{{ u.EmailAddress }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
 <br>
 <a class="pure-button" href="useraddform">Add a user</a>
 <a class="pure-button" href="serieslist">Series list</a>

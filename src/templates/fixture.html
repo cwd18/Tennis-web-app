@@ -31,8 +31,7 @@
 <p><b>Playing:</b></p>
 <ol>
     {% for n in players %}
-    <li><a href="{{ linkbase }}{{ n.Userid }}">
-        {{ n.FirstName }} {{ n.LastName }}</a></li>
+    <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
 </ol>
 {% endif %}
@@ -41,8 +40,7 @@
 <p><b>Would like to play:</b></p>
 <ol>
     {% for n in reserves %}
-    <li><a href="{{ linkbase }}{{ n.Userid }}">
-        {{ n.FirstName }} {{ n.LastName }}</a></li>
+    <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
 </ol>
 {% endif %}
@@ -51,8 +49,7 @@
 <p><b>Can't play:</b></p>
 <ol>
     {% for n in decliners %}
-    <li><a href="{{ linkbase }}{{ n.Userid }}">
-        {{ n.FirstName }} {{ n.LastName }}</a></li>
+    <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
 </ol>
 {% endif %}
@@ -64,8 +61,7 @@
         ? 'people have not responded' : 'participants' }}</summary>
     <ol>
     {% for n in abstainers %}
-    <li><a href="{{ linkbase }}{{ n.Userid }}">
-        {{ n.FirstName }} {{ n.LastName }}</a></li>
+    <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
     </ol>
 </details>
@@ -129,7 +125,7 @@
                 <tr>
                 <td>{{ r.BookingTime }}</td>
                 <td>{{ r.CourtNumber}}</td>
-                <td>{{ r.FirstName}} {{ r.LastName}}</td>
+                <td>{{ r.ShortName }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -217,7 +213,7 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
                                     >
                                         {users.map((user, index) => (
                                             <option key={index} value={user.Userid}>
-                                                {user.Userid == 0 ? 'None' : user.FirstName + ' ' + user.LastName}
+                                                {user.Userid == 0 ? 'None' : user.ShortName}
                                             </option>
                                         ))}
                                     </select>
@@ -235,7 +231,7 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
     .then(response => {
         const container = document.getElementById('booking-table');
         const root = ReactDOM.createRoot(container);
-        const users = response.unshift({ userid: 0, FirstName: 'None', LastName: '' });
+        const users = response.unshift({ userid: 0, ShortName: 'None'});
         root.render(<BookingTable users={response} />);
     })
 

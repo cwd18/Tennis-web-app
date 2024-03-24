@@ -113,10 +113,10 @@ class Fixture
     public function getFixtureParticipants() : array
     {
         // Return list of fixture participants
-        $sql = "SELECT Users.Userid, FirstName, LastName 
+        $sql = "SELECT Users.Userid, ShortName
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE  Fixtureid = :Fixtureid
-        ORDER BY FirstName;";
+        ORDER BY ShortName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
@@ -412,38 +412,38 @@ class Fixture
         // Get fixture data for display
 
         // Get players...
-        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, AcceptTime, CourtsBooked
+        $sql="SELECT DISTINCT Users.Userid, ShortName, AcceptTime, CourtsBooked
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE FixtureParticipants.Fixtureid = :Fixtureid 
         AND IsPlaying = TRUE
-        ORDER BY CourtsBooked DESC, AcceptTime, FirstName, LastName;";
+        ORDER BY CourtsBooked DESC, AcceptTime, ShortName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $playerList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Get people who have accepted but not marked to play...
-        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, AcceptTime, CourtsBooked
+        $sql="SELECT DISTINCT Users.Userid, ShortName, AcceptTime, CourtsBooked
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE FixtureParticipants.Fixtureid = :Fixtureid 
         AND IsPlaying = FALSE AND WantsToPlay = TRUE
-        ORDER BY CourtsBooked DESC, AcceptTime, FirstName, LastName;";
+        ORDER BY CourtsBooked DESC, AcceptTime, ShortName";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $reserveList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Get decliners...
-        $sql="SELECT Users.Userid, FirstName, LastName
+        $sql="SELECT Users.Userid, ShortName
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid 
         AND WantsToPlay = FALSE
-        ORDER BY FirstName, LastName;";
+        ORDER BY ShortName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $declineList = $stmt->fetchall(\PDO::FETCH_ASSOC);
         
         // Get abstainers (people who haven't responded to invitation)...
-        $sql="SELECT Users.Userid, FirstName, LastName
+        $sql="SELECT Users.Userid,ShortName
         FROM Users, FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
         AND WantsToPlay IS NULL
-        ORDER BY FirstName, LastName;";
+        ORDER BY ShortName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $abstainList = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
@@ -482,7 +482,7 @@ class Fixture
             $r++;
         }
 
-        $sql = "SELECT FirstName, LastName, CourtNumber, BookingTime FROM Users
+        $sql = "SELECT ShortName, CourtNumber, BookingTime FROM Users
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid 
         ORDER BY CourtNumber, BookingTime;";
@@ -490,7 +490,7 @@ class Fixture
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (count($rows) > 0) {
             foreach ($rows as $row) {
-                $name = $row['FirstName']." ".$row['LastName'];
+                $name = $row['ShortName'];
                 for ($r=1;$bookingGrid[$r][0]!=$row['CourtNumber'];$r++) {} // match grid row
                 for ($c=1;$bookingGrid[0][$c]!=substr($row['BookingTime'],0,5);$c++) {} // match grid column
                 $bookingGrid[$r][$c] = $row['CourtNumber'];
@@ -589,7 +589,7 @@ class Fixture
     {
         // Get the current list of booking requests for this fixture
         // Returns an empty array if no requests for this fixture
-        $sql = "SELECT Users.Userid, FirstName, LastName, CourtNumber, LEFT(BookingTime, 5) AS BookingTime 
+        $sql = "SELECT Users.Userid, ShortName, CourtNumber, LEFT(BookingTime, 5) AS BookingTime 
         FROM CourtBookings JOIN Users ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = 'Request' AND Fixtureid = :Fixtureid 
         ORDER BY BookingTime, CourtNumber;";
