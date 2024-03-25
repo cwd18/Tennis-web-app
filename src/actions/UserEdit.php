@@ -25,7 +25,7 @@ final class UserEdit
         if (is_string($error = $m->checkAdmin())) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $u = $m->getUsers();
-        $row = $u->getUser($params['Userid']);
+        $row = $u->getUserData($params['Userid']);
         return $view->render($response, 'useredit.html', $row);
       }
 }

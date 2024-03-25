@@ -47,11 +47,12 @@ $app->addErrorMiddleware(true, true, true, $logger);
 // Create Twig
 $twig = Twig::create(__DIR__ . '/../src/templates', ['cache' => false, 'debug' => true]);
 
+// Add Twig global variables for session user and role
 $te = $twig->getEnvironment();
 $m = $container->get('Model');
-$u = $m->getUsers();
 $te->addGlobal('Role', $m->sessionRole());
-$te->addGlobal('SessionUser', $u->getUsername($m->sessionUser()));
+$userData = $m->getUsers()->getUserData($m->sessionUser());
+$te->addGlobal('SessionUser', $userData['FirstName'] . ' ' . $userData['LastName']);
 
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 

@@ -7,7 +7,7 @@ class Users
 {
     private $pdo;
 
-    public function __construct($pdo)
+    public function __construct(Database $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -21,28 +21,17 @@ class Users
         return $users;
     }
 
-    public function getUsername($userId) : string
-    {
-        $sql = "SELECT FirstName, LastName FROM Users WHERE Userid = :Userid;";
-        $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        if ($row == FALSE)
-            return "Unknown";
-        return $row['FirstName'] . " " .$row['LastName'];
-    }
-
-
-    public function addUser($fname, $lname, $email)
+    public function addUser(string $fname, string $lname, string $email) : int
     {
         $sql = "INSERT INTO Users (FirstName, LastName, EmailAddress)
         VALUES (:FirstName, :LastName, :EmailAddress);";
         $this->pdo->runSQL($sql, ['FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
-        $userId = $this->pdo->lastInsertId();
+        $userId = (int)$this->pdo->lastInsertId();
         $this->generateShortNames();
         return $userId;
     }
 
-    public function getUser(int $userId) : array
+    public function getUserData(int $userId) : array
     {
         $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName 
         FROM Users WHERE Userid = :Userid;";
@@ -51,25 +40,13 @@ class Users
         return $row;
     }
 
-    public function getUsers($userIds) : array
-    {
-        $sql = "SELECT Userid, FirstName, LastName, EmailAddress FROM Users WHERE Userid = :Userid;";
-        $stmt = $this->pdo->prepare($sql);
-        foreach ($userIds as $userId) {
-            $stmt->execute(['Userid' => $userId]);
-            $rows[] = $stmt->fetch(\PDO::FETCH_ASSOC);
-            }
-        return $rows;
-    }
-
-
-    public function deleteUser($userId)
+    public function deleteUser(int $userId)
     {
         $sql = "DELETE FROM Users WHERE Userid = :Userid;";
         $this->pdo->runSQL($sql,['Userid' => $userId]);
     }
 
-    public function updateUser($userId, $fname, $lname, $email)
+    public function updateUser(int $userId, string $fname, string $lname, string $email)
     {
         $sql = "UPDATE Users 
         SET FirstName = :FirstName, LastName = :LastName, EmailAddress = :EmailAddress
@@ -79,20 +56,28 @@ class Users
         $this->generateShortNames();
     }
 
-    private function generateShortNames() 
+    private function generateShortNames() : bool
     {
-        // Generate unique ShortName for each user, adding letter from LastName if necessary
-        // Set ShortName to FirstName for each user
+        // Generate unique ShortName for each user, adding as few letter from LastName as necessary
         // Assumes this will be enough to create a unique ShortName
+        // Returns TRUE if all ShortNames are unique, FALSE if not
+
+        // Set ShortName to FirstName for each user
         $this->pdo->runSQL("UPDATE Users SET ShortName = FirstName;");
-        // Add first letter from LastName to any duplicate ShortNames
-        $sql = "UPDATE Users,
-        (SELECT UserId, C FROM Users,
-        (SELECT ShortName, COUNT(*) AS C FROM Users GROUP BY ShortName) AS T1
-        WHERE Users.ShortName = T1.ShortName) AS T2
-        SET ShortName = CONCAT(ShortName, ' ', LEFT(LastName, 1))
-        WHERE Users.Userid = T2.Userid AND C > 1;";
-        $this->pdo->runSQL($sql);
+
+        // Add as many letters from LastName to eliminate duplicate ShortNames
+        $i = 1; // start with one letter from LastName
+        do {
+            $sql = "UPDATE Users,
+            (SELECT UserId, C FROM Users,
+            (SELECT ShortName, COUNT(*) AS C FROM Users GROUP BY ShortName) AS T1
+            WHERE Users.ShortName = T1.ShortName) AS T2
+            SET ShortName = CONCAT(FirstName, ' ', LEFT(LastName, $i))
+            WHERE Users.Userid = T2.Userid AND C > 1;";
+            $stmt = $this->pdo->runSQL($sql);
+            $rowsUpdated = $stmt->rowCount();
+        } while ($rowsUpdated > 0 and $i++ <= 3); // add up to 3 letters from LastName
+        return $rowsUpdated == 0;
     }
 
 }
