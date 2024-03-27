@@ -162,6 +162,7 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
 <script type="text/babel">
     function BookingTable({ users }) {
         const [bookingData, setBookingData] = React.useState([]);
+        const bookingDataUserids = bookingData.map(item => item.userid);
         React.useEffect(() => {
             fetch('/api/bookingRequests/{{ fixtureid }}')
             .then(response => response.json())
@@ -211,7 +212,10 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
                                         value={item.userid}
                                         onChange={(event) => handleCourtChange(event, index)}
                                     >
-                                        {users.map((user, index) => (
+                                        {users.filter((user, index) =>
+                                            user.Userid == item.userid || 
+                                            !bookingDataUserids.includes(user.Userid) 
+                                        ).map((user, index) => (
                                             <option key={index} value={user.Userid}>
                                                 {user.Userid == 0 ? 'None' : user.ShortName}
                                             </option>

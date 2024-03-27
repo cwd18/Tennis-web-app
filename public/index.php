@@ -52,7 +52,8 @@ $te = $twig->getEnvironment();
 $m = $container->get('Model');
 $te->addGlobal('Role', $m->sessionRole());
 $userData = $m->getUsers()->getUserData($m->sessionUser());
-$te->addGlobal('SessionUser', $userData['FirstName'] . ' ' . $userData['LastName']);
+if ($userData != false) {
+    $te->addGlobal('SessionUser', $userData['FirstName'] . ' ' . $userData['LastName']);}
 
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 

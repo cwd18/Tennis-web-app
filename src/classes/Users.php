@@ -31,13 +31,13 @@ class Users
         return $userId;
     }
 
-    public function getUserData(int $userId) : array
+    public function getUserData(int $userId) : array|bool
     {
         $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName, Booker 
         FROM Users WHERE Userid = :Userid;";
         $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        return $row;
+        return $row; // returns false if no user found
     }
 
     public function deleteUser(int $userId)
