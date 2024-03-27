@@ -48,16 +48,12 @@ class Series
         
         // Get default fixture attendees...
         $users = $this->getSeriesUsers($seriesId);
-        $ParticipantList = NULL;
-        foreach ($users as $user) {
-            $ParticipantList[] = $user['FirstName']." ".$user['LastName'];
-        }
 
         // Get past fixtures...
         $pastFixtures = $this->getPastFixtures(8);
 
         // return all series data
-        $seriesData = ['seriesid' => $seriesId, 'base' => $this->base, 'participants' => $ParticipantList, 
+        $seriesData = ['seriesid' => $seriesId, 'base' => $this->base, 'participants' => $users, 
          'pastFixtures' => $pastFixtures, 'next2fixtures' => $next2Fixtures];
         return $seriesData;
     }
@@ -128,13 +124,13 @@ class Series
         $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId]);
     }
 
-    public function getSeriesUsers()
+    public function getSeriesUsers() : array|bool
     {
         // Return list of users for this series 
-        $sql = "SELECT Users.Userid, FirstName, LastName 
+        $sql = "SELECT Users.Userid, FirstName, LastName, ShortName, Booker
         FROM Users JOIN SeriesCandidates ON Users.Userid = SeriesCandidates.Userid
         WHERE Seriesid = :Seriesid 
-        ORDER BY FirstName, LastName;";
+        ORDER BY ShortName;";
         $statement = $this->pdo->runSQL($sql,['Seriesid' => $this->seriesId]);
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
         return $users;

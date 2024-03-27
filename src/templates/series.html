@@ -41,7 +41,7 @@
     <summary><b>Participants ({{ participants|length }})</b></summary>
     <ol>
         {% for n in participants %}
-        <li>{{ n }}</li>
+        <li>{{ n.ShortName }}{{ n.Booker ? ' (Booker)' : '' }}</li>
         {% endfor %}
     </ol>
 </details>
