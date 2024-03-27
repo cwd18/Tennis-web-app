@@ -3,11 +3,12 @@
 
 <h2>Tennis users</h2>
 <table class="pure-table">
-    <thead><tr></tr><th>Name</th><th>Short name</th><th>Email</th></tr></thead>
+    <thead><tr></tr><th>Name</th><th>Short name</th><th>Booker</th><th>Email</th></tr></thead>
     {% for u in userlist %}
     <tr>
     <td><a href=useredit?Userid={{ u.Userid }}>{{ u.FirstName}} {{ u.LastName }}</a></td>
     <td>{{ u.ShortName }}</td>
+    <td>{{ u.Booker ? "Yes" : "No" }}</td>
     <td>{{ u.EmailAddress }}</td>
     </tr>
     {% endfor %}

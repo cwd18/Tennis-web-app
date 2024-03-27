@@ -25,7 +25,7 @@ public function __invoke(Request $request, Response $response, array $args): Res
             return $response;
         }
         $f = $m->getFixture($fixtureId);
-        $users = $f->getFixtureParticipants();
+        $users = $f->getBookers();
         $response->getBody()->write(json_encode($users));        
         return $response->withHeader('Content-Type', 'application/json');
     }

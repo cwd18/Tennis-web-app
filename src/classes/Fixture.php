@@ -110,18 +110,6 @@ class Fixture
         return $users;
     }
 
-    public function getFixtureParticipants() : array
-    {
-        // Return list of fixture participants
-        $sql = "SELECT Users.Userid, ShortName
-        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        WHERE  Fixtureid = :Fixtureid
-        ORDER BY ShortName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
-        $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
-        return $users;
-    }
-
     public function getWantToPlay() : array
     {
         // Return list of users who want to play and are currently not playing
@@ -598,6 +586,18 @@ class Fixture
         return $bookingRequests;
     }
 
+    public function getBookers() : array
+    {
+        // Return list of fixture participants who are bookers and who are not requested to book
+        $sql = "SELECT Users.Userid, ShortName
+        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE Booker = TRUE AND FixtureParticipants.Fixtureid = :F1 
+        ORDER BY ShortName;";
+        $stmt = $this->pdo->runSQL($sql,['F1' => $this->fixtureId]);
+        $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
+        return $users;
+    }
+
     public function setBookingRequests($bookingRequests)
     {
         // Delete any existing requests
@@ -647,10 +647,11 @@ class Fixture
     {
         // Get recipients for creating booking request emails
         // Includes users who want to play, have not responded, or who are subject to a booking request
-        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, EmailAddress
+        $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, EmailAddress, Booker
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         LEFT JOIN CourtBookings ON Users.Userid = CourtBookings.Userid AND BookingType = 'Request' 
         WHERE (BookingType IS NOT NULL OR WantsToPlay = TRUE OR WantsToPlay IS NULL) 
+        AND Booker = TRUE
         AND FixtureParticipants.Fixtureid = :Fixtureid
         ORDER BY FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
@@ -676,7 +677,9 @@ class Fixture
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
         // Get users
-        $sql = "SELECT Userid FROM FixtureParticipants WHERE Fixtureid = :Fixtureid";
+        $sql = "SELECT Users.Userid FROM Users 
+        JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE Users.Booker = TRUE AND Fixtureid = :Fixtureid";
         $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
         // Create requests, allocating users to courts and times
         $range = explode("-", $this->base['TargetCourts']);

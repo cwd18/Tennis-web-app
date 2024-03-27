@@ -14,7 +14,7 @@ class Users
 
     public function getAllUsers() : array
     {
-        $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName 
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName, Booker
         FROM Users ORDER BY ShortName;";
         $statement = $this->pdo->runSQL($sql);
         $users = $statement->fetchall(\PDO::FETCH_ASSOC);
@@ -33,7 +33,7 @@ class Users
 
     public function getUserData(int $userId) : array
     {
-        $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName 
+        $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName, Booker 
         FROM Users WHERE Userid = :Userid;";
         $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
@@ -46,13 +46,13 @@ class Users
         $this->pdo->runSQL($sql,['Userid' => $userId]);
     }
 
-    public function updateUser(int $userId, string $fname, string $lname, string $email)
+    public function updateUser(int $userId, string $fname, string $lname, string $email, bool $booker)
     {
         $sql = "UPDATE Users 
-        SET FirstName = :FirstName, LastName = :LastName, EmailAddress = :EmailAddress
+        SET FirstName = :FirstName, LastName = :LastName, EmailAddress = :EmailAddress, Booker = :Booker
         WHERE Userid = :Userid;";
         $this->pdo->runSQL($sql, ['Userid' => $userId, 
-        'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
+        'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email, 'Booker' => $booker]);
         $this->generateShortNames();
     }
 

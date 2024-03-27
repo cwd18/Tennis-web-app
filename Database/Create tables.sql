@@ -6,6 +6,7 @@ LastName varchar (50) NOT NULL,
 FirstName varchar (50) NOT NULL,
 EmailAddress varchar (50) NOT NULL unique,
 ShortName varchar (20),
+Booker BOOLEAN DEFAULT FALSE,
 PRIMARY KEY (Userid)
 );
 CREATE TABLE FixtureSeries (
