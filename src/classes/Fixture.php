@@ -646,7 +646,7 @@ class Fixture
     public function getBookingRequestRecipients() : array
     {
         // Get recipients for creating booking request emails
-        // Includes users who want to play, have not responded, or who are subject to a booking request
+        // Includes booking users who want to play, have not responded, or who are subject to a booking request
         $sql="SELECT DISTINCT Users.Userid, FirstName, LastName, EmailAddress, Booker
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         LEFT JOIN CourtBookings ON Users.Userid = CourtBookings.Userid AND BookingType = 'Request' 
@@ -676,10 +676,13 @@ class Fixture
         // Delete any existing requests
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
-        // Get users
+        // Get booking participants ordered by number of bookings across previous fixtures
         $sql = "SELECT Users.Userid FROM Users 
         JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        WHERE Users.Booker = TRUE AND Fixtureid = :Fixtureid";
+        AND FixtureParticipants.Fixtureid = :Fixtureid
+        LEFT JOIN CourtBookings ON Users.Userid = CourtBookings.Userid AND BookingType = 'Booked' 
+        WHERE Users.Booker = TRUE 
+        GROUP BY Users.Userid ORDER BY COUNT(*) DESC;";
         $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
         // Create requests, allocating users to courts and times
         $range = explode("-", $this->base['TargetCourts']);
