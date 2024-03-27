@@ -685,13 +685,18 @@ class Fixture
         GROUP BY Users.Userid ORDER BY COUNT(*) DESC;";
         $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
         // Create requests, allocating users to courts and times
+        $numUsers = count($userIds);
         $range = explode("-", $this->base['TargetCourts']);
         $time[0] = $this->base['FixtureTime']; 
         $time[1] = date('H:i', strtotime($time[0]) + 60 * 60);
+        if (strcmp($time[0], "07:30") == 0) {
+            $time[0] = $time[1]; // swap order of times if 07:30 is the first time
+            $time[1] = $this->base['FixtureTime'];
+        }
         $u = 0;
         for ($c = $range[0]; $c<= $range[1]; $c++) {
             foreach ($time as $t) {
-                if ($u >= count($userIds)) {
+                if ($u >= $numUsers) {
                     return;} // run out of users
                 $userId = $userIds[$u++]['Userid'];
                 $this->addCourtBooking($userId, $t, $c, 'Request');
