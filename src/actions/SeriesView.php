@@ -26,7 +26,7 @@ final class SeriesView
         if (is_string($error = $m->checkOwner($seriesId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $s = $m->getSeries($seriesId);
-        // $s->ensure2FutureFixtures(); // useful for testing
+        // $s->ensure2FutureFixtures(); // useful for testing fixture creation
         $series = $s->getSeriesData();
         if (strcmp($m->sessionRole(),'Admin') == 0) {
             $token=$m->getTokens()->getOrCreateToken($series['base']['SeriesOwner'], 'Owner', $seriesId);

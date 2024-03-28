@@ -24,7 +24,7 @@ class Model
         $password = $db_config['password'];
         $this->db = new Database($dsn, $username, $password);
         $this->seriesList = new SeriesList($this->db);
-        $this->email = new Email($email_config, $this->db, $server, $twig);
+        $this->email = new Email($email_config);
         $this->server = $server;
         $this->twig = $twig;
         $this->automate = new Automate();

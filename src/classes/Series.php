@@ -230,6 +230,14 @@ class Series
         SELECT '$fixtureId', Userid FROM SeriesCandidates WHERE Seriesid = :Seriesid;";
         $this->pdo->runSQL($sql,['Seriesid' => $seriesId]);
 
+        // Set CourtsBooked to 0 for non-bookers 
+        // so they don't get a page asking them to record their court bookings
+        $sql = "UPDATE FixtureParticipants
+        JOIN Users ON FixtureParticipants.Userid = Users.Userid
+        SET CourtsBooked = 0
+        WHERE Fixtureid = :Fixtureid AND Booker = FALSE ;";
+        $this->pdo->runSQL($sql,['Fixtureid' => $fixtureId]);
+
         // Copy any court booking requests from any previous fixture
         $sql = "SELECT Fixtureid FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate < :FixtureDate
