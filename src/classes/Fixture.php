@@ -399,6 +399,19 @@ class Fixture
     {
         // Get fixture data for display
 
+        // Get adjacent fixture
+        $sql = "SELECT Fixtureid FROM Fixtures WHERE Seriesid = :Seriesid
+        ORDER BY FixtureDate DESC LIMIT 2;";
+        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $this->base['Seriesid']]);
+        $latestFixtures = $stmt->fetchall(\PDO::FETCH_ASSOC);
+        if ($latestFixtures[1]['Fixtureid'] == $this->fixtureId) {
+            $adjacentFixtureId = $latestFixtures[0]['Fixtureid'];
+            $adjacentLabel = "Next";
+        } else {
+            $adjacentFixtureId = $latestFixtures[1]['Fixtureid'];
+            $adjacentLabel = "Previous";
+        }
+
         // Get players...
         $sql="SELECT DISTINCT Users.Userid, ShortName, AcceptTime, CourtsBooked
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
@@ -504,7 +517,8 @@ class Fixture
         }
 
         // return all fixture data
-        $fixture = ['base' => $this->base,
+        $fixture = ['base' => $this->base, 
+        'adjacentFixtureid' => $adjacentFixtureId, 'adjacentLabel' => $adjacentLabel,
         'players' => $playerList, 'reserves' => $reserveList, 
         'decliners' => $declineList,  'abstainers' => $abstainList, 'capacity' => $capacity,
         'inBookingWindow' => $inBookingWindow, 'requestedBookings' =>$requestedBookings,
