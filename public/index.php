@@ -96,7 +96,6 @@ $app->post('/seriesedit', \TennisApp\Action\SeriesEdit::class);
 
 // Create fixture routes
 $app->get('/fixture', \TennisApp\Action\FixtureView::class);
-$app->get('/fixturenotice', \TennisApp\Action\FixtureNotice::class);
 $app->get('/fixturedeleteform', \TennisApp\Action\FixtureDeleteForm::class);
 $app->get('/fixturedelete', \TennisApp\Action\FixtureDelete::class);
 $app->get('/fixtureaddusersform', \TennisApp\Action\FixtureAddUsersForm::class);

@@ -33,10 +33,8 @@ final class ParticipantWantsToPlay
         } else {
             $f->setWantsNotToPlay($userId);
         }
-        $outPath = strcmp($m->sessionRole(),'User') == 0 ? "/fixturenotice?fixtureid=$fixtureId" :
-         "/participant?fixtureid=$fixtureId&userid=$userId";
         return $response
-          ->withHeader('Location', $outPath)
+          ->withHeader('Location', "/participant?fixtureid=$fixtureId&userid=$userId")
           ->withStatus(302);
     }
 }

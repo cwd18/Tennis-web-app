@@ -1,5 +1,4 @@
 {# For the Admin and Owner role, this provides the participant's view 
-For the User role, it enables the user to say which courts they booked
 If the current time is within the booking window, it includes a React component #}
 {% set fixtureid = fixture.base.Fixtureid %}
 {% set userid = participant.Userid %}
@@ -8,11 +7,6 @@ If the current time is within the booking window, it includes a React component 
 {% extends "base.html" %}
 {% block content %}
 
-{% if Role == 'User' %} 
-<h3 class="no-space-after">{{ participant.FirstName }}, please indicate any booked courts</h3>
-for {{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}
-<br>
-{% else %} {# Role is Admin or Owner #}
 
 {% if participant.WantsToPlay is null %}
     {% set htext = "has not yet responded" %}
@@ -37,9 +31,8 @@ for {{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}
 {% elseif participant.WantsToPlay == false %}
     <a class="pure-button" href="{{ href }}1">Would now like to play</a>
 {% endif %}
-<br>
-{% endif %}
 
+<br>
 {% if ReactPage %}
     <div id="booking-table"></div> {# React component #}
 {% else %}
@@ -57,12 +50,8 @@ for {{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}
     <br>
 {% endif %}
 
-<br><br>
-{% if Role == 'User' %}
-<a class="pure-button" href="fixturenotice?fixtureid={{ fixtureid }}">Done</a>
-{% else %}
+<br>
 <a class="pure-button" href="fixture?fixtureid={{ fixtureid }}">Back to fixture</a>
-{% endif %}
 <br><br>
 
 {% if ReactPage %}
@@ -73,7 +62,7 @@ for {{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}
 const container = document.getElementById('booking-table');
 const root = ReactDOM.createRoot(container);
 
-root.render(<BookingTable />);
+root.render(<BookingTable name = "{{ participant.FirstName }}"/>);
 
 </script>
 {% endif %}
