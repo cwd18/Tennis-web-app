@@ -114,9 +114,9 @@ $app->get('/fixtureresetplaying', \TennisApp\Action\FixtureResetPlaying::class);
 $app->get('/fixtureCreateRequests', \TennisApp\Action\FixtureCreateRequests::class);
 
 // Create participant routes
-$app->get('/participantPage', \TennisApp\Action\ParticipantPage::class);
 $app->get('/participant', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
+$app->get('/participantSeries', \TennisApp\Action\ParticipantSeries::class);
 
 // Create email routes
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);
@@ -132,5 +132,8 @@ $app->put('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\Api
 $app->get('/api/bookingRequests/{fixtureid}', \TennisApp\Action\ApiGetBookingRequests::class);
 $app->put('/api/bookingRequests/{fixtureid}', \TennisApp\Action\ApiPutBookingRequests::class);
 $app->get('/api/participants/{fixtureid}', \TennisApp\Action\ApiGetParticipants::class);
+$app->get('/api/participantData/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantData::class);
+$app->put('/api/participantWantsToPlay/{fixtureid}/{userid}/{value}', \TennisApp\Action\ApiPutParticipantWantsToPlay::class);
+$app->get('/api/participantWantsToPlay/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantWantsToPlay::class);
 
 $app->run();

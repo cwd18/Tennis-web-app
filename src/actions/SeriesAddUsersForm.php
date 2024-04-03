@@ -23,7 +23,7 @@ final class SeriesAddUsersForm
         $seriesId = (int)$params['seriesid'];
         $m = $this->container->get('Model');
         $view = Twig::fromRequest($request);
-        if (is_string($error = $m->checkOwner($seriesId))) {
+        if (is_string($error = $m->checkOwnerAccess($seriesId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $s = $m->getSeries($seriesId);
         $users = $s->getSeriesCandidates();

@@ -26,7 +26,7 @@ final class ParticipantView
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
         $view = Twig::fromRequest($request);
-        if (is_string($error = $m->checkOwner($seriesId))) {
+        if (is_string($error = $m->checkOwnerAccess($seriesId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $fixture = $f->getFixtureData();
         $u = $f->getParticipantData($userId);

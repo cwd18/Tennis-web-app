@@ -64,7 +64,7 @@ class Automate
             throw new \Exception("Unknown email type");
         }
         foreach ($recipients as &$recipient) {
-            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
+            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $base['Seriesid']);
         }
         foreach ($recipients as $to) {
             $message = $twig->render($twigFile, ['altmessage' => false,

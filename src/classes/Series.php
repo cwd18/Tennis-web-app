@@ -181,7 +181,7 @@ class Series
         // return fixtureid of next fixture or zero if there isn't one
         $todayDate = date('Y-m-d');
         $sql = "SELECT Fixtureid FROM Fixtures 
-        WHERE Seriesid = :Seriesid AND FixtureDate > :today
+        WHERE Seriesid = :Seriesid AND FixtureDate >= :today
         ORDER BY FixtureDate LIMIT 1;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);

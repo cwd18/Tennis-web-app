@@ -1,0 +1,125 @@
+{% set fixtureid = fixture.base.Fixtureid %}
+{% set ReactPage = true %}
+{% set includeBookingTable = (fixture.inBookingWindow == 0) %}
+
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ fixture.base.description }}</h2>
+<h3 style="color:red;">{{ fixture.base.FixtureTime }} start</h3>
+
+
+<div id="user-input" ></div> {# React component #}
+<br>
+
+{% set href = 'participantSeries?seriesid=' ~ fixture.base.Seriesid ~ '&index=' %}
+<a class="pure-button" href="{{ href ~ (fixture.adjacentLabel == 'Next' ? 0 : 1)}}">Refresh</a>
+<a class="pure-button" href="{{ href ~ (fixture.adjacentLabel == 'Next' ? 1 : 0)}}">{{ fixture.adjacentLabel }} fixture</a>
+<br><br>
+
+
+{% if fixture.players|length >0 %}
+<p class="no-space-after"><b>Playing:</b></p>
+<ol class="lno-space">
+    {% for n in fixture.players %}
+    <li>{{ n.ShortName }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+
+{% if fixture.reserves|length >0 %}
+    {% if fixture.players|length >0 %}
+    <p class="no-space-after"><b>Reserve:</b></p>
+    {% else %}
+    <p class="no-space-after"><b>Wants to play:</b></p>
+    {% endif %}
+    <ol class="lno-space">
+    {% for n in fixture.reserves %}
+    <li>{{ n.ShortName }}</li>
+    {% endfor %}
+    </ol>
+{% endif %}
+
+{% if fixture.decliners|length >0 %}
+<p class="no-space-after"><b>Can't play:</b></p>
+<ol class="lno-space">
+    {% for n in fixture.decliners %}
+    <li>{{ n.ShortName }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+
+{% if fixture.inBookingWindow >= 0 %}
+    {% if fixture.bookings|length >1 %}
+        <p class="no-space-after"><b>Booked courts...</b>
+        <table class="pure-table">
+        {% for key, r in fixture.bookings %}
+        {% if key == 0 %}<thead>{% endif %}
+        <tr>
+        {% for c in r %}
+        {% if key == 0 %}
+            <th>{{ c }}</th>
+        {% else %}
+            <td>{{ c }}</td>
+        {% endif %}
+        {% endfor %}
+        {% if key == 0 %}</thead>{% endif %}
+        {% endfor %}
+        </table>
+    {% else %}
+        No bookings<br>
+    {% endif %}
+{% endif %}
+
+{% if fixture.inBookingWindow < 0 %}
+{% if fixture.requestedBookings|length > 0 %}
+<p><b>Booking requests:</b></p>
+<table class="pure-table">
+    <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
+    {% for r in fixture.requestedBookings %}
+        <tr>
+        <td>{{ r.ShortName }}</td>
+        <td>{{ r.CourtNumber }}</td>
+        <td>{{ r.BookingTime }}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No booking requests</p>
+{% endif %}
+{% endif %}
+
+<br>
+
+<script type="text/babel">
+
+{{ include('WantsToPlay.jsx') }}
+{{ include('BookingTable.jsx') }}
+
+function UserInput() {
+    const [participantData, setParticipantData] = React.useState([]);
+    React.useEffect(() => {
+        fetch('/api/participantData/{{ fixtureid }}/{{ userid }}')
+        .then(response => response.json())
+        .then(setParticipantData);
+    }, []);
+    const {inBookingWindow, FirstName} = participantData;
+    return (
+        <div>
+        < WantsToPlay name={FirstName} />
+        {(inBookingWindow == 0) && < BookingTable name={FirstName} />}
+        </div>
+    );
+}
+
+const container = document.getElementById('user-input');
+const root = ReactDOM.createRoot(container);
+root.render(<UserInput />);
+
+</script>
+
+<br><br><br><br>
+
+{% endblock %}

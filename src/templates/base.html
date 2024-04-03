@@ -12,7 +12,10 @@
 
 <style>
     .no-space-after {margin-bottom: 0.2em; }
-    
+    .lno-space {
+        margin-top: 0;
+        padding-left: 2em;
+      }
 </style>
 
 </head>
@@ -20,7 +23,7 @@
 
 <div class="pure-g" style="background-color:#dfff4f; text-align: center;">
     <p style="margin-left: 25px;">
-        Tennis fixtures ({{ SessionUser }}{{ Role == 'User' ? '' : ', ' ~ Role}})</p>
+        {{ SessionUser }}{{ Role == 'User' ? '' : ' (' ~ Role ~ ')'}}</p>
 </div>
 
 <div class="pure-g">

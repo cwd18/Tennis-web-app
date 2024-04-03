@@ -11,41 +11,49 @@ class EventLog
     public function __construct($pdo)
     {
         $this->pdo = $pdo;
-        $this->garbageCollect();
+        $this->garbageCollect(); // delete old log entries
     }
 
-    private function writeMessage($time, $message)
+    private function writeMessage(string $time, string $message)
     {
-        $now = date("Y-m-d H:i:s");
         $sql = "INSERT INTO EventLog (EventTime, EventMessage) 
         VALUES (:EventTime, :EventMessage);";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('EventTime', $now, \PDO::PARAM_STR); 
+        $stmt->bindParam('EventTime', $time, \PDO::PARAM_STR); 
         $stmt->bindParam('EventMessage', $message, \PDO::PARAM_STR); 
         $stmt->execute();
     }
     
     private function garbageCollect()
     {
-        $t = date("Y-m-d H:i:s", time() - 5 * 24 * 60 * 60);
+        // Garbage collect old log entries
+        // We are not worried about the time zone here - UTC is good enough
+        $t = date('Y-m-d H:i:s', strtotime('-1 week'));
         $sql = "DELETE FROM EventLog WHERE EventTime < :t;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('t', $t, \PDO::PARAM_STR); 
         $stmt->execute();
     }
     
-    public function write($message)
+    public function write(string $message)
     {
+        // Write a message to the log
+        // Prepend a 'START LOG' message if this is the first message since the EventLog object was created
+        // Use the current time in London, including BST when applicable
         $now = date("Y-m-d H:i:s");
+        $now = new \DateTime();
+        $now->setTimezone(new \DateTimeZone('Europe/London'));
+        $nowStr = $now->format("Y-m-d H:i:s");
         if ($this->started == false) {
             $this->started = true;
-            $this->writeMessage($now, 'START LOG');
+            $this->writeMessage($nowStr, 'START LOG');
         }
-        $this->writeMessage($now, $message);
+        $this->writeMessage($nowStr, $message);
     }
     
     public function list() : array
     {
+        // Get the most recent 20 log entries, ascending by sequence number
         $sql = "SELECT * FROM (SELECT * FROM EventLog ORDER BY Seq DESC LIMIT 20) AS EventLog1 ORDER By seq;";
         $rows = $this->pdo->runSQL($sql)->fetchall(\PDO::FETCH_ASSOC);
         return $rows;

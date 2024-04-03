@@ -23,7 +23,7 @@ final class FixtureNotice
         $fixtureId = (int)$params['fixtureid'];
         $m = $this->container->get('Model');
         $view = Twig::fromRequest($request);
-        if (is_string($error = $m->checkUser($fixtureId))) {
+        if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $f = $m->getFixture($fixtureId);
         $fixture = $f->getFixtureData();

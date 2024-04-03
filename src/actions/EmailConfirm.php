@@ -25,7 +25,7 @@ final class EmailConfirm
         $f = $m->getFixture($fixtureId);
         $seriesId = $f->getSeriesid();
         $view = Twig::fromRequest($request);
-        if (is_string($error = $m->checkOwner($seriesId))) {
+        if (is_string($error = $m->checkOwnerAccess($seriesId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $base = $f->getBasicFixtureData();
         if ($base['InvitationsSent'] == 0 ) {
@@ -38,7 +38,7 @@ final class EmailConfirm
         }
         $tokens = $m->getTokens();
         foreach ($recipients as &$recipient) {
-            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $fixtureId);
+            $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $seriesId);
         }
         return $view->render($response, 'emailConfirm.html', ['base' => $base, 
         'subject' => $subject, 'recipients' => $recipients,

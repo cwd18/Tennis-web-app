@@ -25,7 +25,7 @@ final class ParticipantWantsToPlay
         $wantsToPlay = $params['WantsToPlay'];
         $m = $this->container->get('Model');
         $view = Twig::fromRequest($request);
-        if (is_string($error = $m->checkUser($fixtureId))) {
+        if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $f = $m->getFixture($fixtureId);
         if ($wantsToPlay) {

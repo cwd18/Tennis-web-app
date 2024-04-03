@@ -1,5 +1,5 @@
 <?php
-# Automatically create booking requests for this fixture
+# Participant page for a series, which starts on the next fixture
 
 namespace TennisApp\Action;
 
@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Views\Twig;
 
-final class FixtureCreateRequests
+final class ParticipantSeries
 {
     private $container;
 
@@ -20,16 +20,17 @@ final class FixtureCreateRequests
     public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fixtureId = (int)$params['fixtureid'];
+        $seriesId = (int)$params['seriesid'];
+        $index = (int)$params['index'];
         $m = $this->container->get('Model');
-        $f = $m->getFixture($fixtureId);
-        $seriesId = $f->getSeriesid();
+        $s = $m->getSeries($seriesId);
+        $fixtureId = $index == 0 ? $s->nextfixture() : $s->latestFixture();
         $view = Twig::fromRequest($request);
-        if (is_string($error = $m->checkOwnerAccess($seriesId))) {
+        if (is_string($error = $m->checkUserAccessSeries($seriesId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
-        $f->createBookingRequests();
-        return $response
-          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
-          ->withStatus(302);
+        $f = $m->getFixture($fixtureId);
+        $fixture = $f->getFixtureData();
+        return $view->render($response, 'participantSeries.html', 
+            ['fixture' => $fixture, 'userid' => $m->sessionUser()]);   
     }
 }

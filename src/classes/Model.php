@@ -111,7 +111,7 @@ class Model
         return "Not authorised: $role";
     }
 
-    public function checkOwner(int $seriesId) : ?string
+    public function checkOwnerAccess(int $seriesId) : ?string
     {
         $role = $this->sessionRole();
         if (strcmp($role, 'Admin') == 0) {
@@ -126,24 +126,23 @@ class Model
         return "Not authorised: $role";
     }
 
-    public function checkUser(int $fixtureId) : ?string
+    public function checkUserAccessFixture(int $fixtureId) : ?string
+    {
+        $seriesId = $this->getFixture($fixtureId)->getSeriesid();
+        return $this->checkUserAccessSeries($seriesId);
+    }
+
+    public function checkUserAccessSeries(int $seriesId) : ?string
     {
         $role = $this->sessionRole();
         if (strcmp($role, 'Admin') == 0) {
             return NULL;
         }
-        if (strcmp($role, 'Owner') == 0) {
-            $seriesId = $this->getFixture($fixtureId)->getSeriesid();
+        if (strcmp($role, 'Owner') == 0 or strcmp($role, 'User') == 0) {
             if ($_SESSION['Otherid'] == $seriesId) {
                 return NULL;
             }
-            return "Owner not authorised for this series: $seriesId";
-        }
-        if (strcmp($role, 'User') == 0) {
-            if ($_SESSION['Otherid'] == $fixtureId) {
-                return NULL;
-            }
-            return "User not authorised for this series: $fixtureId";
+            return "$role not authorised to access this series: $seriesId";
         }
         return "Not authorised: $role";
     }

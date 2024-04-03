@@ -63,7 +63,9 @@ class Fixture
         $bookingTime = "07:30";
         $bookingDt2 = strtotime($fixtureDate . " " . $bookingTime);
         $bookingDt1 = $bookingDt2 - 7 * 24 * 60 * 60; // 7 days earlier
-        $nowDt = time();
+        $now = new \DateTime();
+        $now->setTimezone(new \DateTimeZone('Europe/London'));
+        $nowDt = $now->getTimestamp();
         if ($nowDt < $bookingDt1) {
             $r = -1;
         } else if ($nowDt > $bookingDt2) {
@@ -149,7 +151,8 @@ class Fixture
         $sql = "SELECT WantsToPlay FROM FixtureParticipants
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
-        return $stmt->fetchColumn();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row['WantsToPlay']; // null, zero, or one
     }
     
     public function getCourtsBooked($userId) : ?int

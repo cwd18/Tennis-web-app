@@ -21,7 +21,7 @@ public function __invoke(Request $request, Response $response, array $args): Res
         $fixtureId = (int)$args['fixtureid'];
         $bookingRequests = $request->getParsedBody();
         $m = $this->container->get('Model');
-        if (is_string($error = $m->checkUser($fixtureId))) {
+        if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
             $response->getBody()->write($error);        
             return $response;
         }

@@ -42,8 +42,8 @@ final class Start
         }
 
         if (strcmp($role, 'User') == 0) {
-            $fixtureId = $row['Otherid'];
-            $route = "/participantPage?fixtureid=$fixtureId&userid=$userId";
+            $seriesId = $row['Otherid'];
+            $route = "/participantSeries?seriesid=$seriesId&index=1";
         } elseif (strcmp($role, 'Owner') == 0) {
             $seriesId = $row['Otherid'];
             $route = "/series?seriesid=$seriesId";

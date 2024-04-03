@@ -2,6 +2,7 @@
 For the User role, it enables the user to say which courts they booked
 If the current time is within the booking window, it includes a React component #}
 {% set fixtureid = fixture.base.Fixtureid %}
+{% set userid = participant.Userid %}
 {% set ReactPage = (fixture.inBookingWindow == 0) %}
 
 {% extends "base.html" %}
@@ -66,76 +67,13 @@ for {{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}
 
 {% if ReactPage %}
 <script type="text/babel">
-    function BookingTable() {
-        const [bookingData, setBookingData] = React.useState([]);
-        React.useEffect(() => {
-            fetch('/api/participantBookings/{{ fixtureid }}/{{ participant.Userid }}')
-            .then(response => response.json())
-            .then(setBookingData);
-        }, []);
-        const handleCourtChange = (event, index) => {
-            const { value } = event.target;
-            const resetIndex = index == 0 ? 1 : 0;
-            const newBookingData = bookingData.map((item, i) => {
-                if (i === index) {
-                    return { ...item, court: Number(value) };
-                }
-                return item;
-            });
-            const numCourtsSet = newBookingData.filter(item => item.court != 0).length;
-            if (numCourtsSet > 2) {
-                newBookingData[resetIndex].court = 0;
-            }
-            setBookingData(newBookingData);
-            const bookings = newBookingData.map(item => ({ time: item.time, court: item.court }));
-            fetch('/api/participantBookings/{{ fixtureid }}/{{ participant.Userid }}', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(bookings),
-            });
-        };
 
-        return (
-            <div>
-                <p className="no-space-after"><b>Courts booked</b></p>
-                <table className="pure-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Court</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {bookingData.map((item, index) => (
-                            <tr key={index}>
-                                <td>{item.time}</td>
-                                <td>
-                                    <select
-                                        id={item.time}
-                                        value={item.court}
-                                        onChange={(event) => handleCourtChange(event, index)}
-                                    >
-                                        {item.availableCourts.map((court, index) => (
-                                            <option key={index} value={court}>
-                                                {court == 0 ? 'No' : court}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    }
+{{ include('BookingTable.jsx') }}
 
-    const container = document.getElementById('booking-table');
-    const root = ReactDOM.createRoot(container);
+const container = document.getElementById('booking-table');
+const root = ReactDOM.createRoot(container);
 
-    root.render(<BookingTable />);
+root.render(<BookingTable />);
 
 </script>
 {% endif %}

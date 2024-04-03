@@ -29,8 +29,8 @@
 {% set linkbase = 'participant?fixtureid=' ~ fixtureid ~ '&userid=' %}
 
 {% if players|length >0 %}
-<p><b>Playing:</b></p>
-<ol>
+<p class="no-space-after"><b>Playing:</b></p>
+<ol class="lno-space">
     {% for n in players %}
     <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
@@ -38,8 +38,8 @@
 {% endif %}
 
 {% if reserves|length >0 %}
-<p><b>Would like to play:</b></p>
-<ol>
+<pclass="no-space-after"><b>Would like to play:</b></p>
+<ol class="lno-space">
     {% for n in reserves %}
     <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
@@ -47,8 +47,8 @@
 {% endif %}
 
 {% if decliners|length >0 %}
-<p><b>Can't play:</b></p>
-<ol>
+<p class="no-space-after"><b>Can't play:</b></p>
+<ol class="lno-space">
     {% for n in decliners %}
     <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
@@ -60,7 +60,7 @@
 <details>
     <summary>{{ abstainers|length }} {{ base.InvitationsSent or inBookingWindow >= 0 
         ? 'people have not responded' : 'participants' }}</summary>
-    <ol>
+    <ol class="lno-space">
     {% for n in abstainers %}
     <li><a href="{{ linkbase }}{{ n.Userid }}">{{ n.ShortName }}</a></li>
     {% endfor %}
@@ -88,8 +88,7 @@
 
 {% if inBookingWindow >= 0 %}
     {% if bookings|length >1 %}
-        <b>Booked courts:</b>
-        <br>
+    <p class="no-space-after"><b>Booked courts...</b></p>
         {% for key, num in capacity %}
            {{ key }} start: {{ num * 4 }} places<br>
         {% endfor %}
