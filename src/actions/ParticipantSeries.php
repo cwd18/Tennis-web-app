@@ -29,8 +29,10 @@ final class ParticipantSeries
         if (is_string($error = $m->checkUserAccessSeries($seriesId))) {
             return $view->render($response, 'error.html', ['error' => $error]);}
         $f = $m->getFixture($fixtureId);
+        $userId = $m->sessionUser();
         $fixture = $f->getFixtureData();
+        $participant = $f->getParticipantData($userId);
         return $view->render($response, 'participantSeries.html', 
-            ['fixture' => $fixture, 'userid' => $m->sessionUser()]);   
+            ['fixture' => $fixture, 'participant' => $participant]);   
     }
 }

@@ -28,9 +28,12 @@ public function __invoke(Request $request, Response $response): Response
         $autoUrl = "/start/$token";
         $s = $m->getSeriesList();
         $l = $m->getEventLog();
+        $now = new \DateTime();
+        $now->setTimezone(new \DateTimeZone('Europe/London'));
+        $time = $now->format("H:i:s");
         $sqlTime = $m->db->runSQL("SELECT RIGHT(NOW(),8);")->fetchColumn();
         return $view->render($response, 'serieslist.html', 
-            ['serieslist' => $s->getAllSeries(), 'phpTime' => date("H:i:s"), 'sqlTime' => $sqlTime,
+            ['serieslist' => $s->getAllSeries(), 'phpTime' => $time, 'sqlTime' => $sqlTime,
             'autoUrl' => $autoUrl, 'log' => $l->list()]);
     }
 }

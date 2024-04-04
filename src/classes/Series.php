@@ -67,6 +67,26 @@ class Series
     {
         return $this->base['owner']['Userid'];
     }
+    
+    public function getFixtureIndex($fixtureId) : int
+    {
+        // Get the index of the future fixture in the series
+        $todayDate = date('Y-m-d');
+        $sql = "SELECT FixtureId 
+        FROM FixtureSeries JOIN Fixtures ON FixtureSeries.Seriesid = Fixtures.Seriesid
+        WHERE Fixtures.FixtureDate >= :today AND FixtureSeries.Seriesid = :Seriesid
+        ORDER BY FixtureDate;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR); 
+        $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
+        $stmt->execute();
+        for ($index = 0; $fixture = $stmt->fetchColumn(); $index++) {
+            if ($fixture == $fixtureId) {
+                return $index;
+            }
+        }
+        throw new \Exception("Fixture $fixtureId not found in series $this->seriesId");
+    }
 
     public function getNextFixtureDate() : string
     {

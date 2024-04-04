@@ -1,23 +1,40 @@
 {% set fixtureid = fixture.base.Fixtureid %}
-{% set ReactPage = true %}
-{% set includeBookingTable = (fixture.inBookingWindow == 0) %}
+{% set userid = participant.Userid %}
+{% set ReactPage = (fixture.inBookingWindow == 0) %}
 
 
 {% extends "base.html" %}
-
 {% block content %}
 
 <h2>{{ fixture.base.description }}</h2>
 <h3 style="color:red;">{{ fixture.base.FixtureTime }} start</h3>
 
+{% if participant.WantsToPlay is null %}
+    {% set htext = "has not yet responded" %}
+{% elseif participant.IsPlaying %}
+    {% set htext = "is playing" %}
+{% elseif participant.Isplaying == false %}
+    {% set htext = participant.WantsToPlay == true ? "wants to play" : "can't play" %}
+{% endif %}
 
-<div id="user-input" ></div> {# React component #}
+<p class="no-space-after"><b>{{ participant.FirstName }} {{ htext }}</b></p>
+
+{% set href = "participantWantsToPlay?fixtureid=%d&userid=%d&WantsToPlay="|
+    format(fixtureid, participant.Userid) %}
+{% if participant.WantsToPlay is null %}
+    <a class="pure-button" href="{{ href }}1">Would like to play</a>
+    <a class="pure-button" href="{{ href }}0">Cannot play</a>
+{% elseif participant.WantsToPlay == true %}
+    <a class="pure-button" href="{{ href }}0">Cannot now play</a>
+{% elseif participant.WantsToPlay == false %}
+    <a class="pure-button" href="{{ href }}1">Would now like to play</a>
+{% endif %}
+
+
+{% if ReactPage %}
+<div id="booking-table"></div> {# React component #}
 <br>
-
-{% set href = 'participantSeries?seriesid=' ~ fixture.base.Seriesid ~ '&index=' %}
-<a class="pure-button" href="{{ href ~ (fixture.adjacentLabel == 'Next' ? 0 : 1)}}">Refresh</a>
-<a class="pure-button" href="{{ href ~ (fixture.adjacentLabel == 'Next' ? 1 : 0)}}">{{ fixture.adjacentLabel }} fixture</a>
-<br><br>
+{% endif %}
 
 
 {% if fixture.players|length >0 %}
@@ -75,7 +92,7 @@
 
 {% if fixture.inBookingWindow < 0 %}
 {% if fixture.requestedBookings|length > 0 %}
-<p><b>Booking requests:</b></p>
+<p class="no-space-after"><b>Booking requests:</b></p>
 <table class="pure-table">
     <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
     {% for r in fixture.requestedBookings %}
@@ -93,33 +110,23 @@
 
 <br>
 
+{% set href = 'participantSeries?seriesid=' ~ fixture.base.Seriesid ~ '&index=' %}
+<a class="pure-button" href="{{ href ~ (fixture.adjacentLabel == 'Next' ? 0 : 1)}}">Refresh</a>
+<a class="pure-button" href="{{ href ~ (fixture.adjacentLabel == 'Next' ? 1 : 0)}}">{{ fixture.adjacentLabel }} fixture</a>
+<br><br>
+
+
+{% if ReactPage %}
 <script type="text/babel">
 
-{{ include('WantsToPlay.jsx') }}
 {{ include('BookingTable.jsx') }}
 
-function UserInput() {
-    const [participantData, setParticipantData] = React.useState([]);
-    React.useEffect(() => {
-        fetch('/api/participantData/{{ fixtureid }}/{{ userid }}')
-        .then(response => response.json())
-        .then(setParticipantData);
-    }, []);
-    const {inBookingWindow, FirstName} = participantData;
-    return (
-        <div>
-        < WantsToPlay name={FirstName} />
-        {(inBookingWindow == 0) && < BookingTable name={FirstName} />}
-        </div>
-    );
-}
-
-const container = document.getElementById('user-input');
+const container = document.getElementById('booking-table');
 const root = ReactDOM.createRoot(container);
-root.render(<UserInput />);
+
+root.render(<BookingTable name = "{{ participant.FirstName }}"/>);
 
 </script>
-
-<br><br><br><br>
+{% endif %}
 
 {% endblock %}
