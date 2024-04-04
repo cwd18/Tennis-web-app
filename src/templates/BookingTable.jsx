@@ -1,8 +1,8 @@
 
-function BookingTable({name}) {
+function BookingTable({name, fixtureid, userid}) {
     const [bookingData, setBookingData] = React.useState([]);
     React.useEffect(() => {
-        fetch('/api/participantBookings/{{ fixtureid }}/{{ userid }}')
+        fetch('/api/participantBookings/' + fixtureid + '/' + userid)
         .then(response => response.json())
         .then(setBookingData);
     }, []);
@@ -21,7 +21,7 @@ function BookingTable({name}) {
         }
         setBookingData(newBookingData);
         const bookings = newBookingData.map(item => ({ time: item.time, court: item.court }));
-        fetch('/api/participantBookings/{{ fixtureid }}/{{ userid }}', {
+        fetch('/api/participantBookings/' + fixtureid + '/' + userid, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

@@ -92,7 +92,7 @@
 
 {% if fixture.inBookingWindow < 0 %}
 {% if fixture.requestedBookings|length > 0 %}
-<p class="no-space-after"><b>Booking requests:</b></p>
+<p class="no-space-after"><b>Booking for 7:30 on {{ fixture.base.bookingDate }}:</b></p>
 <table class="pure-table">
     <thead><th>Booker</th><th>Court</th><th>Time</th></tr></thead>
     {% for r in fixture.requestedBookings %}
@@ -124,7 +124,10 @@
 const container = document.getElementById('booking-table');
 const root = ReactDOM.createRoot(container);
 
-root.render(<BookingTable name = "{{ participant.FirstName }}"/>);
+root.render(<BookingTable 
+    name = "{{ participant.FirstName }}"
+    fixtureid = "{{ fixtureid }}"
+    userid = "{{ userid }}" />);
 
 </script>
 {% endif %}
