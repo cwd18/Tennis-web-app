@@ -118,7 +118,7 @@
     <a class="pure-button" href="fixtureCreateRequests?fixtureid={{ fixtureid }}">{{ verb }} booking requests</a>
     <br>
 {% else %}
-    {% if inBookingWindow != 0 %}
+    {% if inBookingWindow < 0 %}
     {% if requestedBookings|length > 0 %}
     <p class="no-space-after"><b>Booking for 7:30 on {{ fixture.base.bookingDate }}:</b></p>
     <table class="pure-table">
