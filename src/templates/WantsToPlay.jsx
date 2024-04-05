@@ -1,33 +1,23 @@
-function WantsToPlay({name}) {
-    const [wantsToPlay, setWantsToPlay] = React.useState('Unknown');
-    React.useEffect(() => {
-        fetch('/api/participantWantsToPlay/{{ fixtureid }}/{{ userid }}')
-        .then(response => response.text())
-        .then(response => setWantsToPlay(response));
-    }, []);
-    const handleWantsToPlayChange = (event) => {
-        const { value } = event.target;
-        setWantsToPlay(value);
-        const url = '/api/participantWantsToPlay/{{ fixtureid }}/{{ userid }}/' + (value == 'No' ? '0' : '1');
-        fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        });
-    };
-return (
-    <div>
-        <b>{name} wants to play: </b>
-        <select
-            id={"wantsToPlay"}
-            value={wantsToPlay}
-            onChange={(event) => handleWantsToPlayChange(event)}
-        >
-        <option key='0' value='No'>No</option>
-        <option key='1' value='Yes'>Yes</option>
-        {(wantsToPlay == 'Unknown') && <option key='2' value='Unknown'>Unknown</option>}
-        </select>
+function WantsToPlay({name, wantsToPlay, handleWantsToPlayChange}) {
+    if (wantsToPlay == 'Unknown') {
+        return (
+            <div>
+                <p className="no-space-after"><b>{name} has not yet responded</b></p>
+                <button className="pure-button"
+                onClick={() => handleWantsToPlayChange('Yes')}
+                >Wants to play</button>
+                <button className="pure-button"
+                onClick={() => handleWantsToPlayChange('No')}
+                >Cannot play</button>
+            </div>
+        );
+        }
+    return (
+        <div>
+        <p className="no-space-after"><b>{name} {wantsToPlay == 'Yes' ? 'wants to play' : "can't play"}</b></p>
+        <button className="pure-button"
+        onClick={() => handleWantsToPlayChange(wantsToPlay == 'Yes' ? 'No' : 'Yes')}
+        >{wantsToPlay == 'Yes' ? 'Cannot now play' : 'Would now like to play'}</button>
     </div>
-  );
+);
 }

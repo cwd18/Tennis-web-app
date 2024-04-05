@@ -1,6 +1,6 @@
 {% set fixtureid = fixture.base.Fixtureid %}
 {% set userid = participant.Userid %}
-{% set ReactPage = (fixture.inBookingWindow == 0) %}
+{% set ReactPage = true %}
 
 
 {% extends "base.html" %}
@@ -9,64 +9,8 @@
 <h2>{{ fixture.base.description }}</h2>
 <h3 style="color:red;">{{ fixture.base.FixtureTime }} start</h3>
 
-{% if participant.WantsToPlay is null %}
-    {% set htext = "has not yet responded" %}
-{% elseif participant.IsPlaying %}
-    {% set htext = "is playing" %}
-{% elseif participant.Isplaying == false %}
-    {% set htext = participant.WantsToPlay == true ? "wants to play" : "can't play" %}
-{% endif %}
 
-<p class="no-space-after"><b>{{ participant.FirstName }} {{ htext }}</b></p>
-
-{% set href = "participantWantsToPlay?fixtureid=%d&userid=%d&WantsToPlay="|
-    format(fixtureid, participant.Userid) %}
-{% if participant.WantsToPlay is null %}
-    <a class="pure-button" href="{{ href }}1">Would like to play</a>
-    <a class="pure-button" href="{{ href }}0">Cannot play</a>
-{% elseif participant.WantsToPlay == true %}
-    <a class="pure-button" href="{{ href }}0">Cannot now play</a>
-{% elseif participant.WantsToPlay == false %}
-    <a class="pure-button" href="{{ href }}1">Would now like to play</a>
-{% endif %}
-
-
-{% if ReactPage %}
-<div id="booking-table"></div> {# React component #}
-<br>
-{% endif %}
-
-
-{% if fixture.players|length >0 %}
-<p class="no-space-after"><b>Playing:</b></p>
-<ol class="lno-space">
-    {% for n in fixture.players %}
-    <li>{{ n.ShortName }}</li>
-    {% endfor %}
-</ol>
-{% endif %}
-
-{% if fixture.reserves|length >0 %}
-    {% if fixture.players|length >0 %}
-    <p class="no-space-after"><b>Reserve:</b></p>
-    {% else %}
-    <p class="no-space-after"><b>Wants to play:</b></p>
-    {% endif %}
-    <ol class="lno-space">
-    {% for n in fixture.reserves %}
-    <li>{{ n.ShortName }}</li>
-    {% endfor %}
-    </ol>
-{% endif %}
-
-{% if fixture.decliners|length >0 %}
-<p class="no-space-after"><b>Can't play:</b></p>
-<ol class="lno-space">
-    {% for n in fixture.decliners %}
-    <li>{{ n.ShortName }}</li>
-    {% endfor %}
-</ol>
-{% endif %}
+<div id="user-input"></div> {# React component #}
 
 {% if fixture.inBookingWindow >= 0 %}
     {% if fixture.bookings|length >1 %}
@@ -116,20 +60,20 @@
 <br><br>
 
 
-{% if ReactPage %}
 <script type="text/babel">
 
+{{ include('UserInput.jsx') }}
+{{ include('WantsToPlay.jsx') }}
+{{ include('PlayerList.jsx') }}
 {{ include('BookingTable.jsx') }}
 
-const container = document.getElementById('booking-table');
+const container = document.getElementById('user-input');
 const root = ReactDOM.createRoot(container);
 
-root.render(<BookingTable 
-    name = "{{ participant.FirstName }}"
+root.render(<UserInput 
     fixtureid = "{{ fixtureid }}"
     userid = "{{ userid }}" />);
 
 </script>
-{% endif %}
 
 {% endblock %}

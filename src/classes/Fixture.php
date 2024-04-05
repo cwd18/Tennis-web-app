@@ -61,11 +61,11 @@ class Fixture
         // Return +1 if the current time is later than the booking window
         // The booking window is the week before 07:30 on the fixture data
         $fixtureDate = $this->base['FixtureDate'];
-        $bookingTime = "07:30";
-        $bookingDt2 = strtotime($fixtureDate . " " . $bookingTime);
+        $london = new \DateTimeZone('Europe/London');
+        $bookingTimeEnd = new \DateTime("$fixtureDate 07:30", $london);
+        $bookingDt2 = $bookingTimeEnd->getTimestamp();
         $bookingDt1 = $bookingDt2 - 7 * 24 * 60 * 60; // 7 days earlier
-        $now = new \DateTime();
-        $now->setTimezone(new \DateTimeZone('Europe/London'));
+        $now = new \DateTime("now", $london);
         $nowDt = $now->getTimestamp();
         if ($nowDt < $bookingDt1) {
             $r = -1;
@@ -399,6 +399,47 @@ class Fixture
         return $courts;
     }
 
+    public function getPlayerLists() : array
+    {
+        // Get players...
+        $sql="SELECT DISTINCT Users.Userid, ShortName, AcceptTime, CourtsBooked
+        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE FixtureParticipants.Fixtureid = :Fixtureid 
+        AND IsPlaying = TRUE
+        ORDER BY CourtsBooked DESC, AcceptTime, ShortName;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        $playerLists['players'] = $stmt->fetchall(\PDO::FETCH_ASSOC);
+
+        // Get people who have accepted but not marked to play...
+        $sql="SELECT DISTINCT Users.Userid, ShortName, AcceptTime, CourtsBooked
+        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE FixtureParticipants.Fixtureid = :Fixtureid 
+        AND IsPlaying = FALSE AND WantsToPlay = TRUE
+        ORDER BY CourtsBooked DESC, AcceptTime, ShortName";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        $playerLists['reserves'] = $stmt->fetchall(\PDO::FETCH_ASSOC);
+
+        // Get decliners...
+        $sql="SELECT Users.Userid, ShortName
+        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE Fixtureid = :Fixtureid 
+        AND WantsToPlay = FALSE
+        ORDER BY ShortName;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        $playerLists['decliners'] = $stmt->fetchall(\PDO::FETCH_ASSOC);
+        
+        // Get abstainers (people who haven't responded to invitation)...
+        $sql="SELECT Users.Userid,ShortName
+        FROM Users, FixtureParticipants
+        WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
+        AND WantsToPlay IS NULL
+        ORDER BY ShortName;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        $playerLists['abstainers'] = $stmt->fetchall(\PDO::FETCH_ASSOC);
+
+        return $playerLists;
+    }
+
     public function getFixtureData() : array
     {
         // Get fixture data for display
@@ -416,41 +457,7 @@ class Fixture
             $adjacentLabel = "Previous";
         }
 
-        // Get players...
-        $sql="SELECT DISTINCT Users.Userid, ShortName, AcceptTime, CourtsBooked
-        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        WHERE FixtureParticipants.Fixtureid = :Fixtureid 
-        AND IsPlaying = TRUE
-        ORDER BY CourtsBooked DESC, AcceptTime, ShortName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
-        $playerList = $stmt->fetchall(\PDO::FETCH_ASSOC);
-
-        // Get people who have accepted but not marked to play...
-        $sql="SELECT DISTINCT Users.Userid, ShortName, AcceptTime, CourtsBooked
-        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        WHERE FixtureParticipants.Fixtureid = :Fixtureid 
-        AND IsPlaying = FALSE AND WantsToPlay = TRUE
-        ORDER BY CourtsBooked DESC, AcceptTime, ShortName";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
-        $reserveList = $stmt->fetchall(\PDO::FETCH_ASSOC);
-
-        // Get decliners...
-        $sql="SELECT Users.Userid, ShortName
-        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
-        WHERE Fixtureid = :Fixtureid 
-        AND WantsToPlay = FALSE
-        ORDER BY ShortName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
-        $declineList = $stmt->fetchall(\PDO::FETCH_ASSOC);
-        
-        // Get abstainers (people who haven't responded to invitation)...
-        $sql="SELECT Users.Userid,ShortName
-        FROM Users, FixtureParticipants
-        WHERE Fixtureid = :Fixtureid AND Users.Userid = FixtureParticipants.Userid
-        AND WantsToPlay IS NULL
-        ORDER BY ShortName;";
-        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
-        $abstainList = $stmt->fetchall(\PDO::FETCH_ASSOC);
+        $playerLists = $this->getPlayerLists();
 
         // Are we in the booking window for this fixture
         $inBookingWindow = $this->inBookingWindow();
@@ -523,8 +530,9 @@ class Fixture
         // return all fixture data
         $fixture = ['base' => $this->base, 
         'adjacentFixtureid' => $adjacentFixtureId, 'adjacentLabel' => $adjacentLabel,
-        'players' => $playerList, 'reserves' => $reserveList, 
-        'decliners' => $declineList,  'abstainers' => $abstainList, 'capacity' => $capacity,
+        'players' => $playerLists['players'], 'reserves' => $playerLists['reserves'], 
+        'decliners' => $playerLists['decliners'],  'abstainers' => $playerLists['abstainers'], 
+        'capacity' => $capacity,
         'inBookingWindow' => $inBookingWindow, 'requestedBookings' =>$requestedBookings,
         'bookings' => $bookingViewGrid];
         return $fixture;

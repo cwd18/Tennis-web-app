@@ -34,12 +34,6 @@ final class ParticipantWantsToPlay
             $f->setWantsNotToPlay($userId);
         }
         $outPath = "/participant?fixtureid=$fixtureId&userid=$userId";
-        if (strcmp($m->sessionRole(),'User') == 0) {
-            $seriesId = $f->getSeriesId();
-            $s = $m->getSeries($seriesId);
-            $index = $s->getFixtureIndex($fixtureId);
-            $outPath = "/participantSeries?seriesid=$seriesId&index=$index";
-        }
         return $response
           ->withHeader('Location', $outPath)
           ->withStatus(302);

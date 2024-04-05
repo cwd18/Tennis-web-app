@@ -134,5 +134,6 @@ $app->get('/api/participants/{fixtureid}', \TennisApp\Action\ApiGetParticipants:
 $app->get('/api/participantData/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantData::class);
 $app->put('/api/participantWantsToPlay/{fixtureid}/{userid}/{value}', \TennisApp\Action\ApiPutParticipantWantsToPlay::class);
 $app->get('/api/participantWantsToPlay/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantWantsToPlay::class);
+$app->get('/api/playerLists/{fixtureid}', \TennisApp\Action\ApiGetPlayerLists::class);
 
 $app->run();
