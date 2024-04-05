@@ -440,34 +440,9 @@ class Fixture
         return $playerLists;
     }
 
-    public function getFixtureData() : array
+    public function getBookingViewGrid() : array
     {
-        // Get fixture data for display
-
-        // Get adjacent fixture
-        $sql = "SELECT Fixtureid FROM Fixtures WHERE Seriesid = :Seriesid
-        ORDER BY FixtureDate DESC LIMIT 2;";
-        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $this->base['Seriesid']]);
-        $latestFixtures = $stmt->fetchall(\PDO::FETCH_ASSOC);
-        if ($latestFixtures[1]['Fixtureid'] == $this->fixtureId) {
-            $adjacentFixtureId = $latestFixtures[0]['Fixtureid'];
-            $adjacentLabel = "Next";
-        } else {
-            $adjacentFixtureId = $latestFixtures[1]['Fixtureid'];
-            $adjacentLabel = "Previous";
-        }
-
-        $playerLists = $this->getPlayerLists();
-
-        // Are we in the booking window for this fixture
-        $inBookingWindow = $this->inBookingWindow();
-
-        // get requested bookings
-        $requestedBookings = $this->getRequestedBookings();
-
-        $capacity = $this->getCapacity();
-        
-        // Get court bookings into grid with columns (court, booking time, bookers)
+        // Get court bookings into grid with 2 or 3 booking time columns and a bookers bookers column)
         $bookingGrid[0][0] = "Court";
         $sql = "SELECT DISTINCT BookingTime FROM CourtBookings 
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid 
@@ -526,6 +501,37 @@ class Fixture
         } else {
             $bookingViewGrid[0][0]="None";
         }
+        return $bookingViewGrid;
+    }
+
+    public function getFixtureData() : array
+    {
+        // Get fixture data for display
+
+        // Get adjacent fixture
+        $sql = "SELECT Fixtureid FROM Fixtures WHERE Seriesid = :Seriesid
+        ORDER BY FixtureDate DESC LIMIT 2;";
+        $stmt = $this->pdo->runSQL($sql,['Seriesid' => $this->base['Seriesid']]);
+        $latestFixtures = $stmt->fetchall(\PDO::FETCH_ASSOC);
+        if ($latestFixtures[1]['Fixtureid'] == $this->fixtureId) {
+            $adjacentFixtureId = $latestFixtures[0]['Fixtureid'];
+            $adjacentLabel = "Next";
+        } else {
+            $adjacentFixtureId = $latestFixtures[1]['Fixtureid'];
+            $adjacentLabel = "Previous";
+        }
+
+        $playerLists = $this->getPlayerLists();
+
+        // Are we in the booking window for this fixture
+        $inBookingWindow = $this->inBookingWindow();
+
+        // get requested bookings
+        $requestedBookings = $this->getRequestedBookings();
+
+        $capacity = $this->getCapacity();
+        
+        $bookingViewGrid = $this->getBookingViewGrid();
 
         // return all fixture data
         $fixture = ['base' => $this->base, 

@@ -57,12 +57,12 @@ If the current time is within the booking window, it includes a React component 
 {% if ReactPage %}
 <script type="text/babel">
 
-{{ include('BookingTable.jsx') }}
+{{ include('UserBookingTable.jsx') }}
 
 const container = document.getElementById('booking-table');
 const root = ReactDOM.createRoot(container);
 
-root.render(<BookingTable 
+root.render(<UserBookingTable 
     name = "{{ participant.FirstName }}"
     fixtureid = "{{ fixtureid }}"
     userid = "{{ userid }}" />);

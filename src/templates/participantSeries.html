@@ -12,28 +12,6 @@
 
 <div id="user-input"></div> {# React component #}
 
-{% if fixture.inBookingWindow >= 0 %}
-    {% if fixture.bookings|length >1 %}
-        <p class="no-space-after"><b>Booked courts...</b>
-        <table class="pure-table">
-        {% for key, r in fixture.bookings %}
-        {% if key == 0 %}<thead>{% endif %}
-        <tr>
-        {% for c in r %}
-        {% if key == 0 %}
-            <th>{{ c }}</th>
-        {% else %}
-            <td>{{ c }}</td>
-        {% endif %}
-        {% endfor %}
-        {% if key == 0 %}</thead>{% endif %}
-        {% endfor %}
-        </table>
-    {% else %}
-        No bookings<br>
-    {% endif %}
-{% endif %}
-
 {% if fixture.inBookingWindow < 0 %}
 {% if fixture.requestedBookings|length > 0 %}
 <p class="no-space-after"><b>Booking for 7:30 on {{ fixture.base.bookingDate }}:</b></p>
@@ -65,7 +43,8 @@
 {{ include('UserInput.jsx') }}
 {{ include('WantsToPlay.jsx') }}
 {{ include('PlayerList.jsx') }}
-{{ include('BookingTable.jsx') }}
+{{ include('UserBookingTable.jsx') }}
+{{ include('BookedCourts.jsx') }}
 
 const container = document.getElementById('user-input');
 const root = ReactDOM.createRoot(container);
