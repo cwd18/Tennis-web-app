@@ -443,21 +443,26 @@ class Fixture
     public function getBookingViewGrid() : array
     {
         // Get court bookings into grid with 2 or 3 booking time columns and a bookers bookers column)
-        $bookingGrid[0][0] = "Court";
-        $sql = "SELECT DISTINCT BookingTime FROM CourtBookings 
+        
+        $bookingGrid[0][0] = "Court"; // first column is court number
+
+        // Get booking times - should be 1, 2 or 3
+        $sql = "SELECT DISTINCT LEFT(BookingTime,5) AS BookingTime FROM CourtBookings 
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid 
         ORDER BY BookingTime;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
+        // Create first row of column headings
         $c=1;
         foreach ($rows as $row) {
-            $bookingGrid[0][$c] = substr($row['BookingTime'],0,5);
+            $bookingGrid[0][$c] = $row['BookingTime'];
             $c++;
         }
         $bookersColumn=$c;
         $bookingGrid[0][$bookersColumn]="Bookers";
 
+        // Get court numbers and populate first column
         $sql="SELECT DISTINCT CourtNumber FROM CourtBookings 
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid ORDER BY CourtNumber;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
@@ -465,11 +470,14 @@ class Fixture
         $r=1;
         foreach ($rows as $row) {
             $bookingGrid[$r][0] = $row['CourtNumber'];
-            for ($c=1;$c<=$bookersColumn;$c++) {$bookingGrid[$r][$c] = "-";}
+            for ($c = 1; $c <= $bookersColumn; $c++) {
+                $bookingGrid[$r][$c] = "-";} // initialise cells to '-'
             $r++;
         }
+        $numRows = $r;
 
-        $sql = "SELECT ShortName, CourtNumber, BookingTime FROM Users
+        // populate grid with bookings and add bookers to bookers column
+        $sql = "SELECT ShortName, CourtNumber, LEFT(BookingTime,5) AS BookingTime FROM Users
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid 
         ORDER BY CourtNumber, BookingTime;";
@@ -478,21 +486,25 @@ class Fixture
         if (count($rows) > 0) {
             foreach ($rows as $row) {
                 $name = $row['ShortName'];
-                for ($r=1;$bookingGrid[$r][0]!=$row['CourtNumber'];$r++) {} // match grid row
-                for ($c=1;$bookingGrid[0][$c]!=substr($row['BookingTime'],0,5);$c++) {} // match grid column
+                for ($r = 1 ; $r < $numRows; $r++) { // match grid row
+                    if ($bookingGrid[$r][0] == $row['CourtNumber']) {break;}
+                } 
+                for ($c = 1; $c < $bookersColumn; $c++) {  // match grid column
+                    if (strcmp($bookingGrid[0][$c], $row['BookingTime']) == 0) {break;}
+                }
                 $bookingGrid[$r][$c] = $row['CourtNumber'];
-                if ($bookingGrid[$r][$bookersColumn]=="-") {
+                if ($bookingGrid[$r][$bookersColumn] == '-') {
                     $bookingGrid[$r][$bookersColumn] = $name;
                 } else {
                     $names = explode(", ", $bookingGrid[$r][$bookersColumn]);
-                    if (strcmp($names[count($names) - 1],$name) != 0) {
+                    if (strcmp($names[count($names) - 1], $name) != 0) {
                         $bookingGrid[$r][$bookersColumn] = $bookingGrid[$r][$bookersColumn].", ".$name;
                     } else {
                         $bookingGrid[$r][$bookersColumn] = $bookingGrid[$r][$bookersColumn]." (2)";
                     }
                 }
             }
-            // remove the first column from the grid as it isn't wanted for display
+            // remove the first column from the grid as it isn't required for display
             for ($r=0; $r < count($bookingGrid); $r++) {
                 for ($c = 1; $c <= $bookersColumn; $c++) {
                     $bookingViewGrid[$r][$c-1] = $bookingGrid[$r][$c];
