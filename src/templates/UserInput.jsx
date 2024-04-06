@@ -12,16 +12,12 @@ function UserInput({fixtureid, userid}) {
     const getPlayerLists = () => {
         fetch('/api/playerLists/' + fixtureid)
         .then(response => response.json())
-        .then(response => {
-            setPlayerLists(response);
-        });
+        .then(setPlayerLists);
     }
     const getBookingViewGrid = () => {
         fetch('/api/bookingViewGrid/' + fixtureid)
         .then(response => response.json())
-        .then(response => {
-            setBookings(response);
-        });
+        .then(setBookings);
     }
     React.useEffect(() => {
         fetch('/api/participantData/' + fixtureid +'/' + userid)
@@ -40,8 +36,7 @@ function UserInput({fixtureid, userid}) {
         const resetIndex = index == 0 ? 1 : 0;
         const newBookingData = bookingData.map((item, i) => {
             if (i === index) {
-                return { ...item, court: Number(value) };
-            }
+                return { ...item, court: Number(value) };}
             return item;
         });
         const numCourtsSet = newBookingData.filter(item => item.court != 0).length;
@@ -56,7 +51,8 @@ function UserInput({fixtureid, userid}) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(bookings),
-        }).then(getBookingViewGrid());
+        })
+        .then(getBookingViewGrid());
     };
 
     const handleWantsToPlayChange = (value) => {
