@@ -7,20 +7,32 @@ function UserInput({fixtureid, userid}) {
     const getUserBookingTable = () => {
         fetch('/api/participantBookings/' + fixtureid + '/' + userid)
         .then(response => response.json())
-        .then(setBookingData);
+        .then(response => setBookingData(response));
     }
     const getPlayerLists = () => {
-        fetch('/api/playerLists/' + fixtureid)
+        fetch('/api/playerLists/' + fixtureid, {
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
         .then(response => response.json())
-        .then(setPlayerLists);
+        .then(response => setPlayerLists(response));
     }
     const getBookingViewGrid = () => {
-        fetch('/api/bookingViewGrid/' + fixtureid)
+        fetch('/api/bookingViewGrid/' + fixtureid, {
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
         .then(response => response.json())
-        .then(setBookings);
+        .then(response => setBookings(response));
     }
     React.useEffect(() => {
-        fetch('/api/participantData/' + fixtureid +'/' + userid)
+        fetch('/api/participantData/' + fixtureid +'/' + userid, {
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
         .then(response => response.json())
         .then(response => {
             setParticipantData(response);
@@ -52,7 +64,7 @@ function UserInput({fixtureid, userid}) {
             },
             body: JSON.stringify(bookings),
         })
-        .then(getBookingViewGrid());
+        .then(() => getBookingViewGrid());
     };
 
     const handleWantsToPlayChange = (value) => {
@@ -85,7 +97,7 @@ function UserInput({fixtureid, userid}) {
             <PlayerList players={playerLists.reserves} label="Wants to play" />
             <PlayerList players={playerLists.decliners} label="Can't play" />
 
-            <BookedCourts bookings={bookings} />
+            {(inBookingWindow == 0) && <BookedCourts bookings={bookings} />}
         </div>
     );
 }
