@@ -3,7 +3,7 @@ function WantsToPlay({name, wantsToPlay, handleWantsToPlayChange}) {
         return (
             <div>
                 <p className="no-space-after"><b>{name} has not yet responded</b></p>
-                <button className="pure-button"
+                <button className="pure-button button-margin-right" 
                 onClick={() => handleWantsToPlayChange('Yes')}
                 >Wants to play</button>
                 <button className="pure-button"
