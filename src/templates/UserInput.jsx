@@ -7,32 +7,20 @@ function UserInput({fixtureid, userid}) {
     const getUserBookingTable = () => {
         fetch('/api/participantBookings/' + fixtureid + '/' + userid)
         .then(response => response.json())
-        .then(response => setBookingData(response));
+        .then(setBookingData);
     }
     const getPlayerLists = () => {
-        fetch('/api/playerLists/' + fixtureid, {
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
+        fetch('/api/playerLists/' + fixtureid)
         .then(response => response.json())
-        .then(response => setPlayerLists(response));
+        .then(setPlayerLists);
     }
     const getBookingViewGrid = () => {
-        fetch('/api/bookingViewGrid/' + fixtureid, {
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
+        fetch('/api/bookingViewGrid/' + fixtureid)
         .then(response => response.json())
-        .then(response => setBookings(response));
+        .then(setBookings);
     }
     React.useEffect(() => {
-        fetch('/api/participantData/' + fixtureid +'/' + userid, {
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
+        fetch('/api/participantData/' + fixtureid +'/' + userid,)
         .then(response => response.json())
         .then(response => {
             setParticipantData(response);
@@ -64,7 +52,7 @@ function UserInput({fixtureid, userid}) {
             },
             body: JSON.stringify(bookings),
         })
-        .then(() => getBookingViewGrid());
+        .then(getBookingViewGrid);
     };
 
     const handleWantsToPlayChange = (value) => {
@@ -76,7 +64,7 @@ function UserInput({fixtureid, userid}) {
                 'Content-Type': 'application/json'
             },
         })
-        .then(getPlayerLists());
+        .then(getPlayerLists);
     };
 
     const {inBookingWindow, FirstName} = participantData;
