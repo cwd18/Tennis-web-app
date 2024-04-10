@@ -156,7 +156,7 @@ class Fixture
         return $row['WantsToPlay']; // null, zero, or one
     }
     
-    public function getCourtsBooked($userId) : ?int
+    private function getCourtsBooked($userId) : ?int
     {
         // Return the value of the CourtsBooked column, which remembers the highest number of courts booked
         $sql = "SELECT CourtsBooked FROM FixtureParticipants
@@ -171,7 +171,7 @@ class Fixture
         // has booked more courts than the current value
         $count = $this->countParticipantBookings($userId, 'Booked');
         $courtsBooked = $this->getCourtsBooked($userId);
-        if ($courtsBooked == null or $courtsBooked < $count) {
+        if ($courtsBooked < $count) {
             $sql = "UPDATE FixtureParticipants SET CourtsBooked = :val 
             WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
             $this->pdo->runSQL($sql, ['val' => $count, 'Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
@@ -229,7 +229,8 @@ class Fixture
     public function setWantsToPlay($userIds)
     {
         // Set participant(s) to want to play and update AcceptTime to current time if NULL
-        $dateTimeNow = date("Y-m-d H:i:s");
+        $now = new \DateTime("now", new \DateTimeZone('Europe/London'));
+        $dateTimeNow = $now->format("Y-m-d H:i:s");
         $sql = "UPDATE FixtureParticipants SET WantsToPlay = TRUE,
         AcceptTime = CASE
             WHEN AcceptTime IS NULL THEN :DTnow
@@ -416,7 +417,7 @@ class Fixture
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE FixtureParticipants.Fixtureid = :Fixtureid 
         AND IsPlaying = FALSE AND WantsToPlay = TRUE
-        ORDER BY CourtsBooked DESC, AcceptTime, ShortName";
+        ORDER BY CourtsBooked DESC, AcceptTime, ShortName;";
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $playerLists['reserves'] = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
