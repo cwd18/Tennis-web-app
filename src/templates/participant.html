@@ -1,73 +1,37 @@
-{# For the Admin and Owner role, this provides the participant's view 
-If the current time is within the booking window, it includes a React component #}
 {% set fixtureid = fixture.base.Fixtureid %}
 {% set userid = participant.Userid %}
-{% set ReactPage = (fixture.inBookingWindow == 0) %}
+{% set ReactPage = true %}
+
 
 {% extends "base.html" %}
 {% block content %}
 
-
-{% if participant.WantsToPlay is null %}
-    {% set htext = "has not yet responded" %}
-{% elseif participant.IsPlaying %}
-    {% set htext = "is playing" %}
-{% elseif participant.Isplaying == false %}
-    {% set htext = participant.WantsToPlay == true ? "wants to play" : "can't play" %}
-{% endif %}
+<h2>{{ fixture.base.description }}</h2>
+<h3 style="color:red;">{{ fixture.base.FixtureTime }} start</h3>
 
 
-<h2>{{ participant.FirstName }} {{ participant.LastName }} {{ htext }}</h2> 
-<p>{{ fixture.base.shortDate }} at {{ fixture.base.FixtureTime }}</p>
+<div id="user-input"></div> {# React component #}
 
-
-{% set href = "participantWantsToPlay?fixtureid=%d&userid=%d&WantsToPlay="|
-    format(fixtureid, participant.Userid) %}
-{% if participant.WantsToPlay is null %}
-    <a class="pure-button" href="{{ href }}1">Would like to play</a>
-    <a class="pure-button" href="{{ href }}0">Cannot play</a>
-{% elseif participant.WantsToPlay == true %}
-    <a class="pure-button" href="{{ href }}0">Cannot now play</a>
-{% elseif participant.WantsToPlay == false %}
-    <a class="pure-button" href="{{ href }}1">Would now like to play</a>
-{% endif %}
-
-<br>
-{% if ReactPage %}
-    <div id="booking-table"></div> {# React component #}
-{% else %}
-    {% if bookings|length >0 %}
-    <br><br><b>Courts booked</b><br>
-    <table class="pure-table"><thead><tr><th>Time</th><th>Court</th></tr></thead><tbody>
-    {% for bk, b in bookings %}
-    <tr>
-    <td>{{ b.BookingTime }}</td>
-    <td>{{ b.CourtNumber }}</td>
-    </tr>
-    {% endfor %}
-    </tbody></table>
-    {% endif %}
-    <br>
-{% endif %}
 
 <br>
 <a class="pure-button" href="fixture?fixtureid={{ fixtureid }}">Back to fixture</a>
 <br><br>
 
-{% if ReactPage %}
 <script type="text/babel">
 
+{{ include('UserInput.jsx') }}
+{{ include('WantsToPlay.jsx') }}
+{{ include('PlayerList.jsx') }}
 {{ include('UserBookingTable.jsx') }}
+{{ include('BookedCourts.jsx') }}
 
-const container = document.getElementById('booking-table');
+const container = document.getElementById('user-input');
 const root = ReactDOM.createRoot(container);
 
-root.render(<UserBookingTable 
-    name = "{{ participant.FirstName }}"
+root.render(<UserInput 
     fixtureid = "{{ fixtureid }}"
     userid = "{{ userid }}" />);
 
 </script>
-{% endif %}
-
+    
 {% endblock %}
