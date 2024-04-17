@@ -28,7 +28,8 @@ public function __invoke(Request $request, Response $response, array $args): Res
         $u = $m->getUsers();
         $participantData = $u->getUserData($userId);
         $f = $m->getFixture($fixtureId);
-        $inBookingWindow = $f->inBookingWindow();
+        $inBookingWindow = $f->inBookingWindow(); 
+        $base = $f->getBasicFixtureData(); 
         $r = $f->getWantsToPlay($userId);
         if (is_null($r)) {
             $wantsToPlay = 'Unknown';
@@ -37,6 +38,7 @@ public function __invoke(Request $request, Response $response, array $args): Res
         }
         $participantData['wantsToPlay'] = $wantsToPlay;
         $participantData['inBookingWindow'] = $inBookingWindow;
+        $participantData['bookingDateYmd'] = $base['bookingDateYmd'];
         $response->getBody()->write(json_encode($participantData));        
         return $response->withHeader('Content-Type', 'HTML/json');
     }

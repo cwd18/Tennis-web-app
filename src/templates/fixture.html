@@ -88,7 +88,7 @@
 
 {% if inBookingWindow >= 0 %}
     {% if bookings|length >1 %}
-    <p class="no-space-after"><b>Booked courts...</b></p>
+    <p class="no-space-after"><b>Booked courts</b></p>
         {% for key, num in capacity %}
            {{ key }} start: {{ num * 4 }} places<br>
         {% endfor %}
@@ -118,9 +118,9 @@
     <a class="pure-button" href="fixtureCreateRequests?fixtureid={{ fixtureid }}">{{ verb }} booking requests</a>
     <br>
 {% else %}
-    {% if inBookingWindow < 0 %}
+    {% if inBookingWindow > 0 %} {# If fixture is in the past #}
     {% if requestedBookings|length > 0 %}
-    <p class="no-space-after"><b>Booking for 7:30 on {{ fixture.base.bookingDate }}:</b></p>
+    <p class="no-space-after"><b>Booking requests</b></p>
     <table class="pure-table">
         <thead><th>Time</th><th>Court</th><th>Booker</th></tr></thead>
         {% for r in requestedBookings %}
@@ -162,6 +162,7 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
 <script type="text/babel">
 
     {{ include('BookingRequestsTable.jsx') }}
+    {{ include('CountdownTimer.jsx') }}
     
     fetch('/api/participants/{{ fixtureid }}')
     .then(response => response.json())
@@ -172,7 +173,7 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
         root.render(<BookingRequestsTable 
             fixtureid='{{ fixtureid }}'
             users={response} 
-            bookingDate='{{ base.bookingDate }}' />);
+            bookingDate='{{ base.bookingDateYmd }}' />);
     })
 
 </script>

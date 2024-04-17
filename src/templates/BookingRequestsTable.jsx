@@ -2,7 +2,7 @@ function BookingRequestsTable({ fixtureid, users, bookingDate }) {
     const [bookingData, setBookingData] = React.useState([]);
     const bookingDataUserids = bookingData.map(item => item.userid);
     React.useEffect(() => {
-        fetch('/api/bookingRequests/' + fixtureid )
+        fetch('/api/bookingRequestsTable/' + fixtureid )
         .then(response => response.json())
         .then(setBookingData);
     }, []);
@@ -31,7 +31,8 @@ function BookingRequestsTable({ fixtureid, users, bookingDate }) {
 
     return (
         <div>
-            <p className="no-space-after"><b>Booking for 7:30 on {bookingDate}:</b></p>
+            <p className="no-space-after"><b>Court booking </b></p>
+            <CountdownTimer label='Time to book: ' targetDateStr={bookingDate + ' 07:30'} />
             <table className="pure-table">
                 <thead>
                     <tr>

@@ -28,7 +28,9 @@ class Fixture
         $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
         $this->base = $stmt->fetch(\PDO::FETCH_ASSOC);
         $fixtureDt = strtotime($this->base['FixtureDate']);
-        $this->base['bookingDate'] = date("l jS", strtotime('-1 week', $fixtureDt));
+        $bookingDt = $fixtureDt - 7 * 24 * 60 * 60; // 7 days earlier
+        $this->base['bookingDate'] = date("l jS", $bookingDt);
+        $this->base['bookingDateYmd'] = date("Y-m-d", $bookingDt);
         $this->base['description'] = date("l jS \of F Y", $fixtureDt);
         $this->base['shortDate'] = date("l jS", $fixtureDt);
 

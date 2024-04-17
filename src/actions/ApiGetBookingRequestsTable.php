@@ -1,5 +1,5 @@
 <?php
-# Return booking requests given fixtureid 
+# Return booking requests table given fixtureid 
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class ApiGetBookingRequests
+final class ApiGetBookingRequestsTable
 {
     private $container;
 
@@ -25,8 +25,8 @@ public function __invoke(Request $request, Response $response, array $args): Res
             return $response;
         }
         $f = $m->getFixture($fixtureId);
-        $result = $f->getRequestedBookings();
-        $response->getBody()->write(json_encode($result));        
+        $table = $f->getBookingRequestsTable();
+        $response->getBody()->write(json_encode($table));        
         return $response->withHeader('Content-Type', 'application/json');
     }
 }

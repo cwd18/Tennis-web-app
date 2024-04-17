@@ -4,23 +4,34 @@ function UserInput({fixtureid, userid}) {
     const [playerLists, setPlayerLists] = React.useState([]);
     const [bookings, setBookings] = React.useState([]);
     const [bookingData, setBookingData] = React.useState([]);
+    const [bookingRequests, setBookingRequests] = React.useState([]);
+
     const getUserBookingTable = () => {
         fetch('/api/participantBookings/' + fixtureid + '/' + userid)
         .then(response => response.json())
         .then(setBookingData);
     }
+
     const getPlayerLists = () => {
         fetch('/api/playerLists/' + fixtureid)
         .then(response => response.json())
         .then(setPlayerLists);
     }
+
     const getBookingViewGrid = () => {
         fetch('/api/bookingViewGrid/' + fixtureid)
         .then(response => response.json())
         .then(setBookings);
     }
+
+    const getBookingRequests = () => {
+        fetch('/api/bookingRequests/' + fixtureid)
+        .then(response => response.json())
+        .then(setBookingRequests);
+    }
+    
     React.useEffect(() => {
-        fetch('/api/participantData/' + fixtureid +'/' + userid,)
+        fetch('/api/participantData/' + fixtureid +'/' + userid)
         .then(response => response.json())
         .then(response => {
             setParticipantData(response);
@@ -29,6 +40,7 @@ function UserInput({fixtureid, userid}) {
         getUserBookingTable();
         getPlayerLists();
         getBookingViewGrid();
+        getBookingRequests();
     }, []);
 
     const handleCourtChange = (event, index) => {
@@ -67,7 +79,7 @@ function UserInput({fixtureid, userid}) {
         .then(getPlayerLists);
     };
 
-    const {inBookingWindow, FirstName} = participantData;
+    const {inBookingWindow, bookingDateYmd, FirstName} = participantData;
     if (wantsToPlay === undefined) return null;
     return (
         <div>
@@ -86,6 +98,7 @@ function UserInput({fixtureid, userid}) {
             <PlayerList players={playerLists.decliners} label="Can't play" />
 
             {(inBookingWindow == 0) && <BookedCourts bookings={bookings} />}
+            {(inBookingWindow < 0) && <BookingRequests bookingRequests={bookingRequests} bookingDate={bookingDateYmd} />}
         </div>
     );
 }
