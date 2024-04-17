@@ -650,7 +650,9 @@ class Fixture
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
         // Add the new requests
         foreach ($bookingRequests as $request) {
-            $this->addCourtBooking($request['userid'], $request['time'], $request['court'], 'Request');
+            if ($request['userid'] != 0) {
+                $this->addCourtBooking($request['userid'], $request['time'], $request['court'], 'Request');
+            }   
         }
     }
 
