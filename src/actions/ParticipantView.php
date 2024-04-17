@@ -30,6 +30,9 @@ final class ParticipantView
             return $view->render($response, 'error.html', ['error' => $error]);}
         $fixture = $f->getFixtureData();
         $u = $f->getParticipantData($userId);
+        $server = $m->getServer();
+        $token = $m->getTokens()->getOrCreateToken($userId, 'User', $seriesId);
+        $u['SeriesLink'] = "$server/start/$token";
         $bookings = $f->getParticipantBookings($userId, 'Booked');
         return $view->render($response, 'participant.html', 
         ['fixture' => $fixture, 'participant' => $u, 'bookings' => $bookings]);   
