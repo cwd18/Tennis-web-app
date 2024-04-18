@@ -43,7 +43,9 @@ final class Start
 
         if (strcmp($role, 'User') == 0) {
             $seriesId = $row['Otherid'];
-            $route = "/participantSeries?seriesid=$seriesId&index=1";
+            $daysToNextFixture = $m->getSeries($seriesId)->getDaysToNextFixture();
+            $index = $daysToNextFixture > 1 ? 0 : 1; // show the next fixture if it's more than 1 day away, otherwise show the latest fixture
+            $route = "/participantSeries?seriesid=$seriesId&index=$index";
         } elseif (strcmp($role, 'Owner') == 0) {
             $seriesId = $row['Otherid'];
             $route = "/series?seriesid=$seriesId";

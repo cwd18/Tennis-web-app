@@ -96,6 +96,14 @@ class Series
         return date("y-m-d", $nextFixtureDt);
     }
 
+    public function getDaysToNextFixture() : int
+    {
+        // Get the number of days to the next fixture, including today's fixture
+        $nextFixtureDate = $this->getNextFixtureDate();
+        $todayDate = date('Y-m-d');
+        return (int)((strtotime($nextFixtureDate) - strtotime($todayDate)) / 86400);
+    }
+
     public function countFutureFixtures() : int
     {
         $todayDate = date('Y-m-d');
