@@ -137,5 +137,6 @@ $app->put('/api/participantWantsToPlay/{fixtureid}/{userid}/{value}', \TennisApp
 $app->get('/api/participantWantsToPlay/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantWantsToPlay::class);
 $app->get('/api/playerLists/{fixtureid}', \TennisApp\Action\ApiGetPlayerLists::class);
 $app->get('/api/bookingViewGrid/{fixtureid}', \TennisApp\Action\ApiGetBookingViewGrid::class);
+$app->get('/api/getEmailList/{fixtureid}', \TennisApp\Action\ApiGetEmailList::class);
 
 $app->run();

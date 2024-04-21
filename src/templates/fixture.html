@@ -137,7 +137,17 @@
     {% endif %}
 {% endif %}
 
+<br><br>
+<button class="pure-button" id="copyCliboardButton">Copy emails to clipboard</button>
 
+<script>
+    function copyEmailsToClipboard() {
+        fetch('/api/getEmailList/{{ fixtureid }}')
+        .then(response => response.text())
+        .then(response => navigator.clipboard.writeText(response));
+    }
+    document.getElementById("copyCliboardButton").addEventListener('click', copyEmailsToClipboard);
+</script>
 
 {% set emailSubject = base.InvitationsSent ? 'booking requests' : 'invitations' %}
 
@@ -154,6 +164,8 @@
 <br><br>
 <a class="pure-button" 
 href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">Delete fixture</a>
+
+
 {% endif %}
 
 <br><br><br><br>

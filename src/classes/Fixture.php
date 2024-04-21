@@ -773,4 +773,20 @@ class Fixture
     return $capacity;
     }
 
+    public function getEmailList() : string
+    {
+        // Return a comma separated list of email addresses for all participants
+        $sql = "SELECT FirstName, LastName, EmailAddress FROM Users 
+        JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE Fixtureid = :Fixtureid;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
+        $emails = "";
+        foreach ($rows as $row) {
+            $emails .= $row['FirstName'] . ' ' . $row['LastName'] . ' <' . $row['EmailAddress'] . '>, ';
+        }
+        $emails = substr($emails, 0, -2); // remove trailing comma and space 
+        return $emails;
+    }
+
 }
