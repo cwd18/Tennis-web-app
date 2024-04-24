@@ -1,0 +1,13 @@
+<p>Hi {{ to.FirstName }}</p>
+
+<p>You said you would like to play on {{ base.shortDate }}</p>
+
+<p>To see the latest status, please follow <a href = "{{ server }}/start/{{ to.Token }}">your personal link</a></p>
+
+{% if altmessage %}
+Link: {{ server }}/start/{{ to.Token }}
+{% endif %}
+
+<p>Regards,</p>
+
+<p>{{ base.OwnerFirstName }}</p>

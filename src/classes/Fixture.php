@@ -705,6 +705,17 @@ class Fixture
         return $stmt->fetchall(\PDO::FETCH_ASSOC);
     }
     
+    public function getUpdateRecipients() : array
+    {
+        // Get recipient list for creating update emails
+        $sql="SELECT Users.Userid, FirstName, LastName, EmailAddress
+        FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        WHERE WantsToPlay = TRUE AND Fixtureid = :Fixtureid
+        ORDER BY FirstName, LastName;";
+        $stmt = $this->pdo->runSQL($sql,['Fixtureid' => $this->fixtureId]);
+        return $stmt->fetchall(\PDO::FETCH_ASSOC);
+    }
+
     public function setInvitationsSent()
     {
         $sql = "UPDATE Fixtures SET InvitationsSent = TRUE WHERE Fixtureid = :Fixtureid;";

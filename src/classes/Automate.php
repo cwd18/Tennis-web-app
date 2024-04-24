@@ -7,6 +7,7 @@ class Automate
 {
     public const EMAIL_INVITATION = 0;
     public const EMAIL_BOOKING = 1;
+    public const EMAIL_UPDATE = 2;
 
     public function runAutomation(Model $m)
     {
@@ -14,8 +15,6 @@ class Automate
         $eventLog = $m->getEventLog();
 
         $todayWeekday = date('N') - 1; // 0 for Monday, 6 for Sunday
-        $tomorrowWeekday = ($todayWeekday + 1) % 7;
-
         $eventLog->write("Day $todayWeekday automation starting");
 
         $seriesList = $m->getSeriesList()->getAllSeries();
@@ -26,20 +25,26 @@ class Automate
             $eventLog->write(sprintf("Processing series %s (%s)", $seriesId, $series['description']));
             $s->ensure2FutureFixtures();
             if ($series['AutoEmail']) {
-                $fixtureId = $s->latestFixture();
-                $weekday = $series['SeriesWeekday'];
-                if ($todayWeekday == $weekday) {
+                $fixtureId = $s->getFixtureNumDaysAhead(8);
+                if ($fixtureId != 0) {
+                    $eventLog->write("Sending invitation emails for series $seriesId");
+                    $this->sendEmails($m, $fixtureId, Automate::EMAIL_INVITATION);
+                }
+                $fixtureId = $s->getFixtureNumDaysAhead(7);
+                if ($fixtureId != 0) {
                     $eventLog->write("Sending court booking emails for series $seriesId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_BOOKING);
                 }
-                if ($tomorrowWeekday == $weekday) {
-                    $eventLog->write("Sending invitation emails for series $seriesId");
-                    $this->sendEmails($m, $fixtureId, Automate::EMAIL_INVITATION);
+                $fixtureId = $s->getFixtureNumDaysAhead(2);
+                if ($fixtureId != 0) {
+                    $eventLog->write("Sending update emails for series $seriesId");
+                    $this->sendEmails($m, $fixtureId, Automate::EMAIL_UPDATE);
                 }
             }
         }
         $eventLog->write("Day $todayWeekday automation completed");
     }
+
 
     public function sendEmails(Model $m, int $fixtureId, int $emailType)
     {
@@ -60,6 +65,10 @@ class Automate
             $subject = "Book a court for " . $base['shortDate'];
             $twigFile = 'emailBookingBase.html';
             $base['requests'] = $f->getRequestedBookings();
+        } else if ($emailType == Automate::EMAIL_UPDATE){
+            $recipients = $f->getUpdateRecipients();
+            $subject = "Tennis " . $base['shortDate'] . " update";
+            $twigFile = 'emailUpdate.html';
         } else {
             throw new \Exception("Unknown email type");
         }

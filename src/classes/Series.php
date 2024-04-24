@@ -52,9 +52,19 @@ class Series
         // Get past fixtures...
         $pastFixtures = $this->getPastFixtures(8);
 
+        // Determine if an email should be sent today...
+        $email ="No email should be sent today";
+        if ($this->getFixtureNumDaysAhead(8) != 0) {
+            $email ="Invitation email should be sent today";
+        } else if ($this->getFixtureNumDaysAhead(7) != 0) {
+            $email ="Booking reminder email should be sent today";
+        } else if($this->getFixtureNumDaysAhead(2) != 0) {
+            $email ="Update email should be sent today";
+        }
+
         // return all series data
         $seriesData = ['seriesid' => $seriesId, 'base' => $this->base, 'participants' => $users, 
-         'pastFixtures' => $pastFixtures, 'next2fixtures' => $next2Fixtures];
+         'pastFixtures' => $pastFixtures, 'next2fixtures' => $next2Fixtures, 'email' => $email];
         return $seriesData;
     }
 
@@ -94,6 +104,19 @@ class Series
         $dayname = $this->base['dayname'];
         $nextFixtureDt = strtotime("next $dayname", strtotime("-1 days")); // start from yesterday to include today
         return date("y-m-d", $nextFixtureDt);
+    }
+
+    public function getFixtureNumDaysAhead($numDays) : int
+    {
+        // If there is a fixture numDays ahead, return the fixtureid, otherwise return 0
+        $targetDate = date('Y-m-d', strtotime("+$numDays days", strtotime(date('Y-m-d'))));
+        $sql = "SELECT Fixtureid FROM Fixtures 
+        WHERE Seriesid = :Seriesid AND FixtureDate = :targetDate;"; 
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('targetDate', $targetDate, \PDO::PARAM_STR);
+        $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
+        $stmt->execute();
+        return (int)$stmt->fetchColumn(); // returns 0 if no fixture
     }
 
     public function getDaysToNextFixture() : int
