@@ -97,7 +97,7 @@ function UserInput({fixtureid, userid}) {
             <PlayerList players={playerLists.reserves} label="Wants to play" />
             <PlayerList players={playerLists.decliners} label="Can't play" />
 
-            {(inBookingWindow > 0) && <BookedCourts bookings={bookings} />}
+            {(inBookingWindow >= 0) && <BookedCourts bookings={bookings} />}
             {(inBookingWindow < 0) && <BookingRequests bookingRequests={bookingRequests} bookingDate={bookingDateYmd} />}
         </div>
     );

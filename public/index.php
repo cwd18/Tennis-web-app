@@ -12,6 +12,10 @@ use TennisApp\Model;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Google\Cloud\Logging\LoggingClient;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Routing\RouteContext;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -32,6 +36,25 @@ $app = AppFactory::create();
 
 // Parse json, form data and xml
 $app->addBodyParsingMiddleware();
+
+// This middleware will append the response header Access-Control-Allow-Methods with all allowed methods
+$app->add(function (Request $request, RequestHandlerInterface $handler): Response {
+    $routeContext = RouteContext::fromRequest($request);
+    $routingResults = $routeContext->getRoutingResults();
+    $methods = $routingResults->getAllowedMethods();
+    $requestHeaders = $request->getHeaderLine('Access-Control-Request-Headers');
+
+    $response = $handler->handle($request);
+
+    $response = $response->withHeader('Access-Control-Allow-Origin', '*');
+    $response = $response->withHeader('Access-Control-Allow-Methods', implode(',', $methods));
+    $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
+
+    // Optional: Allow Ajax CORS requests with Authorization header
+    // $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
+
+    return $response;
+});
 
 // Add Error Handling Middleware
 if (array_key_exists('GAE_APPLICATION', $_SERVER)) {
@@ -68,6 +91,12 @@ $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
 
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
+
+// The RoutingMiddleware should be added after our CORS middleware so routing is performed first
+$app->addRoutingMiddleware();
+
+
+// Define app routes
 
 // Token-based app entry
 $app->get('/start/{token}', \TennisApp\Action\Start::class);
@@ -125,6 +154,7 @@ $app->get('/emailSend', \TennisApp\Action\EmailSend::class);
 $app->get('/testReact', \TennisApp\Action\TestReact::class);
 
 // APIs
+$app->get('/api/start/{token}', \TennisApp\Action\ApiStart::class);
 $app->get('/api/serieslist', \TennisApp\Action\ApiSeriesList::class);
 $app->get('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantBookings::class);
 $app->put('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\ApiPutParticipantBookings::class);
