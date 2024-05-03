@@ -191,19 +191,16 @@ class Fixture
     
     public function setAutoPlaying()
     {
-        // Automatically set who is playing
+        // Automatically set who is playing based on the number of courts available
+        // at the current start time of the fixture
+        
         $this->resetPlaying(); // set nobody playing
 
         // Calculate number of courts available
         $capacity = $this->getCapacity();
         if (count($capacity) == 0) {
             return;} // no courts available
-        $numCourts = 1000; // initial high enough value
-        foreach ($capacity as $count) {
-            if ($count < $numCourts) {
-                $numCourts = $count;
-            }
-        }
+        $numCourts = $capacity[$this->base['FixtureTime']];
 
         // Calculate how many people can play, which must be even
         $numWantsToPlay = $this->countWantsToPlay();
@@ -765,7 +762,9 @@ class Fixture
 
     public function getCapacity() : array
     {
-    // return the number of players that can play for 2 hours given booked courts
+    // Return the number of courts available for a two-hour fixture
+    // Returns an associative array with the start time as key and number of courts as value
+    // If two start times are possible, the array has two entries, otherwise one
     $sql ="SELECT LEFT(BookingTime, 5) AS BookingTime, COUNT(CourtNumber) AS NumCourts
     FROM  CourtBookings WHERE FixtureId = :Fixtureid AND BookingType = 'Booked'
     GROUP BY BookingTime
