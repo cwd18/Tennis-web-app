@@ -16,6 +16,23 @@ class Fixture
         $this->setBase();
     }
 
+    private function courtList($rangeList) : array
+    {
+        // Return an array of court numbers from a comma separated list of ranges
+        $rangeList = str_replace(' ','',$rangeList);
+        $ranges = explode(",", $rangeList);
+        $courts = [];
+        foreach ($ranges as $rangeStr) {
+            $range = explode("-", $rangeStr);
+            $n1 = (int)$range[0];
+            $n2 = (int)$range[1];
+            for ($n=$n1; $n<=$n2; $n++) {
+                $courts[] = $n;
+            }
+        }
+        return $courts;
+    }
+    
     private function setBase()
     {
         // Retrieve basic fixture data...
@@ -366,7 +383,6 @@ class Fixture
     private function getAvailableCourts($userId, $time, $type) : array
     {
         // Return a list of available courts for this user at the passed time
-        $fixtureCourts = explode(",", str_replace(' ','',$this->base['FixtureCourts']));
         $sql = "SELECT CourtNumber FROM CourtBookings 
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND BookingTime = :BookingTime
         AND Userid != :Userid
@@ -381,21 +397,17 @@ class Fixture
         while ($courtNumber = $stmt->fetchColumn()) {
             $excludedCourts[] = $courtNumber;
         }
-        $courts[0] = 0;
-        foreach ($fixtureCourts as $rangeStr) {
-            $range = explode("-", $rangeStr);
-            $n1 = (int)$range[0];
-            $n2 = (int)$range[1];
-            for ($n=$n1; $n<=$n2; $n++) {
-                $ok = TRUE;
-                foreach ($excludedCourts as $excludedCourt) {
-                    if ($n == $excludedCourt) {
-                        $ok = FALSE;
-                        break;
-                    }
+        $courts[0] = 0; // prepend a zero to the list of available courts
+        $fixtureCourts = $this->courtList($this->base['FixtureCourts']);
+        foreach ($fixtureCourts as $court) {
+            $ok = TRUE;
+            foreach ($excludedCourts as $excludedCourt) {
+                if ($court == $excludedCourt) {
+                    $ok = FALSE;
+                    break;
                 }
-                if ($ok) { $courts[] = $n; }
             }
+            if ($ok) { $courts[] = $court; }
         }
         return $courts;
     }
@@ -596,12 +608,12 @@ class Fixture
         $bookingRequests = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Create table
-        $range = explode("-", $this->base['TargetCourts']);
         $time[0] = $this->base['FixtureTime']; 
         $time[1] = date('H:i', strtotime($time[0]) + 60 * 60);
         $i = 0;
+        $targetCourts = $this->courtList($this->base['TargetCourts']);
         foreach ($time as $t) {
-            for ($c = $range[0]; $c<= $range[1]; $c++) {
+            foreach ($targetCourts as $c) {
                 $table[$i]['time'] = $t;
                 $table[$i]['court'] = $c;
                 $table[$i]['userid'] = 0;
@@ -741,7 +753,6 @@ class Fixture
         $userIds = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId])->fetchall(\PDO::FETCH_ASSOC);
         // Create requests, allocating users to courts and times
         $numUsers = count($userIds);
-        $range = explode("-", $this->base['TargetCourts']);
         $time[0] = $this->base['FixtureTime']; 
         $time[1] = date('H:i', strtotime($time[0]) + 60 * 60);
         if (strcmp($time[0], "07:30") == 0) {
@@ -749,7 +760,8 @@ class Fixture
             $time[1] = $this->base['FixtureTime'];
         }
         $u = 0;
-        for ($c = $range[0]; $c<= $range[1]; $c++) {
+        $targetCourts = $this->courtList($this->base['TargetCourts']);
+        foreach ($targetCourts as $c) {
             foreach ($time as $t) {
                 if ($u >= $numUsers) {
                     return;} // run out of users
@@ -757,7 +769,6 @@ class Fixture
                 $this->addCourtBooking($userId, $t, $c, 'Request');
             }
         }
-
     }
 
     public function getCapacity() : array
