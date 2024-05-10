@@ -150,9 +150,6 @@ $app->get('/participantSeries', \TennisApp\Action\ParticipantSeries::class);
 $app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);
 $app->get('/emailSend', \TennisApp\Action\EmailSend::class);
 
-// Test React page
-$app->get('/testReact', \TennisApp\Action\TestReact::class);
-
 // APIs
 $app->get('/api/start/{token}', \TennisApp\Action\ApiStart::class);
 $app->get('/api/serieslist', \TennisApp\Action\ApiSeriesList::class);

@@ -22,16 +22,20 @@ final class ApiStart
         $token = $args['token'];
         $m = $this->container->get('Model');
         $t = $m->getTokens();
-        $row = $t->checkToken($token);
+        $tokenData = $t->checkToken($token);
         $view = Twig::fromRequest($request);
-        if ($row == FALSE) {
+        if ($tokenData == FALSE) {
             return $view->render($response, 'error.html', ['error' => "Token not found: $token"]);}
 
-        $_SESSION['User'] = $row['Userid'];
-        $_SESSION['Role'] = $row['TokenClass'];
-        $_SESSION['Otherid'] = $row['Otherid'];
+        $_SESSION['User'] = $tokenData['Userid'];
+        $_SESSION['Role'] = $tokenData['TokenClass'];
+        $_SESSION['Otherid'] = $tokenData['Otherid'];
 
-        $response->getBody()->write("Session started");
-        return $response;
+        $u = $m->getUsers();
+        $userData = $u->getUserData($tokenData['Userid']);
+        $tokenData['FirstName'] = $userData['FirstName'];
+        $tokenData['LastName'] = $userData['LastName'];
+        $response->getBody()->write(json_encode($tokenData));        
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }
