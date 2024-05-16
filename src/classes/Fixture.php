@@ -48,7 +48,7 @@ class Fixture
         $bookingDt = $fixtureDt - 7 * 24 * 60 * 60; // 7 days earlier
         $this->base['bookingDate'] = date("l jS", $bookingDt);
         $this->base['bookingDateYmd'] = date("Y-m-d", $bookingDt);
-        $this->base['description'] = date("l jS \of F Y", $fixtureDt);
+        $this->base['description'] = date("l jS \of F", $fixtureDt);
         $this->base['shortDate'] = date("l jS", $fixtureDt);
 
         // Calculate booking time slots

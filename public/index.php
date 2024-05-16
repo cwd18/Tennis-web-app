@@ -15,7 +15,6 @@ use Google\Cloud\Logging\LoggingClient;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Routing\RouteContext;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -39,15 +38,12 @@ $app->addBodyParsingMiddleware();
 
 // This middleware will append the response header Access-Control-Allow-Methods with all allowed methods
 $app->add(function (Request $request, RequestHandlerInterface $handler): Response {
-    $routeContext = RouteContext::fromRequest($request);
-    $routingResults = $routeContext->getRoutingResults();
-    $methods = $routingResults->getAllowedMethods();
     $requestHeaders = $request->getHeaderLine('Access-Control-Request-Headers');
 
     $response = $handler->handle($request);
 
-    $response = $response->withHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-    $response = $response->withHeader('Access-Control-Allow-Methods', implode(',', $methods));
+    $response = $response->withHeader('Access-Control-Allow-Origin', 'http://localhost:5174');
+    $response = $response->withHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT');
     $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
 
     // Allow Ajax CORS requests with Authorization header
@@ -97,6 +93,11 @@ $app->addRoutingMiddleware();
 
 
 // Define app routes
+
+// CORS preflight requests
+$app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
+    return $response;
+});
 
 // Token-based app entry
 $app->get('/start/{token}', \TennisApp\Action\Start::class);
@@ -152,6 +153,7 @@ $app->get('/emailSend', \TennisApp\Action\EmailSend::class);
 
 // APIs
 $app->get('/api/start/{token}', \TennisApp\Action\ApiStart::class);
+$app->get('/api/session', \TennisApp\Action\ApiGetSession::class);
 $app->get('/api/serieslist', \TennisApp\Action\ApiSeriesList::class);
 $app->get('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantBookings::class);
 $app->put('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\ApiPutParticipantBookings::class);
@@ -165,5 +167,6 @@ $app->get('/api/participantWantsToPlay/{fixtureid}/{userid}', \TennisApp\Action\
 $app->get('/api/playerLists/{fixtureid}', \TennisApp\Action\ApiGetPlayerLists::class);
 $app->get('/api/bookingViewGrid/{fixtureid}', \TennisApp\Action\ApiGetBookingViewGrid::class);
 $app->get('/api/getEmailList/{fixtureid}', \TennisApp\Action\ApiGetEmailList::class);
+$app->get('/api/fixtures/{seriesid}', \TennisApp\Action\ApiGetFixtures::class);
 
 $app->run();
