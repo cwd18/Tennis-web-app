@@ -42,7 +42,7 @@ $app->add(function (Request $request, RequestHandlerInterface $handler): Respons
 
     $response = $handler->handle($request);
 
-    $response = $response->withHeader('Access-Control-Allow-Origin', 'http://localhost:5174');
+    $response = $response->withHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
     $response = $response->withHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT');
     $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
 
