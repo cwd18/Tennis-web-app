@@ -12,7 +12,7 @@ handlers:
     static_files: react/\1
     upload: react/(.*\.(svg|js|css))$
 
-  - url: /newstart/[0-9a-fA-F]{32}|/admin.*|/user/.*$
+  - url: /start/[0-9a-fA-F]{32}|/admin.*|/user/.*$
     static_files: react/index.html
     upload: react/index.html
 

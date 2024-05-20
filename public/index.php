@@ -100,7 +100,7 @@ $app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
 });
 
 // Token-based app entry
-$app->get('/start/{token}', \TennisApp\Action\Start::class);
+$app->get('/oldstart/{token}', \TennisApp\Action\Start::class);
 
 // Create user routes
 $app->get('/userlist', \TennisApp\Action\UserList::class);
