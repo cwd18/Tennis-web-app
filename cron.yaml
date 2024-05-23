@@ -1,5 +1,8 @@
+# This defines a cron job that runs every day at 07:00 London time
+# To deply, use 'gcloud app deploy cron.yaml'
+
 cron:
 - description: "Daily automated processing of e.g. emails"
-  url: /start/0a7a2f3e521770a956ea62e75397aead
+  url: /oldstart/0a7a2f3e521770a956ea62e75397aead
   schedule: every day 07:00
   timezone: Europe/London
