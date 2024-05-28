@@ -50,6 +50,7 @@ class Fixture
         $this->base['bookingDateYmd'] = date("Y-m-d", $bookingDt);
         $this->base['description'] = date("l jS \of F", $fixtureDt);
         $this->base['shortDate'] = date("l jS", $fixtureDt);
+        $this->base['inBookingWindow'] = $this->inBookingWindow();
 
         // Calculate booking time slots
         $bookingBase = $this->base['FixtureTime'];
