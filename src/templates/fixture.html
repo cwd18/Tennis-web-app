@@ -176,7 +176,7 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
     {{ include('BookingRequestsTable.jsx') }}
     {{ include('CountdownTimer.jsx') }}
     
-    fetch('/api/participants/{{ fixtureid }}')
+    fetch('/api/participants/{{ fixtureid }}/bookers')
     .then(response => response.json())
     .then(response => {
         const container = document.getElementById('booking-table');

@@ -160,7 +160,7 @@ $app->put('/api/participantBookings/{fixtureid}/{userid}', \TennisApp\Action\Api
 $app->get('/api/bookingRequests/{fixtureid}', \TennisApp\Action\ApiGetBookingRequests::class);
 $app->get('/api/bookingRequestsTable/{fixtureid}', \TennisApp\Action\ApiGetBookingRequestsTable::class);
 $app->put('/api/bookingRequests/{fixtureid}', \TennisApp\Action\ApiPutBookingRequests::class);
-$app->get('/api/participants/{fixtureid}', \TennisApp\Action\ApiGetParticipants::class);
+$app->get('/api/participants/{fixtureid}/{filter}', \TennisApp\Action\ApiGetParticipants::class);
 $app->get('/api/participantData/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantData::class);
 $app->put('/api/participantWantsToPlay/{fixtureid}/{userid}/{value}', \TennisApp\Action\ApiPutParticipantWantsToPlay::class);
 $app->get('/api/participantWantsToPlay/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantWantsToPlay::class);

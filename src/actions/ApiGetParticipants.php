@@ -16,17 +16,21 @@ final class ApiGetParticipants
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $fixtureId = (int)$args['fixtureid'];
+        $filter = $args['filter'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
-            $response->getBody()->write($error);        
+            $response->getBody()->write($error);
             return $response;
         }
         $f = $m->getFixture($fixtureId);
-        $users = $f->getBookers();
-        $response->getBody()->write(json_encode($users));        
+        if ($filter === 'bookers')
+            $users = $f->getBookers();
+        else
+            $users = $f->getFixtureUsers();
+        $response->getBody()->write(json_encode($users));
         return $response->withHeader('Content-Type', 'application/json');
     }
 }

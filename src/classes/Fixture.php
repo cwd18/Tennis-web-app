@@ -292,7 +292,7 @@ class Fixture
     public function getFixtureUsers() : array
     {
         // Return list of existing participants
-        $sql = "SELECT Users.Userid, FirstName, LastName 
+        $sql = "SELECT Users.Userid, FirstName, LastName, ShortName 
         FROM Users JOIN FixtureParticipants ON Users.Userid=FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid
         ORDER BY FirstName;";
@@ -644,7 +644,7 @@ class Fixture
     public function getBookers() : array
     {
         // Return list of fixture participants who are bookers and who are not requested to book
-        $sql = "SELECT Users.Userid, ShortName
+        $sql = "SELECT Users.Userid, FirstName, LastName, ShortName
         FROM Users JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
         WHERE Booker = TRUE AND FixtureParticipants.Fixtureid = :F1 
         ORDER BY ShortName;";
