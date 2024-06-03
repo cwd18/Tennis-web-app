@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TennisApp;
@@ -8,6 +9,7 @@ class Automate
     public const EMAIL_INVITATION = 0;
     public const EMAIL_BOOKING = 1;
     public const EMAIL_UPDATE = 2;
+    public const EMAIL_DROPOUT = 3;
 
     public function runAutomation(Model $m)
     {
@@ -46,7 +48,7 @@ class Automate
     }
 
 
-    public function sendEmails(Model $m, int $fixtureId, int $emailType)
+    public function sendEmails(Model $m, int $fixtureId, int $emailType, $args = NULL)
     {
         $f = $m->getFixture($fixtureId);
         $server = $m->getServer();
@@ -56,16 +58,32 @@ class Automate
         $twig = $m->getTwig();
         $replyTo = $base['OwnerEmail'];
 
+        if ($emailType == Automate::EMAIL_DROPOUT) {
+            $subject = sprintf(
+                "%s %s dropped out",
+                $args['FirstName'],
+                $args['LastName']
+            );
+            $altmessage = sprintf(
+                "%s %s has dropped out of tennis for %s",
+                $args['FirstName'],
+                $args['LastName'],
+                $base['shortDate']
+            );
+            $message = "<!DOCTYPE html><html><body><p>$altmessage</p></body></html>";
+            $e->sendEmail($replyTo, $base['OwnerEmail'], $subject, $message, $altmessage);
+            return;
+        }
         if ($emailType == Automate::EMAIL_INVITATION) {
             $recipients = $f->getWannaPlayRecipients();
             $subject = "Tennis " . $base['shortDate'];
             $twigFile = 'emailWannaPlay.html';
-        } else if ($emailType == Automate::EMAIL_BOOKING){
+        } else if ($emailType == Automate::EMAIL_BOOKING) {
             $recipients = $f->getBookingRequestRecipients();
             $subject = "Book a court for " . $base['shortDate'];
             $twigFile = 'emailBookingBase.html';
             $base['requests'] = $f->getRequestedBookings();
-        } else if ($emailType == Automate::EMAIL_UPDATE){
+        } else if ($emailType == Automate::EMAIL_UPDATE) {
             $recipients = $f->getUpdateRecipients();
             $subject = "Tennis " . $base['shortDate'] . " update";
             $twigFile = 'emailUpdate.html';
@@ -76,10 +94,14 @@ class Automate
             $recipient['Token'] = $tokens->getOrCreateToken($recipient['Userid'], 'User', $base['Seriesid']);
         }
         foreach ($recipients as $to) {
-            $message = $twig->render($twigFile, ['altmessage' => false,
-            'base' => $base, 'to' => $to, 'server' => $server]);
-            $altmessage = $twig->render($twigFile, ['altmessage' => true, 
-            'base' => $base, 'to' => $to, 'server' => $server]);
+            $message = $twig->render($twigFile, [
+                'altmessage' => false,
+                'base' => $base, 'to' => $to, 'server' => $server
+            ]);
+            $altmessage = $twig->render($twigFile, [
+                'altmessage' => true,
+                'base' => $base, 'to' => $to, 'server' => $server
+            ]);
             $altmessage = str_replace(['</tr><tr>', '</thead><thead>'], "\n", $altmessage);
             $altmessage = str_replace(['</td><td>', '</th><th>'], "\t", $altmessage);
             $altmessage = strip_tags($altmessage);
@@ -87,5 +109,4 @@ class Automate
         }
         $f->setInvitationsSent();
     }
-
 }
