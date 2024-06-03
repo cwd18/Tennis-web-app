@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use DI\Container;
@@ -72,13 +73,16 @@ $m = $container->get('Model');
 $te->addGlobal('Role', $m->sessionRole());
 $userData = $m->getUsers()->getUserData($m->sessionUser());
 if ($userData != false) {
-    $te->addGlobal('SessionUser', $userData['FirstName'] . ' ' . $userData['LastName']);}
+    $te->addGlobal('SessionUser', $userData['FirstName'] . ' ' . $userData['LastName']);
+}
 
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 
 $twig->addExtension(new \Twig\Extra\Markdown\MarkdownExtension());
-$twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
-    public function load($class) {
+$twig->addRuntimeLoader(new class implements RuntimeLoaderInterface
+{
+    public function load($class)
+    {
         if (MarkdownRuntime::class === $class) {
             return new MarkdownRuntime(new DefaultMarkdown());
         }
@@ -168,5 +172,6 @@ $app->get('/api/playerLists/{fixtureid}', \TennisApp\Action\ApiGetPlayerLists::c
 $app->get('/api/bookingViewGrid/{fixtureid}', \TennisApp\Action\ApiGetBookingViewGrid::class);
 $app->get('/api/getEmailList/{fixtureid}', \TennisApp\Action\ApiGetEmailList::class);
 $app->get('/api/fixtures/{seriesid}', \TennisApp\Action\ApiGetFixtures::class);
+$app->get('/api/absentBookers/{fixtureid}', \TennisApp\Action\ApiGetAbsentBookers::class);
 
 $app->run();
