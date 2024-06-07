@@ -30,10 +30,13 @@ final class ApiPutParticipantWantsToPlay
         if ($value == 1) {
             $f->setWantsToPlay($userId); // will time stamp if the current time stamp is NULL
         } else {
+            $previousValue = $f->getWantsToPlay($userId);
             $f->setWantsNotToPlay($userId);
-            $user = $m->getUsers()->getUserData($userId);
-            $a = $m->getAutomate();
-            $a->sendEmails($m, $fixtureId, $a::EMAIL_DROPOUT, $user);
+            if ($previousValue == 1) { // user is dropping out
+                $user = $m->getUsers()->getUserData($userId);
+                $a = $m->getAutomate();
+                $a->sendEmails($m, $fixtureId, $a::EMAIL_DROPOUT, $user);
+            }
         }
         return $response->withHeader('Content-Type', 'application/json');
     }
