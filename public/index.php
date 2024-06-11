@@ -173,5 +173,6 @@ $app->get('/api/bookingViewGrid/{fixtureid}', \TennisApp\Action\ApiGetBookingVie
 $app->get('/api/getEmailList/{fixtureid}', \TennisApp\Action\ApiGetEmailList::class);
 $app->get('/api/fixtures/{seriesid}', \TennisApp\Action\ApiGetFixtures::class);
 $app->get('/api/absentBookers/{fixtureid}', \TennisApp\Action\ApiGetAbsentBookers::class);
+$app->put('/api/playing/{fixtureid}/{mode}', \TennisApp\Action\ApiPutPlaying::class);
 
 $app->run();

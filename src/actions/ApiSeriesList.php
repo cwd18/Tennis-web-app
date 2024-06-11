@@ -16,16 +16,16 @@ final class ApiSeriesList
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response): Response
+    public function __invoke(Request $request, Response $response): Response
     {
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkAdmin())) {
-            $response->getBody()->write($error);        
-            return $response;
+            $response->getBody()->write(json_encode($error));
+            return $response->withStatus(401);
         }
         $s = $m->getSeriesList();
         $list = $s->getAllSeries();
-        $response->getBody()->write(json_encode($list));        
+        $response->getBody()->write(json_encode($list));
         return $response->withHeader('Content-Type', 'application/json');
     }
 }

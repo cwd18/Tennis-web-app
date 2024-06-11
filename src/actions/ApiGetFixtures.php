@@ -16,13 +16,13 @@ final class ApiGetFixtures
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $seriesId = (int)$args['seriesid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUserAccessSeries($seriesId))) {
-            $response->getBody()->write($error);        
-            return $response;
+            $response->getBody()->write(json_encode($error));
+            return $response->withStatus(401);
         }
         $s = $m->getSeries($seriesId);
         $fixtureId = $s->nextFixture();
@@ -31,7 +31,7 @@ public function __invoke(Request $request, Response $response, array $args): Res
         $fixtureId = $s->latestFixture();
         $f = $m->getFixture($fixtureId);
         $fixtures[] = $f->getBasicFixtureData();
-        $response->getBody()->write(json_encode($fixtures));        
+        $response->getBody()->write(json_encode($fixtures));
         return $response->withHeader('Content-Type', 'HTML/json');
     }
 }

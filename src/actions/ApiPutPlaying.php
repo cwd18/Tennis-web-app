@@ -1,5 +1,5 @@
 <?php
-# Return session data
+# Set fixture participants playing, depending on mode
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class ApiGetSession
+final class ApiPutPlaying
 {
     private $container;
 
@@ -18,16 +18,19 @@ final class ApiGetSession
 
     public function __invoke(Request $request, Response $response, array $args): Response
     {
+        $fixtureId = (int)$args['fixtureid'];
+        $mode = $args['mode'];
         $m = $this->container->get('Model');
-        $userId = $m->sessionUser();
-        if ($userId == 0) {
-            $response->getBody()->write(json_encode(''));
+        if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
+            $response->getBody()->write($error);
             return $response->withStatus(401);
         }
-        $userData = $m->getUsers()->getUserData($userId);
-        $sessionData['sessionUser'] = $userData['FirstName'] . ' ' . $userData['LastName'];
-        $sessionData['sessionRole'] = $m->sessionRole();
-        $response->getBody()->write(json_encode($sessionData));
+        $f = $m->getFixture($fixtureId);
+        if ($mode === 'auto') {
+            $f->setAutoPlaying();
+        } else if ($mode === 'reset') {
+            $f->resetPlaying();
+        }
         return $response->withHeader('Content-Type', 'application/json');
     }
 }

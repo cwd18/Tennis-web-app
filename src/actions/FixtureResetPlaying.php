@@ -26,10 +26,11 @@ final class FixtureResetPlaying
         $seriesId = $f->getSeriesid();
         $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkOwnerAccess($seriesId))) {
-            return $view->render($response, 'error.html', ['error' => $error]);}
-        $f->resetPlaying($fixtureId);
+            return $view->render($response, 'error.html', ['error' => $error]);
+        }
+        $f->resetPlaying();
         return $response
-          ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
-          ->withStatus(302);
+            ->withHeader('Location', "/fixture?fixtureid=$fixtureId")
+            ->withStatus(302);
     }
 }

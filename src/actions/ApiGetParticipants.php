@@ -22,8 +22,8 @@ final class ApiGetParticipants
         $filter = $args['filter'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
-            $response->getBody()->write($error);
-            return $response;
+            $response->getBody()->write(json_encode($error));
+            return $response->withStatus(401);
         }
         $f = $m->getFixture($fixtureId);
         if ($filter === 'bookers')
