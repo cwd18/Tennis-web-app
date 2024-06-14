@@ -174,5 +174,6 @@ $app->get('/api/getEmailList/{fixtureid}', \TennisApp\Action\ApiGetEmailList::cl
 $app->get('/api/fixtures/{seriesid}', \TennisApp\Action\ApiGetFixtures::class);
 $app->get('/api/absentBookers/{fixtureid}', \TennisApp\Action\ApiGetAbsentBookers::class);
 $app->put('/api/playing/{fixtureid}/{mode}', \TennisApp\Action\ApiPutPlaying::class);
+$app->put('/api/courts/{fixtureid}/{type}/{scope}/{courts}', \TennisApp\Action\ApiPutCourts::class);
 
 $app->run();

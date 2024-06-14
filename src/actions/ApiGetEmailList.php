@@ -16,18 +16,17 @@ final class ApiGetEmailList
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $fixtureId = (int)$args['fixtureid'];
         $m = $this->container->get('Model');
         $f = $m->getFixture($fixtureId);
-        $seriesId = $f->getSeriesid();
-        if (is_string($error = $m->checkOwnerAccess($seriesId))) {
-            $response->getBody()->write($error);        
+        if (is_string($error = $m->checkOwnerAccessFixture($fixtureId))) {
+            $response->getBody()->write($error);
             return $response;
         }
         $emailList = $f->getEmailList();
-        $response->getBody()->write($emailList);        
+        $response->getBody()->write($emailList);
         return $response->withHeader('Content-Type', 'application/text');
     }
 }

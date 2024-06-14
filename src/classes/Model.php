@@ -1,25 +1,31 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TennisApp;
 
 class Model
 {
-    public Database $db; 
+    public Database $db;
     protected $email = null;
     protected $server = null;
     protected $twig = null;
     protected $users = null;
     protected SeriesList $seriesList;
-    protected $tokens = null; 
-    protected $eventLog = null; 
+    protected $tokens = null;
+    protected $eventLog = null;
     protected $automate;
 
 
     public function __construct($db_config, $email_config, $server, $twig)
     {
-        $dsn = sprintf('mysql:host=%s;dbname=%s;port=%s;charset=%s',
-        $db_config['host'], $db_config['name'], $db_config['port'], $db_config['charset']);
+        $dsn = sprintf(
+            'mysql:host=%s;dbname=%s;port=%s;charset=%s',
+            $db_config['host'],
+            $db_config['name'],
+            $db_config['port'],
+            $db_config['charset']
+        );
         $username = $db_config['username'];
         $password = $db_config['password'];
         $this->db = new Database($dsn, $username, $password);
@@ -101,8 +107,8 @@ class Model
     {
         return $_SESSION['User'] ?? 0;
     }
-    
-    public function checkAdmin() : ?string
+
+    public function checkAdmin(): ?string
     {
         $role = $this->sessionRole();
         if (strcmp($role, 'Admin') == 0) {
@@ -111,7 +117,7 @@ class Model
         return "Not authorised: $role";
     }
 
-    public function checkOwnerAccess(int $seriesId) : ?string
+    public function checkOwnerAccess(int $seriesId): ?string
     {
         $role = $this->sessionRole();
         if (strcmp($role, 'Admin') == 0) {
@@ -126,13 +132,19 @@ class Model
         return "Not authorised: $role";
     }
 
-    public function checkUserAccessFixture(int $fixtureId) : ?string
+    public function checkOwnerAccessFixture(int $fixtureId): ?string
+    {
+        $seriesId = $this->getFixture($fixtureId)->getSeriesid();
+        return $this->checkOwnerAccess($seriesId);
+    }
+
+    public function checkUserAccessFixture(int $fixtureId): ?string
     {
         $seriesId = $this->getFixture($fixtureId)->getSeriesid();
         return $this->checkUserAccessSeries($seriesId);
     }
 
-    public function checkUserAccessSeries(int $seriesId) : ?string
+    public function checkUserAccessSeries(int $seriesId): ?string
     {
         $role = $this->sessionRole();
         if (strcmp($role, 'Admin') == 0) {
@@ -146,5 +158,4 @@ class Model
         }
         return "Not authorised: $role";
     }
-
 }

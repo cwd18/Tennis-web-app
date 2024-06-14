@@ -98,6 +98,22 @@ class Fixture
         return $r;
     }
 
+    public function updateCourts($type, $courts)
+    {
+        // Update courts or target courts for this fixture
+        if ($type === 'courts') {
+            $sql = "UPDATE Fixtures SET FixtureCourts = :Courts WHERE Fixtureid = :Fixtureid;";
+            $this->base['FixtureCourts'] = $courts;
+        } else if ($type === 'target') {
+            $sql = "UPDATE Fixtures SET TargetCourts = :Courts WHERE Fixtureid = :Fixtureid;";
+            $this->base['TargetCourts'] = $courts;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('Courts', $courts, \PDO::PARAM_STR);
+        $stmt->execute();
+    }
+
     public function updateBasicFixtureData(string $time, string $courts, string $targetCourts)
     {
         $sql = "UPDATE Fixtures SET FixtureTime = :FixtureTime, 
