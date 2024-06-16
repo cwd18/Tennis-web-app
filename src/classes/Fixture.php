@@ -479,7 +479,7 @@ class Fixture
     public function getAbsentBookers(): array
     {
         // Return list of bookers who do not want to play
-        $sql = "SELECT Users.Userid, ShortName FROM Users 
+        $sql = "SELECT DISTINCT Users.Userid, ShortName, FirstName, LastName FROM Users 
         JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid 
         AND FixtureParticipants.Fixtureid = :F1 AND WantsToPlay = FALSE
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
