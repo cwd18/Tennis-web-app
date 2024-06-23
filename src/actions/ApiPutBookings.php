@@ -1,5 +1,5 @@
 <?php
-# Update booking requests from parameters 
+# Update booking records from parameters 
 
 namespace TennisApp\Action;
 
@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class ApiPutBookingRequests
+final class ApiPutBookings
 {
     private $container;
 
@@ -16,17 +16,18 @@ final class ApiPutBookingRequests
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
+        $type = $args['type'];
         $fixtureId = (int)$args['fixtureid'];
-        $bookingRequests = $request->getParsedBody();
+        $bookings = $request->getParsedBody();
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
-            $response->getBody()->write($error);        
+            $response->getBody()->write($error);
             return $response;
         }
         $f = $m->getFixture($fixtureId);
-        $f->setBookingRequests($bookingRequests);
+        $f->setBookings($type, $bookings);
         return $response->withHeader('Content-Type', 'application/json');
     }
 }

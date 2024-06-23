@@ -594,7 +594,7 @@ class Fixture
         $inBookingWindow = $this->inBookingWindow();
 
         // get requested bookings
-        $requestedBookings = $this->getRequestedBookings();
+        $requestedBookings = $this->getBookings('Request');
 
         $capacity = $this->getCapacity();
 
@@ -675,17 +675,21 @@ class Fixture
         return $table;
     }
 
-    public function getRequestedBookings(): array
+    public function getBookings(string $type): array
     {
-        // Get the current list of booking requests for this fixture
-        // Returns an empty array if no requests for this fixture
+        // Get the list of booking of the specified type for this fixture
+        // $type is 'Booked' or 'Request'
+        // Returns an empty array if no records for this fixture
         $sql = "SELECT Users.Userid, ShortName, CourtNumber, LEFT(BookingTime, 5) AS BookingTime 
         FROM CourtBookings JOIN Users ON Users.Userid = CourtBookings.Userid
-        WHERE BookingType = 'Request' AND Fixtureid = :Fixtureid 
+        WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid 
         ORDER BY BookingTime, CourtNumber;";
-        $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
-        $bookingRequests = $stmt->fetchall(\PDO::FETCH_ASSOC);
-        return $bookingRequests;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR);
+        $stmt->execute();
+        $bookings = $stmt->fetchall(\PDO::FETCH_ASSOC);
+        return $bookings;
     }
 
     public function getBookers(): array
@@ -700,15 +704,18 @@ class Fixture
         return $users;
     }
 
-    public function setBookingRequests($bookingRequests)
+    public function setBookings(string $type, $bookings)
     {
-        // Delete any existing requests
-        $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = 'Request';";
-        $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
-        // Add the new requests
-        foreach ($bookingRequests as $request) {
-            if ($request['userid'] != 0) {
-                $this->addCourtBooking($request['userid'], $request['time'], $request['court'], 'Request');
+        // Delete any existing records
+        $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = :BookingType;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR);
+        $stmt->execute();
+        // Add the new records
+        foreach ($bookings as $b) {
+            if ($b['userid'] != 0) {
+                $this->addCourtBooking($b['userid'], $b['time'], $b['court'], $type);
             }
         }
     }
