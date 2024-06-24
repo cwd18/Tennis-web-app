@@ -181,7 +181,7 @@ href="fixturedeleteform?seriesid={{ base.Seriesid }}&fixtureid={{ fixtureid }}">
     .then(response => {
         const container = document.getElementById('booking-table');
         const root = ReactDOM.createRoot(container);
-        const users = response.unshift({ userid: 0, ShortName: 'None'});
+        const users = response.unshift({ Userid: 0, ShortName: 'None'});
         root.render(<BookingRequestsTable 
             fixtureid='{{ fixtureid }}'
             users={response} 

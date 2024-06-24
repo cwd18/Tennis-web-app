@@ -860,7 +860,7 @@ class Fixture
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         $emails = "";
         foreach ($rows as $row) {
-            $emails .= $row['FirstName'] . ' ' . $row['LastName'] . ' <' . $row['EmailAddress'] . '>, ';
+            $emails .= ' <' . $row['EmailAddress'] . '>, ';
         }
         $emails = substr($emails, 0, -2); // remove trailing comma and space 
         return $emails;

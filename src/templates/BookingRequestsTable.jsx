@@ -63,6 +63,7 @@ function BookingRequestsTable({ fixtureid, users, bookingDate }) {
                   {users
                     .filter(
                       (user, index) =>
+                        user.Userid == 0 ||
                         user.Userid == item.userid ||
                         !bookingDataUserids.includes(user.Userid)
                     )
