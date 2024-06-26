@@ -169,7 +169,7 @@ $app->get('/api/participantData/{fixtureid}/{userid}', \TennisApp\Action\ApiGetP
 $app->put('/api/participantWantsToPlay/{fixtureid}/{userid}/{value}', \TennisApp\Action\ApiPutParticipantWantsToPlay::class);
 $app->get('/api/participantWantsToPlay/{fixtureid}/{userid}', \TennisApp\Action\ApiGetParticipantWantsToPlay::class);
 $app->get('/api/playerLists/{fixtureid}', \TennisApp\Action\ApiGetPlayerLists::class);
-$app->get('/api/bookingViewGrid/{fixtureid}', \TennisApp\Action\ApiGetBookingViewGrid::class);
+$app->get('/api/bookingViewGrid/{type}/{fixtureid}', \TennisApp\Action\ApiGetBookingViewGrid::class);
 $app->get('/api/getEmailList/{fixtureid}', \TennisApp\Action\ApiGetEmailList::class);
 $app->get('/api/fixtures/{seriesid}', \TennisApp\Action\ApiGetFixtures::class);
 $app->get('/api/absentBookers/{fixtureid}', \TennisApp\Action\ApiGetAbsentBookers::class);

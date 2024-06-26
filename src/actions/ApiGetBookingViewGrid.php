@@ -16,17 +16,18 @@ final class ApiGetBookingViewGrid
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
+        $type = $args['type'];
         $fixtureId = (int)$args['fixtureid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
-            $response->getBody()->write($error);        
+            $response->getBody()->write($error);
             return $response;
         }
         $f = $m->getFixture($fixtureId);
-        $result = $f->getBookingViewGrid();
-        $response->getBody()->write(json_encode($result));        
+        $result = $f->getBookingViewGrid($type);
+        $response->getBody()->write(json_encode($result));
         return $response->withHeader('Content-Type', 'application/json');
     }
 }

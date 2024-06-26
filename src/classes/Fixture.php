@@ -401,18 +401,19 @@ class Fixture
         $stmt->execute();
     }
 
-    private function getAvailableCourts($userId, $time, $type): array
+    private function getAvailableCourts($userId, $time): array
     {
         // Return a list of available courts for this user at the passed time
         $sql = "SELECT CourtNumber FROM CourtBookings 
-        WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid AND BookingTime = :BookingTime
-        AND Userid != :Userid
+        WHERE Fixtureid = ? AND BookingTime = ?
+        AND (BookingType = 'Booked' AND Userid != ?)
+        OR (BookingType = 'Cancel' AND Userid = ?) 
         ORDER BY CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR);
-        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
-        $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR);
-        $stmt->bindParam('Userid', $userId, \PDO::PARAM_INT);
+        $stmt->bindParam(1, $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam(2, $time, \PDO::PARAM_STR);
+        $stmt->bindParam(3, $userId, \PDO::PARAM_INT);
+        $stmt->bindParam(4, $userId, \PDO::PARAM_INT);
         $stmt->execute();
         $excludedCourts[] = [];
         while ($courtNumber = $stmt->fetchColumn()) {
@@ -490,7 +491,7 @@ class Fixture
         return $absentBookers;
     }
 
-    public function getBookingViewGrid(): array
+    public function getBookingViewGrid($bookingType = 'Booked'): array
     {
         // Get court bookings into grid with 2 or 3 booking time columns and a bookers bookers column)
 
@@ -499,9 +500,12 @@ class Fixture
         // Get bookings
         $sql = "SELECT ShortName, CourtNumber, LEFT(BookingTime,5) AS BookingTime FROM Users
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
-        WHERE BookingType = 'Booked' AND Fixtureid = :Fixtureid 
+        WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid 
         ORDER BY CourtNumber, BookingTime;";
-        $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
+        $stmt = $this->pdo->runSQL($sql, [
+            'BookingType' => $bookingType,
+            'Fixtureid' => $this->fixtureId
+        ]);
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (count($rows) == 0) { // no bookings
             $bookingViewGrid[0][0] = "None";
@@ -625,7 +629,7 @@ class Fixture
                     $table[$i]['court'] = $b['CourtNumber'];
                 }
             }
-            $table[$i]['availableCourts'] = $this->getAvailableCourts($userId, $time, 'Booked');
+            $table[$i]['availableCourts'] = $this->getAvailableCourts($userId, $time);
         }
         return $table;
     }

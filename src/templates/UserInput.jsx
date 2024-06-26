@@ -19,7 +19,7 @@ function UserInput({ fixtureid, userid }) {
   };
 
   const getBookingViewGrid = () => {
-    fetch("/api/bookingViewGrid/" + fixtureid)
+    fetch("/api/bookingViewGrid/Booked/" + fixtureid)
       .then((response) => response.json())
       .then(setBookings);
   };
