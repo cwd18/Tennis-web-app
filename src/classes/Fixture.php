@@ -406,8 +406,10 @@ class Fixture
         // Return a list of available courts for this user at the passed time
         $sql = "SELECT CourtNumber FROM CourtBookings 
         WHERE Fixtureid = ? AND BookingTime = ?
-        AND (BookingType = 'Booked' AND Userid != ?)
-        OR (BookingType = 'Cancel' AND Userid = ?) 
+        AND (
+        (BookingType = 'Booked' AND Userid != ?)
+        OR (BookingType = 'Cancel' AND Userid = ?)
+        )
         ORDER BY CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(1, $this->fixtureId, \PDO::PARAM_INT);
