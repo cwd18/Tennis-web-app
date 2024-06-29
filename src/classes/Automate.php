@@ -82,7 +82,7 @@ class Automate
             $recipients = $f->getBookingRequestRecipients();
             $subject = "Book a court for " . $base['shortDate'];
             $twigFile = 'emailBookingBase.html';
-            $base['requests'] = $f->getRequestedBookings();
+            $base['requests'] = $f->getBookings('Request');
         } else if ($emailType == Automate::EMAIL_UPDATE) {
             $recipients = $f->getUpdateRecipients();
             $subject = "Tennis " . $base['shortDate'] . " update";
