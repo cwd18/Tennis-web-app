@@ -387,6 +387,23 @@ class Fixture
         $stmt->execute();
     }
 
+    public function toggleBooking($time, $court)
+    {
+        // Toogle the court booking between 'Booked' and 'Cancel'
+        $sql = "UPDATE CourtBookings 
+        SET BookingType = CASE 
+        WHEN BookingType = 'Booked' THEN 'Cancel'
+        WHEN BookingType = 'Cancel' THEN 'Booked'
+        END         
+        WHERE Fixtureid = :Fixtureid 
+        AND BookingTime = :BookingTime AND CourtNumber = :CourtNumber;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->bindParam('BookingTime', $time, \PDO::PARAM_STR);
+        $stmt->bindParam('CourtNumber', $court, \PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function deleteCourtBooking($userId, $time, $court, $type)
     {
         $sql = "DELETE FROM CourtBookings WHERE BookingType = :BookingType 
