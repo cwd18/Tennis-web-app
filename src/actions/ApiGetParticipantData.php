@@ -16,25 +16,34 @@ final class ApiGetParticipantData
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $fixtureId = (int)$args['fixtureid'];
         $userId = (int)$args['userid'];
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
-            $response->getBody()->write($error);        
+            $response->getBody()->write($error);
             return $response;
         }
+        // Get basic user data
         $u = $m->getUsers();
         $participantData = $u->getUserData($userId);
-        $r = $m->getFixture($fixtureId)->getWantsToPlay($userId);
+        // Get wantsToPlay status
+        $f = $m->getFixture($fixtureId);
+        $r = $f->getWantsToPlay($userId);
         if (is_null($r)) {
             $wantsToPlay = 'Unknown';
         } else {
             $wantsToPlay = $r ? 'Yes' : 'No';
         }
         $participantData['wantsToPlay'] = $wantsToPlay;
-        $response->getBody()->write(json_encode($participantData));        
+        // Get series link for this user
+        $seriesId = $f->getSeriesid();
+        $server = $m->getServer();
+        $token = $m->getTokens()->getOrCreateToken($userId, 'User', $seriesId);
+        $participantData['seriesLink'] = "$server/start/$token";
+        // Write response
+        $response->getBody()->write(json_encode($participantData));
         return $response->withHeader('Content-Type', 'HTML/json');
     }
 }
