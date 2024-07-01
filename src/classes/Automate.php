@@ -10,6 +10,7 @@ class Automate
     public const EMAIL_BOOKING = 1;
     public const EMAIL_UPDATE = 2;
     public const EMAIL_DROPOUT = 3;
+    public const EMAIL_CANCEL = 4;
 
     public function runAutomation(Model $m)
     {
@@ -41,6 +42,11 @@ class Automate
                 if ($fixtureId != 0) {
                     $eventLog->write("Sending update emails for series $seriesId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_UPDATE);
+                }
+                $fixtureId = $s->getFixtureNumDaysAhead(1);
+                if ($fixtureId != 0) {
+                    $eventLog->write("Sending cancel emails for series $seriesId");
+                    $this->sendEmails($m, $fixtureId, Automate::EMAIL_CANCEL);
                 }
             }
         }
@@ -87,6 +93,10 @@ class Automate
             $recipients = $f->getUpdateRecipients();
             $subject = "Tennis " . $base['shortDate'] . " update";
             $twigFile = 'emailUpdate.html';
+        } else if ($emailType == Automate::EMAIL_CANCEL) {
+            $recipients = $f->getCancelRecipients();
+            $subject = "Cancel your booking for tennis " . $base['shortDate'];
+            $twigFile = 'emailCancel.html';
         } else {
             throw new \Exception("Unknown email type");
         }

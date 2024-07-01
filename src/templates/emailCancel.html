@@ -1,0 +1,25 @@
+<p>Hi {{ to.FirstName }}</p>
+
+<h3>
+  Please cancel your court booking for {{ to.CourtNumber }} at {{ to.BookingTime
+  }} for {{ base.shortDate }}
+</h3>
+
+<p>You don't need to confirm back to me that you have cancelled.</p>
+
+<p>
+  It's particularly important to cancel if you are not playing on {{
+  base.shortDate }}
+</p>
+
+<p>
+  To see the latest status, including the the list of booked courts to cancel,
+  please follow
+  <a href="{{ server }}/start/{{ to.Token }}">your personal link</a>
+</p>
+
+{% if altmessage %} Link: {{ server }}/start/{{ to.Token }} {% endif %}
+
+<p>Regards,</p>
+
+<p>{{ base.OwnerFirstName }}</p>

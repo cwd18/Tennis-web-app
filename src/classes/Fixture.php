@@ -803,6 +803,19 @@ class Fixture
         return $stmt->fetchall(\PDO::FETCH_ASSOC);
     }
 
+    public function getCancelRecipients(): array
+    {
+        // Get recipient list for creating court cancel emails
+        $sql = "SELECT Users.Userid, FirstName, LastName, EmailAddress, BookingTime, CourtNumber
+        FROM Users 
+        JOIN FixtureParticipants ON Users.Userid = FixtureParticipants.Userid
+        JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
+        WHERE BookingType = 'Cancel' AND Fixtureid = :Fixtureid
+        ORDER BY FirstName, LastName;";
+        $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
+        return $stmt->fetchall(\PDO::FETCH_ASSOC);
+    }
+
     public function createBookingRequests()
     {
         // Automatically create booking requests
