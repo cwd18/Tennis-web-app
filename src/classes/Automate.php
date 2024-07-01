@@ -95,7 +95,7 @@ class Automate
             $twigFile = 'emailUpdate.html';
         } else if ($emailType == Automate::EMAIL_CANCEL) {
             $recipients = $f->getCancelRecipients();
-            $subject = "Cancel your booking for tennis " . $base['shortDate'];
+            $subject = "Cancel your court for " . $base['shortDate'];
             $twigFile = 'emailCancel.html';
         } else {
             throw new \Exception("Unknown email type");

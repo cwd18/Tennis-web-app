@@ -806,7 +806,8 @@ class Fixture
     public function getCancelRecipients(): array
     {
         // Get recipient list for creating court cancel emails
-        $sql = "SELECT Users.Userid, FirstName, LastName, EmailAddress, BookingTime, CourtNumber
+        $sql = "SELECT Users.Userid, FirstName, LastName, EmailAddress, 
+            LEFT(BookingTime, 5) AS BookingTime, CourtNumber
         FROM Users 
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = 'Cancel' AND Fixtureid = :Fixtureid
