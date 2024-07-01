@@ -30,22 +30,22 @@ class Automate
             if ($series['AutoEmail']) {
                 $fixtureId = $s->getFixtureNumDaysAhead(8);
                 if ($fixtureId != 0) {
-                    $eventLog->write("Sending invitation emails for series $seriesId");
+                    $eventLog->write("Sending invitation emails for series $seriesId, fixture $fixtureId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_INVITATION);
                 }
                 $fixtureId = $s->getFixtureNumDaysAhead(7);
                 if ($fixtureId != 0) {
-                    $eventLog->write("Sending court booking emails for series $seriesId");
+                    $eventLog->write("Sending court booking emails for series $seriesId, fixture $fixtureId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_BOOKING);
                 }
                 $fixtureId = $s->getFixtureNumDaysAhead(2);
                 if ($fixtureId != 0) {
-                    $eventLog->write("Sending update emails for series $seriesId");
+                    $eventLog->write("Sending update emails for series $seriesId, fixture $fixtureId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_UPDATE);
                 }
                 $fixtureId = $s->getFixtureNumDaysAhead(1);
                 if ($fixtureId != 0) {
-                    $eventLog->write("Sending cancel emails for series $seriesId");
+                    $eventLog->write("Sending cancel emails for series $seriesId, fixture $fixtureId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_CANCEL);
                 }
             }
