@@ -151,10 +151,6 @@ $app->get('/participant', \TennisApp\Action\ParticipantView::class);
 $app->get('/participantWantsToPlay', \TennisApp\Action\ParticipantWantsToPlay::class);
 $app->get('/participantSeries', \TennisApp\Action\ParticipantSeries::class);
 
-// Create email routes
-$app->get('/emailConfirm', \TennisApp\Action\EmailConfirm::class);
-$app->get('/emailSend', \TennisApp\Action\EmailSend::class);
-
 // APIs
 $app->get('/api/start/{token}', \TennisApp\Action\ApiStart::class);
 $app->get('/api/session', \TennisApp\Action\ApiGetSession::class);

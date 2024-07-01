@@ -40,7 +40,7 @@ class Fixture
         $sql = "SELECT Fixtureid, Seriesid, FixtureOwner, 
         FirstName AS OwnerFirstName, LastName AS OwnerLastName, EmailAddress AS OwnerEmail,
         FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, 
-        FixtureCourts, TargetCourts, InvitationsSent
+        FixtureCourts, TargetCourts
         FROM Fixtures JOIN Users ON Fixtures.FixtureOwner = Users.Userid
         WHERE Fixtureid = :Fixtureid;";
         $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
@@ -801,18 +801,6 @@ class Fixture
         ORDER BY FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
         return $stmt->fetchall(\PDO::FETCH_ASSOC);
-    }
-
-    public function setInvitationsSent()
-    {
-        $sql = "UPDATE Fixtures SET InvitationsSent = TRUE WHERE Fixtureid = :Fixtureid;";
-        $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
-        $this->base['InvitationsSent'] = TRUE;
-    }
-
-    public function getInvitationsSent(): bool
-    {
-        return (bool)$this->base['InvitationsSent'];
     }
 
     public function createBookingRequests()

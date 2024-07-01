@@ -107,6 +107,5 @@ class Automate
             $altmessage = strip_tags($altmessage);
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
-        $f->setInvitationsSent();
     }
 }

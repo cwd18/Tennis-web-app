@@ -12,7 +12,6 @@
 <p>Fixture owner: {{ base.OwnerFirstName }} {{ base.OwnerLastName }}</p>
 <p>Courts: {{ base.FixtureCourts }}</p>
 <p>Courts to book: {{ base.TargetCourts }}</p>
-<p>{{ base.InvitationsSent ? 'Invitations have been sent' : 'Invitations have not been sent' }}</p>
 {% if inBookingWindow == -1 %}
 <p>Not yet able to book</p>
 {% endif %}
@@ -58,7 +57,7 @@
 
 {% if abstainers|length >0 %}
 <details>
-    <summary>{{ abstainers|length }} {{ base.InvitationsSent or inBookingWindow >= 0 
+    <summary>{{ abstainers|length }} {{ inBookingWindow >= 0 
         ? 'people have not responded' : 'participants' }}</summary>
     <ol class="lno-space">
     {% for n in abstainers %}
@@ -148,14 +147,6 @@
     }
     document.getElementById("copyCliboardButton").addEventListener('click', copyEmailsToClipboard);
 </script>
-
-{% set emailSubject = base.InvitationsSent ? 'booking requests' : 'invitations' %}
-
-{% if Role == 'Admin' %}
-<br><br>
-<a class="pure-button" href="emailConfirm?fixtureid={{ fixtureid }}">Email {{ emailSubject }}</a>
-{% endif %}
-
 
 <br><br>
 <a class="pure-button" href="series?seriesid={{ base.Seriesid }}">Back to series</a>
