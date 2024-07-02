@@ -43,7 +43,7 @@ class Automate
                     $eventLog->write("Sending update emails for series $seriesId, fixture $fixtureId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_UPDATE);
                 }
-                $fixtureId = $s->getFixtureNumDaysAhead(1);
+                $fixtureId = $s->getFixtureNumDaysAhead(2);
                 if ($fixtureId != 0) {
                     $eventLog->write("Sending cancel emails for series $seriesId, fixture $fixtureId");
                     $this->sendEmails($m, $fixtureId, Automate::EMAIL_CANCEL);
