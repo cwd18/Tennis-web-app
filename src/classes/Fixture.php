@@ -310,7 +310,7 @@ class Fixture
     public function getFixtureUsers(): array
     {
         // Return list of existing participants
-        $sql = "SELECT Users.Userid, FirstName, LastName, ShortName 
+        $sql = "SELECT Users.Userid, FirstName, LastName, ShortName, EmailAddress, Booker 
         FROM Users JOIN FixtureParticipants ON Users.Userid=FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid
         ORDER BY FirstName;";
