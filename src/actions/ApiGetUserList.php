@@ -27,6 +27,7 @@ final class ApiGetUserList
             }
             $u = $m->getUsers();
             $userList = $u->getAllUsers();
+            $fixtureData = null;
         } else {
             if (is_string($error = $m->checkOwnerAccessFixture($fixtureId))) {
                 $response->getBody()->write($error);
@@ -34,8 +35,11 @@ final class ApiGetUserList
             }
             $f = $m->getFixture($fixtureId);
             $userList = $f->getFixtureUsers();
+            $fixtureData = $f->getBasicFixtureData();
         }
-        $response->getBody()->write(json_encode($userList));
+        $response->getBody()->write(json_encode(
+            ['fixtureData' => $fixtureData, 'userList' => $userList]
+        ));
         return $response->withHeader('Content-Type', 'application/json');
     }
 }
