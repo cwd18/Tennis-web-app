@@ -1,20 +1,22 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <form class="pure-form pure-form-stacked" action="useradd" method="post">
-<fieldset>
-    <legend>Add person</legend>        
+  <fieldset>
+    <legend>Add person</legend>
     <label for="fname">First Name</label>
     <input type="text" name="fname" id="fname" placeholder="First Name" />
     <label for="lname">Last Name</label>
     <input type="text" name="lname" id="lname" placeholder="Last Name" />
     <label for="email">Email</label>
     <input type="email" name="email" id="email" placeholder="Email" />
+    <label for="booker" class="pure-checkbox">
+      <input name="booker" type="checkbox" id="booker" value="1" /> Booker
+    </label>
     <button type="submit" class="pure-button pure-button-primary">Add</button>
-</fieldset>
+  </fieldset>
 </form>
 
-<br><br>
+<br /><br />
 <a class="pure-button" href="userlist">Cancel any input</a>
 
 {% endblock %}

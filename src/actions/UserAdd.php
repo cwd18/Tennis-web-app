@@ -17,18 +17,19 @@ final class UserAdd
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response): Response
+    public function __invoke(Request $request, Response $response): Response
     {
         $params = $request->getParsedBody();
+        $booker = array_key_exists('booker', $params); // checkbox
         $m = $this->container->get('Model');
         $view = Twig::fromRequest($request);
         if (is_string($error = $m->checkAdmin())) {
-            return $view->render($response, 'error.html', ['error' => $error]);}
+            return $view->render($response, 'error.html', ['error' => $error]);
+        }
         $u = $m->getUsers();
-        $u->addUser($params['fname'], $params['lname'], $params['email']);
+        $u->addUser($params['fname'], $params['lname'], $params['email'], $booker);
         return $response
-          ->withHeader('Location', "/userlist")
-          ->withStatus(302);
+            ->withHeader('Location', "/userlist")
+            ->withStatus(302);
     }
-
 }

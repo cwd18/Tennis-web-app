@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TennisApp;
@@ -12,7 +13,7 @@ class Users
         $this->pdo = $pdo;
     }
 
-    public function getAllUsers() : array
+    public function getAllUsers(): array
     {
         $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName, Booker
         FROM Users ORDER BY ShortName;";
@@ -21,21 +22,24 @@ class Users
         return $users;
     }
 
-    public function addUser(string $fname, string $lname, string $email) : int
+    public function addUser(string $fname, string $lname, string $email, bool $booker): int
     {
-        $sql = "INSERT INTO Users (FirstName, LastName, EmailAddress)
-        VALUES (:FirstName, :LastName, :EmailAddress);";
-        $this->pdo->runSQL($sql, ['FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email]);
+        $sql = "INSERT INTO Users (FirstName, LastName, EmailAddress, Booker)
+        VALUES (:FirstName, :LastName, :EmailAddress, :Booker);";
+        $this->pdo->runSQL($sql, [
+            'FirstName' => $fname, 'LastName' => $lname,
+            'EmailAddress' => $email, 'Booker' => $booker
+        ]);
         $userId = (int)$this->pdo->lastInsertId();
         $this->generateShortNames();
         return $userId;
     }
 
-    public function getUserData(int $userId) : array|bool
+    public function getUserData(int $userId): array|bool
     {
         $sql = "SELECT Userid, FirstName, LastName, EmailAddress, ShortName, Booker 
         FROM Users WHERE Userid = :Userid;";
-        $statement = $this->pdo->runSQL($sql,['Userid' => $userId]);
+        $statement = $this->pdo->runSQL($sql, ['Userid' => $userId]);
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         return $row; // returns false if no user found
     }
@@ -43,7 +47,7 @@ class Users
     public function deleteUser(int $userId)
     {
         $sql = "DELETE FROM Users WHERE Userid = :Userid;";
-        $this->pdo->runSQL($sql,['Userid' => $userId]);
+        $this->pdo->runSQL($sql, ['Userid' => $userId]);
     }
 
     public function updateUser(int $userId, string $fname, string $lname, string $email, bool $booker)
@@ -51,12 +55,14 @@ class Users
         $sql = "UPDATE Users 
         SET FirstName = :FirstName, LastName = :LastName, EmailAddress = :EmailAddress, Booker = :Booker
         WHERE Userid = :Userid;";
-        $this->pdo->runSQL($sql, ['Userid' => $userId, 
-        'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email, 'Booker' => $booker]);
+        $this->pdo->runSQL($sql, [
+            'Userid' => $userId,
+            'FirstName' => $fname, 'LastName' => $lname, 'EmailAddress' => $email, 'Booker' => $booker
+        ]);
         $this->generateShortNames();
     }
 
-    private function generateShortNames() : bool
+    private function generateShortNames(): bool
     {
         // Generate unique ShortName for each user, adding as few letter from LastName as necessary
         // Assumes this will be enough to create a unique ShortName
@@ -79,5 +85,4 @@ class Users
         } while ($rowsUpdated > 0 and $i++ <= 3); // add up to 3 letters from LastName
         return $rowsUpdated == 0;
     }
-
 }
