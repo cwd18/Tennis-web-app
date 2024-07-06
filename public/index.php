@@ -173,6 +173,6 @@ $app->put('/api/playing/{fixtureid}/{mode}', \TennisApp\Action\ApiPutPlaying::cl
 $app->put('/api/courts/{fixtureid}/{type}/{scope}/{courts}', \TennisApp\Action\ApiPutCourts::class);
 $app->put('/api/toggleBooking/{fixtureid}/{time}/{court}', \TennisApp\Action\ApiPutToggleBooking::class);
 $app->get('/api/userlist/{fixtureid}', \TennisApp\Action\ApiGetUserList::class);
-$app->put('/api/User/{userid}', \TennisApp\Action\ApiPutUser::class);
+$app->put('/api/user/{userid}', \TennisApp\Action\ApiPutUser::class);
 
 $app->run();

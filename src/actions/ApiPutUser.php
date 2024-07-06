@@ -21,22 +21,23 @@ final class ApiPutUser
     {
         $userId = (int)$args["userid"];
         $userData = $request->getParsedBody();
+        $booker = array_key_exists('booker', $userData); // checkbox
         $m = $this->container->get('Model');
         $u = $m->getUsers();
         if ($userId === 0) {
             $u->addUser(
-                $userData['FirstName'],
-                $userData['LastName'],
-                $userData['EmailAddress'],
-                $userData['Booker']
+                $userData['fname'],
+                $userData['lname'],
+                $userData['email'],
+                $booker
             );
         } else {
             $u->updateUser(
                 $userId,
-                $userData['FirstName'],
-                $userData['LastName'],
-                $userData['EmailAddress'],
-                $userData['Booker']
+                $userData['fname'],
+                $userData['lname'],
+                $userData['email'],
+                $booker
             );
         }
         return $response->withHeader('Content-Type', 'application/json');
