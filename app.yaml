@@ -8,14 +8,18 @@ handlers:
     static_files: favicon.ico
     upload: favicon\.ico
 
+  # Enables the load of the react app modules
   - url: /(.*\.(svg|js|css))$
     static_files: react/\1
     upload: react/(.*\.(svg|js|css))$
 
-  # Enables load of react app on /start and the refresh button to work on /admin etc.
-  - url: /start/[0-9a-fA-F]{32}|/admin.*|/owner/.*|/user/.*$
+  # Enables load of react app via index.html on /start
+  # and the browser refresh button to work on /admin etc.
+  # Have to ensure that /api/* is not matched here (e.g. /api/userlist/...)
+  - url: /start/[0-9a-fA-F]{32}|/admin.*|/owner/.*|^/user/.*|^/userlist/.*
     static_files: react/index.html
     upload: react/index.html
 
+  # Every other request is handled by the PHP application
   - url: /.*
     script: auto
