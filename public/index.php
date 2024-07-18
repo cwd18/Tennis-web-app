@@ -44,7 +44,7 @@ $app->add(function (Request $request, RequestHandlerInterface $handler): Respons
     $response = $handler->handle($request);
 
     $response = $response->withHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-    $response = $response->withHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT');
+    $response = $response->withHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, DELETE');
     $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
 
     // Allow Ajax CORS requests with Authorization header
@@ -174,5 +174,6 @@ $app->put('/api/courts/{fixtureid}/{type}/{scope}/{courts}', \TennisApp\Action\A
 $app->put('/api/toggleBooking/{fixtureid}/{time}/{court}', \TennisApp\Action\ApiPutToggleBooking::class);
 $app->get('/api/userlist/{fixtureid}', \TennisApp\Action\ApiGetUserList::class);
 $app->put('/api/user/{userid}', \TennisApp\Action\ApiPutUser::class);
+$app->delete('/api/user/{userid}', \TennisApp\Action\ApiDeleteUser::class);
 
 $app->run();
