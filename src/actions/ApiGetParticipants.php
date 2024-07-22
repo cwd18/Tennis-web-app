@@ -1,5 +1,5 @@
 <?php
-# Return participants given fixtureid 
+# Return participants given fixtureid and filter
 
 namespace TennisApp\Action;
 
@@ -28,8 +28,14 @@ final class ApiGetParticipants
         $f = $m->getFixture($fixtureId);
         if ($filter === 'bookers')
             $users = $f->getBookers();
-        else
+        elseif ($filter === 'all')
             $users = $f->getFixtureUsers();
+        elseif ($filter === 'candidates')
+            $users = $f->getFixtureCandidates();
+        else {
+            $response->getBody()->write(json_encode('Invalid filter'));
+            return $response->withStatus(400);
+        }
         $response->getBody()->write(json_encode($users));
         return $response->withHeader('Content-Type', 'application/json');
     }
