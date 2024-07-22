@@ -174,6 +174,7 @@ $app->put('/api/courts/{fixtureid}/{type}/{scope}/{courts}', \TennisApp\Action\A
 $app->put('/api/toggleBooking/{fixtureid}/{time}/{court}', \TennisApp\Action\ApiPutToggleBooking::class);
 $app->get('/api/userlist/{fixtureid}', \TennisApp\Action\ApiGetUserList::class);
 $app->put('/api/user/{userid}', \TennisApp\Action\ApiPutUser::class);
-$app->delete('/api/user/{userid}', \TennisApp\Action\ApiDeleteUser::class);
+$app->delete('/api/user/{scope}/{fixtureid}/{userid}', \TennisApp\Action\ApiDeleteUser::class);
+$app->put('/api/candidates/{fixtureid}', \TennisApp\Action\ApiPutCandidates::class);
 
 $app->run();
