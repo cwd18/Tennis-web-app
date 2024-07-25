@@ -2,11 +2,17 @@
 
 <p>You said you would like to play on {{ base.shortDate }}</p>
 
-<p>To see the latest status, please follow <a href = "{{ server }}/start/{{ to.Token }}">your personal link</a></p>
+<p>
+  To see the latest status, please follow
+  <a href="{{ server }}/start/{{ to.Token }}">your personal link</a>
+</p>
 
-{% if altmessage %}
-Link: {{ server }}/start/{{ to.Token }}
-{% endif %}
+<p>
+  If you don't think you can make it, please use the link to drop out sooner
+  rather than later
+</p>
+
+{% if altmessage %} Link: {{ server }}/start/{{ to.Token }} {% endif %}
 
 <p>Regards,</p>
 
