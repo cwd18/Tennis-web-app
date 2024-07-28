@@ -32,6 +32,17 @@ class Series
         $this->base['description'] = $this->base['dayname'] . ' at ' . $this->base['SeriesTime'];
     }
 
+    public function updateOwner($ownerId)
+    {
+        // Update the owner of the series
+        $sql = "UPDATE FixtureSeries SET SeriesOwner = :Ownerid WHERE Seriesid = :Seriesid;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Ownerid', $ownerId, \PDO::PARAM_INT);
+        $stmt->bindParam('Seriesid', $this->seriesId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $this->setBase();
+    }
+
     public function updateCourts($type, $courts)
     {
         // Update courts or target courts for this series 

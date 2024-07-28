@@ -98,6 +98,16 @@ class Fixture
         return $r;
     }
 
+    public function updateOwner($ownerId)
+    {
+        $sql = "UPDATE Fixtures SET FixtureOwner = :Ownerid WHERE Fixtureid = :Fixtureid;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('Ownerid', $ownerId, \PDO::PARAM_INT);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $this->setBase();
+    }
+
     public function updateCourts($type, $courts)
     {
         // Update courts or target courts for this fixture
