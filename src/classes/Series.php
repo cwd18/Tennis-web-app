@@ -23,7 +23,7 @@ class Series
     {
         // Retrieve basic series data...
         $sql = "SELECT Seriesid, SeriesOwner, FirstName, LastName, SeriesWeekday, LEFT(SeriesTime,5) AS SeriesTime, 
-        SeriesCourts, TargetCourts, AutoEmail
+        SeriesAltTimeIndex, SeriesCourts, TargetCourts, AutoEmail
         FROM Users JOIN FixtureSeries ON Users.Userid = FixtureSeries.SeriesOwner
         WHERE Seriesid = :Seriesid;";
         $stmt = $this->pdo->runSQL($sql, ['Seriesid' => $this->seriesId]);
@@ -65,7 +65,8 @@ class Series
         // Get upcoming two fixtures (there should only be two - or zero if the series has just been created)
         $seriesId = $this->seriesId;
         $todayDate = date('Y-m-d');
-        $sql = "SELECT Fixtureid, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime FROM Fixtures 
+        $sql = "SELECT Fixtureid, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime,
+        FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate >= :today 
         ORDER BY FixtureDate ASC LIMIT 2;";
         $stmt = $this->pdo->prepare($sql);
@@ -75,7 +76,7 @@ class Series
         $next2Fixtures = $stmt->fetchall(\PDO::FETCH_ASSOC);
 
         // Get default fixture attendees...
-        $users = $this->getSeriesUsers($seriesId);
+        $users = $this->getSeriesUsers();
 
         // Get past fixtures...
         $pastFixtures = $this->getPastFixtures(8);
@@ -286,22 +287,26 @@ class Series
         // Add a fixture at specified date and return the fixtureid
         // If the fixture already exists, return the fixtureid of that fixture
         $seriesId = $this->seriesId;
-        $seriesRow = $this->getBasicSeriesData($seriesId);
+        $seriesRow = $this->getBasicSeriesData();
         $fixtureOwner = $seriesRow['SeriesOwner'];
         $fixtureTime = $seriesRow['SeriesTime'];
+        $fixtureAltTimeIndex = $seriesRow['SeriesAltTimeIndex'];
         $fixtureCourts = $seriesRow['SeriesCourts'];
         $targetCourts = $seriesRow['TargetCourts'];
         $fixtureId = $this->checkFixtureExists($fixtureDate);
         if ($fixtureId != 0) {
             return $fixtureId;
         } // fixture already exists
-        $sql = "INSERT INTO Fixtures (Seriesid, FixtureOwner, FixtureDate, FixtureTime, FixtureCourts, TargetCourts)
-        VALUES (:Seriesid, :FixtureOwner, :FixtureDate, :FixtureTime, :FixtureCourts, :TargetCourts);";
+        $sql = "INSERT INTO Fixtures 
+        (Seriesid, FixtureOwner, FixtureDate, FixtureTime, FixtureAltTimeIndex, FixtureCourts, TargetCourts)
+        VALUES 
+        (:Seriesid, :FixtureOwner, :FixtureDate, :FixtureTime, :FixtureAltTimeIndex, :FixtureCourts, :TargetCourts);";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Seriesid', $seriesId, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureOwner', $fixtureOwner, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureDate', $fixtureDate, \PDO::PARAM_STR);
         $stmt->bindParam('FixtureTime', $fixtureTime, \PDO::PARAM_STR);
+        $stmt->bindParam('FixtureAltTimeIndex', $fixtureAltTimeIndex, \PDO::PARAM_INT);
         $stmt->bindParam('FixtureCourts', $fixtureCourts, \PDO::PARAM_STR);
         $stmt->bindParam('TargetCourts', $targetCourts, \PDO::PARAM_STR);
         $stmt->execute();
