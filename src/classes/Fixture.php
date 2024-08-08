@@ -39,7 +39,7 @@ class Fixture
         // Retrieve basic fixture data...
         $sql = "SELECT Fixtureid, Seriesid, FixtureOwner, 
         FirstName AS OwnerFirstName, LastName AS OwnerLastName, EmailAddress AS OwnerEmail,
-        FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, 
+        FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime, FixtureAltTimeIndex,
         FixtureCourts, TargetCourts
         FROM Fixtures JOIN Users ON Fixtures.FixtureOwner = Users.Userid
         WHERE Fixtureid = :Fixtureid;";
@@ -54,12 +54,11 @@ class Fixture
         $this->base['inBookingWindow'] = $this->inBookingWindow();
 
         // Calculate booking time slots
-        $bookingBase = $this->base['FixtureTime'];
-        $bookingRange = 2;
-        if ($bookingBase == '08:30') {
-            $bookingBase = '07:30';
-            $bookingRange = 3;
-        }
+        $bookingBase = date(
+            "H:i",
+            strtotime($this->base['FixtureTime']) + (int)$this->base['FixtureAltTimeIndex'] * 3600
+        );
+        $bookingRange = 2 + abs((int)$this->base['FixtureAltTimeIndex']);
         for ($n = 0; $n < $bookingRange; $n++) {
             $this->base['bookingTimes'][$n] = date("H:i", strtotime($bookingBase) + $n * 3600);
         }
@@ -98,6 +97,23 @@ class Fixture
         return $r;
     }
 
+    public function updateToAltFixtureTime()
+    {
+        $time = date(
+            "H:i",
+            strtotime($this->base['FixtureTime']) + (int)$this->base['FixtureAltTimeIndex'] * 3600
+        );
+        $index = -(int)$this->base['FixtureAltTimeIndex'];
+        $sql = "UPDATE Fixtures SET FixtureTime = :FixtureTime, FixtureAltTimeIndex = :FixtureAltTimeIndex
+        WHERE Fixtureid = :Fixtureid;";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam('FixtureTime', $time, \PDO::PARAM_STR);
+        $stmt->bindParam('FixtureAltTimeIndex', $index, \PDO::PARAM_INT);
+        $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $this->setBase();
+    }
+
     public function updateOwner($ownerId)
     {
         $sql = "UPDATE Fixtures SET FixtureOwner = :Ownerid WHERE Fixtureid = :Fixtureid;";
@@ -122,6 +138,7 @@ class Fixture
         $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('Courts', $courts, \PDO::PARAM_STR);
         $stmt->execute();
+        $this->setBase();
     }
 
     public function updateBasicFixtureData(string $time, string $courts, string $targetCourts)
