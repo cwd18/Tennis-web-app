@@ -65,7 +65,7 @@ class Series
         // Get upcoming two fixtures (there should only be two - or zero if the series has just been created)
         $seriesId = $this->seriesId;
         $todayDate = date('Y-m-d');
-        $sql = "SELECT Fixtureid, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime,
+        $sql = "SELECT Fixtureid, FixtureDate, LEFT(FixtureTime, 5) AS FixtureTime
         FROM Fixtures 
         WHERE Seriesid = :Seriesid AND FixtureDate >= :today 
         ORDER BY FixtureDate ASC LIMIT 2;";
@@ -93,8 +93,12 @@ class Series
 
         // return all series data
         $seriesData = [
-            'seriesid' => $seriesId, 'base' => $this->base, 'participants' => $users,
-            'pastFixtures' => $pastFixtures, 'next2fixtures' => $next2Fixtures, 'email' => $email
+            'seriesid' => $seriesId,
+            'base' => $this->base,
+            'participants' => $users,
+            'pastFixtures' => $pastFixtures,
+            'next2fixtures' => $next2Fixtures,
+            'email' => $email
         ];
         return $seriesData;
     }
