@@ -11,6 +11,7 @@ class Automate
     public const EMAIL_UPDATE = 2;
     public const EMAIL_DROPOUT = 3;
     public const EMAIL_CANCEL = 4;
+    public const EMAIL_NOW_PLAYING = 5;
 
     public function runAutomation(Model $m)
     {
@@ -80,6 +81,22 @@ class Automate
             $e->sendEmail($replyTo, $base['OwnerEmail'], $subject, $message, $altmessage);
             return;
         }
+        if ($emailType == Automate::EMAIL_NOW_PLAYING) {
+            $subject = sprintf(
+                "%s %s now wanta to play",
+                $args['FirstName'],
+                $args['LastName']
+            );
+            $altmessage = sprintf(
+                "%s %s now wants to play on %s",
+                $args['FirstName'],
+                $args['LastName'],
+                $base['shortDate']
+            );
+            $message = "<!DOCTYPE html><html><body><p>$altmessage</p></body></html>";
+            $e->sendEmail($replyTo, $base['OwnerEmail'], $subject, $message, $altmessage);
+            return;
+        }
         if ($emailType == Automate::EMAIL_INVITATION) {
             $recipients = $f->getWannaPlayRecipients();
             $subject = "Tennis " . $base['shortDate'];
@@ -106,11 +123,15 @@ class Automate
         foreach ($recipients as $to) {
             $message = $twig->render($twigFile, [
                 'altmessage' => false,
-                'base' => $base, 'to' => $to, 'server' => $server
+                'base' => $base,
+                'to' => $to,
+                'server' => $server
             ]);
             $altmessage = $twig->render($twigFile, [
                 'altmessage' => true,
-                'base' => $base, 'to' => $to, 'server' => $server
+                'base' => $base,
+                'to' => $to,
+                'server' => $server
             ]);
             $altmessage = str_replace(['</tr><tr>', '</thead><thead>'], "\n", $altmessage);
             $altmessage = str_replace(['</td><td>', '</th><th>'], "\t", $altmessage);
