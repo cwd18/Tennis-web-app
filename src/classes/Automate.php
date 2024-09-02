@@ -83,7 +83,7 @@ class Automate
         }
         if ($emailType == Automate::EMAIL_NOW_PLAYING) {
             $subject = sprintf(
-                "%s %s now wanta to play",
+                "%s %s now wants to play",
                 $args['FirstName'],
                 $args['LastName']
             );

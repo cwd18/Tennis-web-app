@@ -27,17 +27,17 @@ final class ApiPutParticipantWantsToPlay
             return $response;
         }
         $f = $m->getFixture($fixtureId);
-        $previousValue = $f->getWantsToPlay($userId);
+        $previousValue = $f->getWantsToPlay($userId); //null, 0, or 1
         if ($value === 1) {
             $f->setWantsToPlay($userId); // will time stamp if the current time stamp is NULL
-            if ($previousValue == 0) { // user now wants to play
+            if ($previousValue === 0) { // user now wants to play
                 $user = $m->getUsers()->getUserData($userId);
                 $a = $m->getAutomate();
                 $a->sendEmails($m, $fixtureId, $a::EMAIL_NOW_PLAYING, $user);
             }
         } elseif ($value === 0) {
             $f->setWantsNotToPlay($userId);
-            if ($previousValue == 1) { // user is dropping out
+            if ($previousValue === 1) { // user is dropping out
                 $user = $m->getUsers()->getUserData($userId);
                 $a = $m->getAutomate();
                 $a->sendEmails($m, $fixtureId, $a::EMAIL_DROPOUT, $user);
