@@ -16,19 +16,20 @@ final class ApiPutParticipantBookings
         $this->container = $container;
     }
 
-public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $fixtureId = (int)$args['fixtureid'];
         $userId = (int)$args['userid'];
         $bookings = $request->getParsedBody();
         $m = $this->container->get('Model');
         if (is_string($error = $m->checkUserAccessFixture($fixtureId))) {
-            $response->getBody()->write($error);        
+            $response->getBody()->write($error);
             return $response;
         }
         $f = $m->getFixture($fixtureId);
         $f->setParticipantBookings($userId, $bookings);
         $f->setCourtsBooked($userId);
+        $f->checkCourtsToCancel(); // delete any cancel courts that have since been booked
         return $response->withHeader('Content-Type', 'application/json');
     }
 }

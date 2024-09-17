@@ -34,7 +34,7 @@ class Fixture
         return $courts;
     }
 
-    private function setBase()
+    private function setBase(): void
     {
         // Retrieve basic fixture data...
         $sql = "SELECT Fixtureid, Seriesid, FixtureOwner, 
@@ -97,7 +97,7 @@ class Fixture
         return $r;
     }
 
-    public function updateToAltFixtureTime()
+    public function updateToAltFixtureTime(): void
     {
         $time = date(
             "H:i",
@@ -114,7 +114,7 @@ class Fixture
         $this->setBase();
     }
 
-    public function updateOwner($ownerId)
+    public function updateOwner($ownerId): void
     {
         $sql = "UPDATE Fixtures SET FixtureOwner = :Ownerid WHERE Fixtureid = :Fixtureid;";
         $stmt = $this->pdo->prepare($sql);
@@ -124,7 +124,7 @@ class Fixture
         $this->setBase();
     }
 
-    public function updateCourts($type, $courts)
+    public function updateCourts($type, $courts): void
     {
         // Update courts or target courts for this fixture
         if ($type === 'courts') {
@@ -141,7 +141,7 @@ class Fixture
         $this->setBase();
     }
 
-    public function updateBasicFixtureData(string $time, string $courts, string $targetCourts)
+    public function updateBasicFixtureData(string $time, string $courts, string $targetCourts): void
     {
         $sql = "UPDATE Fixtures SET FixtureTime = :FixtureTime, 
         FixtureCourts = :FixtureCourts, TargetCourts = :TargetCourts 
@@ -155,7 +155,7 @@ class Fixture
         $this->setBase();
     }
 
-    public function deleteFixture()
+    public function deleteFixture(): void
     {
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid;";
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
@@ -229,7 +229,7 @@ class Fixture
         return $stmt->fetchColumn();
     }
 
-    public function setCourtsBooked(int $userId)
+    public function setCourtsBooked(int $userId): void
     {
         // Ratchet up the value of the CourtsBooked column if the user 
         // has booked more courts than the current value
@@ -251,7 +251,7 @@ class Fixture
         return (int)$stmt->fetchColumn();
     }
 
-    public function setAutoPlaying()
+    public function setAutoPlaying(): void
     {
         // Automatically set who is playing based on the number of courts available
         // at the current start time of the fixture
@@ -278,7 +278,7 @@ class Fixture
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
     }
 
-    public function setPlaying($userIds)
+    public function setPlaying($userIds): void
     {
         $sql = "UPDATE FixtureParticipants SET IsPlaying = TRUE
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
@@ -288,7 +288,7 @@ class Fixture
         }
     }
 
-    public function setWantsToPlay($userIds)
+    public function setWantsToPlay($userIds): void
     {
         // Set participant(s) to want to play and update AcceptTime to current time if NULL
         $now = new \DateTime("now", new \DateTimeZone('Europe/London'));
@@ -309,21 +309,21 @@ class Fixture
         }
     }
 
-    public function setWantsNotToPlay($userId)
+    public function setWantsNotToPlay($userId): void
     {
         $sql = "UPDATE FixtureParticipants SET WantsToPlay = FALSE, IsPlaying = FALSE 
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
     }
 
-    public function resetPlaying()
+    public function resetPlaying(): void
     {
         $sql = "UPDATE FixtureParticipants SET IsPlaying = FALSE
         WHERE Fixtureid = :Fixtureid;";
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
     }
 
-    public function addUsers($userIds)
+    public function addUsers($userIds): void
     {
         // Add users to the fixture
         $sql = "INSERT INTO FixtureParticipants (Fixtureid, Userid) 
@@ -360,7 +360,7 @@ class Fixture
         return $users;
     }
 
-    public function deleteFixtureUsers($userIds)
+    public function deleteFixtureUsers($userIds): void
     {
         // Delete specified users from this fixture 
         $sql = "DELETE FROM FixtureParticipants WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
@@ -370,22 +370,21 @@ class Fixture
         }
     }
 
-    public function setParticipantBookings(int $userId, array $bookings, $type = 'Booked')
+    public function setParticipantBookings(int $userId, array $bookings): void
     {
-        // Set court bookings for a participant
+        // Set court bookings for a participant (BookingType is 'Booked')
         $this->pdo->beginTransaction();
         // Delete existing bookings for this user
-        $sql = "DELETE FROM CourtBookings WHERE BookingType = :BookingType 
+        $sql = "DELETE FROM CourtBookings WHERE BookingType = 'Booked' 
         AND Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
         $stmt->bindParam('Userid', $userId, \PDO::PARAM_INT);
-        $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR);
         $stmt->execute();
 
         // Add the new user bookings
         $sql = "INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber, BookingType)
-        VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber, :BookingType);";
+        VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber, 'Booked');";
         $stmt = $this->pdo->prepare($sql);
         foreach ($bookings as $booking) {
             if ($booking['court'] == 0) {
@@ -395,13 +394,26 @@ class Fixture
             $stmt->bindParam('Bookerid', $userId, \PDO::PARAM_INT);
             $stmt->bindParam('BookingTime', $booking['time'], \PDO::PARAM_STR);
             $stmt->bindParam('CourtNumber', $booking['court'], \PDO::PARAM_INT);
-            $stmt->bindParam('BookingType', $type, \PDO::PARAM_STR);
             $stmt->execute();
         }
         $this->pdo->commit();
     }
 
-    private function addCourtBooking($bookerId, $time, $court, $type)
+    public function checkCourtsToCancel(): void
+    {
+        // Delete any 'Cancel" court bookings that have since been registered as 'Booked'
+        // The owner of the Cancel booking actually cancelled but someone else has since booked it
+        $sql = "DELETE cb1 FROM CourtBookings cb1
+            JOIN CourtBookings cb2 ON cb1.Fixtureid = cb2.Fixtureid 
+            AND cb1.BookingTime = cb2.BookingTime 
+            AND cb1.CourtNumber = cb2.CourtNumber
+            WHERE cb1.BookingType = 'Cancel' 
+            AND cb2.BookingType = 'Booked' 
+            AND cb1.Fixtureid = :Fixtureid;";
+        $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
+    }
+
+    private function addCourtBooking($bookerId, $time, $court, $type): void
     {
         $sql = "INSERT INTO CourtBookings (Fixtureid, Userid, BookingTime, CourtNumber, BookingType)
         VALUES (:Fixtureid, :Bookerid, :BookingTime, :CourtNumber, :BookingType);";
@@ -414,7 +426,7 @@ class Fixture
         $stmt->execute();
     }
 
-    public function toggleBooking($time, $court)
+    public function toggleBooking($time, $court): void
     {
         // Toogle the court booking between 'Booked' and 'Cancel'
         $sql = "UPDATE CourtBookings 
@@ -431,7 +443,7 @@ class Fixture
         $stmt->execute();
     }
 
-    public function deleteCourtBooking($userId, $time, $court, $type)
+    public function deleteCourtBooking($userId, $time, $court, $type): void
     {
         $sql = "DELETE FROM CourtBookings WHERE BookingType = :BookingType 
         AND Fixtureid = :Fixtureid AND Userid = :Userid
@@ -653,11 +665,15 @@ class Fixture
         // return all fixture data
         $fixture = [
             'base' => $this->base,
-            'adjacentFixtureid' => $adjacentFixtureId, 'adjacentLabel' => $adjacentLabel,
-            'players' => $playerLists['players'], 'reserves' => $playerLists['reserves'],
-            'decliners' => $playerLists['decliners'],  'abstainers' => $playerLists['abstainers'],
+            'adjacentFixtureid' => $adjacentFixtureId,
+            'adjacentLabel' => $adjacentLabel,
+            'players' => $playerLists['players'],
+            'reserves' => $playerLists['reserves'],
+            'decliners' => $playerLists['decliners'],
+            'abstainers' => $playerLists['abstainers'],
             'capacity' => $capacity,
-            'inBookingWindow' => $inBookingWindow, 'requestedBookings' => $requestedBookings,
+            'inBookingWindow' => $inBookingWindow,
+            'requestedBookings' => $requestedBookings,
             'bookings' => $bookingViewGrid
         ];
         return $fixture;
@@ -728,7 +744,7 @@ class Fixture
     public function getBookings(string $type): array
     {
         // Get the list of booking of the specified type for this fixture
-        // $type is 'Booked' or 'Request'
+        // The parameter $type is 'Booked' or 'Request'
         // Returns an empty array if no records for this fixture
         $sql = "SELECT Users.Userid, ShortName, CourtNumber, LEFT(BookingTime, 5) AS BookingTime 
         FROM CourtBookings JOIN Users ON Users.Userid = CourtBookings.Userid
@@ -754,9 +770,10 @@ class Fixture
         return $users;
     }
 
-    public function setBookings(string $type, $bookings)
+    public function setBookings(string $type, array $bookings): void
     {
-        // Delete any existing records
+        // $type is 'Booked' or 'Request' (most likely 'Request')
+        // First, delete any existing records
         $sql = "DELETE FROM CourtBookings WHERE Fixtureid = :Fixtureid AND BookingType = :BookingType;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
@@ -843,7 +860,7 @@ class Fixture
         return $stmt->fetchall(\PDO::FETCH_ASSOC);
     }
 
-    public function createBookingRequests()
+    public function createBookingRequests(): void
     {
         // Automatically create booking requests
         // Delete any existing requests
