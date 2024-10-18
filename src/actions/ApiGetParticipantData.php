@@ -37,6 +37,7 @@ final class ApiGetParticipantData
             $wantsToPlay = $r ? 'Yes' : 'No';
         }
         $participantData['wantsToPlay'] = $wantsToPlay;
+        $participantData['isPlaying'] = $f->getPlaying($userId);
         // Get series link for this user
         $seriesId = $f->getSeriesid();
         $server = $m->getServer();

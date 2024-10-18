@@ -220,6 +220,15 @@ class Fixture
         return $row['WantsToPlay']; // null, zero, or one
     }
 
+    public function getPlaying($userId): bool
+    {
+        // Return the value of the IsPlaying column
+        $sql = "SELECT IsPlaying FROM FixtureParticipants
+        WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
+        $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
+        return $stmt->fetchColumn() === 1;
+    }
+
     private function getCourtsBooked($userId): ?int
     {
         // Return the value of the CourtsBooked column, which remembers the highest number of courts booked
