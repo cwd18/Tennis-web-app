@@ -1,0 +1,109 @@
+<p>Hi {{ to.FirstName }}</p>
+
+<p>{{message}}</p>
+
+<p>
+  See snapshot below. To see the latest status, please follow
+  <a href="{{ server }}/start/{{ to.Token }}">your personal link</a>
+</p>
+
+{% if f.absentBookers|length >0 %}
+<p>
+  I will get reception to mark the absent bookers as being present, so they don't
+  get a "we missed you" email.
+</p>
+{% endif %}
+
+{% if f.cancels|length >1 %}
+<p>
+  If you haven't already done so, please cancel any courts in the 
+  "Booked courts to cancel" table, especially if you will be absent.
+</p>
+{% endif %}
+
+{% if altmessage %} Link: {{ server }}/start/{{ to.Token }} {% endif %}
+
+<p>Regards,</p>
+
+<p>{{ base.OwnerFirstName }}</p>
+
+{% macro userList(users, listHeading) %} 
+{% if users|length >0 %}
+<p style="margin-bottom: 0.2em"><b>{{ listHeading }}:</b></p>
+<ol style="margin-top: 0; padding-left: 2em">
+  {% for n in users %}
+  <li>{{ n.ShortName }}</li>
+  {% endfor %}
+</ol>
+{% endif %}
+{% endmacro %} 
+
+{{ _self.userList(f.players, 'Playing') }} 
+{{ _self.userList(f.reserves, 'Would like to play') }} 
+{{ _self.userList(f.decliners, 'Can\'t play') }} 
+{{ _self.userList(f.abstainers,'Undeclared') }} 
+
+{% if f.inBookingWindow >= 0 %}
+
+{% macro bookingGrid(grid, gridHeading) %} 
+{% if grid|length >1 %}
+<p style="margin-bottom: 0.2em"><b>{{ gridHeading }}...</b></p>
+<table
+  style="
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+    border: 1px solid #cbcbcb;
+  "
+>
+  {% for key, r in grid %} {% if key == 0 %}
+  <thead
+    style="
+      background-color: #e0e0e0;
+      color: #000;
+      text-align: left;
+      vertical-align: bottom;
+    "
+  >
+    {% endif %}
+    <tr>
+      {% for c in r %} {% if key == 0 %}
+      <th
+        style="
+          border-left: 1px solid #cbcbcb;
+          border-width: 0 0 0 1px;
+          font-size: inherit;
+          margin: 0;
+          overflow: visible;
+          padding: 0.5em 1em;
+        "
+      >
+        {{ c }}
+      </th>
+      {% else %}
+      <td
+        style="
+          border-left: 1px solid #cbcbcb;
+          border-width: 0 0 0 1px;
+          font-size: inherit;
+          margin: 0;
+          overflow: visible;
+          padding: 0.5em 1em;
+        "
+      >
+        {{ c }}
+      </td>
+      {% endif %} {% endfor %} {% if key == 0 %}
+    </tr>
+  </thead>
+  {% endif %} {% endfor %}
+</table>
+{% endif %} 
+{% endmacro %} 
+
+{{ _self.bookingGrid(f.bookings, 'Booked courts') }} 
+{{ _self.bookingGrid(f.cancels, 'Booked courts to cancel') }} 
+
+{{ _self.userList(f.absentBookers,'Absent bookers') }} 
+
+{% endif %} 

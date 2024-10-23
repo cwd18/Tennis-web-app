@@ -560,7 +560,9 @@ class Fixture
 
     public function getBookingViewGrid($bookingType = 'Booked'): array
     {
-        // Get court bookings into grid with 2 or 3 booking time columns and a bookers bookers column)
+        // Get court bookings (or bookings to cancel) into a grid 
+        // with 2 or 3 booking time columns and a booker's column
+        // $bookingType should be 'Booked' or 'Cancel'
 
         $bookingGrid[0][0] = "Court"; // first column is court number
 
@@ -669,7 +671,10 @@ class Fixture
 
         $capacity = $this->getCapacity();
 
-        $bookingViewGrid = $this->getBookingViewGrid();
+        $bookingViewGrid = $this->getBookingViewGrid('Booked');
+        $cancelViewGrid = $this->getBookingViewGrid('Cancel');
+
+        $absentBookers = $this->getAbsentBookers();
 
         // return all fixture data
         $fixture = [
@@ -683,7 +688,9 @@ class Fixture
             'capacity' => $capacity,
             'inBookingWindow' => $inBookingWindow,
             'requestedBookings' => $requestedBookings,
-            'bookings' => $bookingViewGrid
+            'bookings' => $bookingViewGrid,
+            'cancels' => $cancelViewGrid,
+            'absentBookers' => $absentBookers
         ];
         return $fixture;
     }

@@ -178,5 +178,6 @@ $app->delete('/api/user/{scope}/{fixtureid}/{userid}', \TennisApp\Action\ApiDele
 $app->put('/api/candidates/{fixtureid}', \TennisApp\Action\ApiPutCandidates::class);
 $app->put('/api/owner/{fixtureid}/{scope}/{ownerid}', \TennisApp\Action\ApiPutOwner::class);
 $app->put('/api/alternateFixtureTime/{fixtureid}', \TennisApp\Action\ApiPutAlternateFixtureTime::class);
+$app->post('/api/emailMessage/{fixtureid}', \TennisApp\Action\ApiPutEmailMessage::class);
 
 $app->run();
