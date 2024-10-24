@@ -33,7 +33,7 @@ final class ApiPutEmailMessage
         $fixture = $f->getFixtureData();
         $tokens = $m->getTokens();
         $recipients = $f->getFixtureUsers();
-        $subject = "Tennis " . $base['shortDate'] . " update";
+        $subject = "Tennis " . $base['shortDate'] . " at " . $base['FixtureTime'];
         $twigFile = 'emailManualUpdate.twig';
         $replyTo = $base['OwnerEmail'];
         $twig = $m->getTwig();
