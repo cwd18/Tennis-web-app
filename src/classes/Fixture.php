@@ -287,19 +287,35 @@ class Fixture
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
     }
 
-    public function setPlaying($userIds): void
+    public function setPlaying(array|int $userIds, bool $isPlaying = true): void
     {
-        $sql = "UPDATE FixtureParticipants SET IsPlaying = TRUE
+        // Set participant(s) to playing
+        // $userIds can be an array or a single value
+        $sql = "UPDATE FixtureParticipants SET IsPlaying = :IsPlaying
         WHERE Fixtureid = :Fixtureid AND Userid = :Userid;";
         $stmt = $this->pdo->prepare($sql);
-        foreach ($userIds as $userId) {
-            $stmt->execute(['Fixtureid' => $this->fixtureId, 'Userid' => $userId]);
+        if (is_array($userIds)) {
+            foreach ($userIds as $userId) {
+                $stmt->execute([
+                    'IsPlaying' => $isPlaying,
+                    'Fixtureid' => $this->fixtureId,
+                    'Userid' => $userId
+                ]);
+            }
+        } else {
+            $stmt->execute([
+                'IsPlaying' => $isPlaying,
+                'Fixtureid' => $this->fixtureId,
+                'Userid' => $userIds
+            ]);
         }
     }
 
-    public function setWantsToPlay($userIds): void
+    public function setWantsToPlay(array|int $userIds): void
     {
-        // Set participant(s) to want to play and update AcceptTime to current time if NULL
+        // Set participant(s) to want to play 
+        // and update AcceptTime to current time if WantToPlay is NULL
+        // $userIds can be an array or a single value
         $now = new \DateTime("now", new \DateTimeZone('Europe/London'));
         $dateTimeNow = $now->format("Y-m-d H:i:s");
         $sql = "UPDATE FixtureParticipants SET WantsToPlay = TRUE,
