@@ -46,7 +46,7 @@ class Fixture
         $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
         $this->base = $stmt->fetch(\PDO::FETCH_ASSOC);
         $fixtureDt = strtotime($this->base['FixtureDate']);
-        $bookingDt = $fixtureDt - 7 * 24 * 60 * 60; // 7 days earlier
+        $bookingDt = $fixtureDt - 7 * 24 * 60 * 60; // 7 days earlier - beware of daylight saving time
         $this->base['bookingDate'] = date("l jS", $bookingDt);
         $this->base['bookingDateYmd'] = date("Y-m-d", $bookingDt);
         $this->base['description'] = date("l jS \of F", $fixtureDt);
@@ -80,21 +80,23 @@ class Fixture
         // Return -1 if the current time is earlier than the booking window
         // Return +1 if the current time is later than the booking window
         // The booking window is the week before 07:30 on the fixture data
+        // This should work if daylight saving time starts or ends during the week
         $fixtureDate = $this->base['FixtureDate'];
+        $bookingDateYmd = $this->base['bookingDateYmd'];
         $london = new \DateTimeZone('Europe/London');
         $bookingTimeEnd = new \DateTime("$fixtureDate 07:30", $london);
+        $bookingTimeStart = new \DateTime("$bookingDateYmd 07:30", $london);
         $bookingDt2 = $bookingTimeEnd->getTimestamp();
-        $bookingDt1 = $bookingDt2 - 7 * 24 * 60 * 60; // 7 days earlier
+        $bookingDt1 = $bookingTimeStart->getTimestamp();
         $now = new \DateTime("now", $london);
         $nowDt = $now->getTimestamp();
         if ($nowDt < $bookingDt1) {
-            $r = -1;
-        } else if ($nowDt > $bookingDt2) {
-            $r = 1;
+            return -1;
+        } elseif ($nowDt > $bookingDt2) {
+            return 1;
         } else {
-            $r = 0;
+            return 0;
         }
-        return $r;
     }
 
     public function updateToAltFixtureTime(): void
