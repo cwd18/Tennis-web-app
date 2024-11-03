@@ -78,7 +78,14 @@ class Automate
                 $base['shortDate']
             );
             $message = "<!DOCTYPE html><html><body><p>$altmessage</p></body></html>";
-            $e->sendEmail($replyTo, $base['OwnerEmail'], $subject, $message, $altmessage);
+            $e->sendEmail(
+                $replyTo,
+                $base['OwnerEmail'],
+                $subject,
+                $message,
+                $altmessage,
+                $args['EmailAddress']
+            );
             return;
         }
         if ($emailType == Automate::EMAIL_NOW_PLAYING) {
@@ -94,7 +101,14 @@ class Automate
                 $base['shortDate']
             );
             $message = "<!DOCTYPE html><html><body><p>$altmessage</p></body></html>";
-            $e->sendEmail($replyTo, $base['OwnerEmail'], $subject, $message, $altmessage);
+            $e->sendEmail(
+                $replyTo,
+                $base['OwnerEmail'],
+                $subject,
+                $message,
+                $altmessage,
+                $args['EmailAddress']
+            );
             return;
         }
         if ($emailType == Automate::EMAIL_INVITATION) {
