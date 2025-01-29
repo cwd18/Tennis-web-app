@@ -54,11 +54,16 @@ class Fixture
         $this->base['inBookingWindow'] = $this->inBookingWindow();
 
         // Calculate booking time slots
-        $bookingBase = date(
-            "H:i",
-            strtotime($this->base['FixtureTime']) + (int)$this->base['FixtureAltTimeIndex'] * 3600
-        );
-        $bookingRange = 2 + abs((int)$this->base['FixtureAltTimeIndex']);
+        // FixtureAltTimeIndex is either , 0, -1, or +1
+        // Booking range is 2 unless FixtureAltTimeIndex is -1 or +1
+        $bookingBase = $this->base['FixtureTime'];
+        $bookingRange = 2;
+        if ($this->base['FixtureAltTimeIndex'] !== 0) {
+            $bookingRange = 3;
+            if ($this->base['FixtureAltTimeIndex'] === -1) {
+                $bookingBase = date("H:i", strtotime($this->base['FixtureTime']) - 3600);
+            }
+        }
         for ($n = 0; $n < $bookingRange; $n++) {
             $this->base['bookingTimes'][$n] = date("H:i", strtotime($bookingBase) + $n * 3600);
         }
