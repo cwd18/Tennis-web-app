@@ -25,12 +25,12 @@ class SessionHandler implements \SessionHandlerInterface
 
     public function read($id): string
     {
-        $todayDate = date('Y-m-d');
+        $nowDateTime = date('Y-m-d H:i:s');
         $sql = "SELECT SessionData FROM SessionData WHERE Sessionid = :id 
-        AND SessionExpires > :today;";
+        AND SessionExpires > :nowDT;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('id', $id, \PDO::PARAM_INT);
-        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR);
+        $stmt->bindParam('nowDT', $nowDateTime, \PDO::PARAM_STR);
         $stmt->execute();
         $result = $stmt->fetchColumn();
         return $result == false ? "" : $result;
@@ -38,13 +38,12 @@ class SessionHandler implements \SessionHandlerInterface
 
     public function write($id, $sessionData): bool
     {
-        $todayDate = date('Y-m-d');
+        $sessionExpires = date('Y-m-d H:i:s', time() + 60 * 60 * 24 * 30); // 4 days from now
         $sql = "REPLACE INTO SessionData 
-        SET Sessionid = :id, SessionExpires = DATE_ADD(NOW(), INTERVAL 4 WEEK), 
-        SessionData = :SessionData;";
+        SET Sessionid = :id, SessionExpires = :Expires, SessionData = :SessionData;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('id', $id, \PDO::PARAM_INT);
-        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR);
+        $stmt->bindParam('Expires', $sessionExpires, \PDO::PARAM_STR);
         $stmt->bindParam('SessionData', $sessionData, \PDO::PARAM_STR);
         $stmt->execute();
         return true;
@@ -60,9 +59,9 @@ class SessionHandler implements \SessionHandlerInterface
     public function gc($maxlifetime): int|false
     {
         // Cleanup old sessions, returning the number of deleted sessions on success, or false on failure
-        $todayDate = date('Y-m-d');
-        $stmt = $this->pdo->prepare("DELETE FROM SessionData WHERE SessionExpires < :today;");
-        $stmt->bindParam('today', $todayDate, \PDO::PARAM_STR);
+        $nowDateTime = date('Y-m-d H:i:s');
+        $stmt = $this->pdo->prepare("DELETE FROM SessionData WHERE SessionExpires < :nowDT;");
+        $stmt->bindParam('nowDT', $nowDateTime, \PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->rowCount();
     }
