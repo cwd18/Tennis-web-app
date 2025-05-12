@@ -40,7 +40,7 @@ class SessionHandler implements \SessionHandlerInterface
     {
         $todayDate = date('Y-m-d');
         $sql = "REPLACE INTO SessionData 
-        SET Sessionid = :id, SessionExpires = DATE_ADD(:today, INTERVAL 4 WEEK), 
+        SET Sessionid = :id, SessionExpires = DATE_ADD(NOW(), INTERVAL 4 WEEK), 
         SessionData = :SessionData;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('id', $id, \PDO::PARAM_INT);
