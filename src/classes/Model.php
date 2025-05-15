@@ -35,8 +35,11 @@ class Model
         $this->twig = $twig;
         $this->automate = new Automate();
         $sessionHandler = new SessionHandler($this->db);
-        session_set_save_handler($sessionHandler, true);
-        session_start();
+        session_set_save_handler(
+            $sessionHandler,
+            true
+        ); // register database session handler to enable serverless sessions
+        session_start(); // creates a new session if no PHPSESSID cookie exists
     }
 
     public function getUsers()

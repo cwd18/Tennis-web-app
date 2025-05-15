@@ -20,6 +20,16 @@ handlers:
     static_files: react/index.html
     upload: react/index.html
 
+  # All URLs ending in .gif .png or .jpg are treated as paths to
+  # static files in the static/ directory. The URL pattern is a
+  # regular expression, with a grouping that is inserted into the
+  # path to the file.
+  # If these requests are not handled here, the PHP application will handle them and fail
+  # causing a loss of session data
+  - url: /(.*\.(gif|png|jpg))$
+    static_files: static/\1
+    upload: static/.*\.(gif|png|jpg)$
+
   # Every other request is handled by the PHP application
   - url: /.*
     script: auto

@@ -13,14 +13,24 @@ class Database extends \PDO
         parent::__construct($dsn, $username, $password, $options); // Create PDO object
     }
 
-    public function runSQL(string $sql, $arguments = null)
+    /**
+     * Executes an SQL query with optional arguments.
+     *
+     * @param string $sql The SQL query to execute.
+     * @param array|null $arguments Optional arguments for the prepared statement.
+     * @return \PDOStatement The resulting PDOStatement object.
+     */
+    public function runSQL(string $sql, ?array $arguments = null)
     {
-        if (!$arguments) {                               // If no arguments
-            return $this->query($sql);                   // Run SQL, return PDOStatement object
+        if ($arguments === null) { // If no arguments
+            return $this->query($sql); // Run SQL, return PDOStatement object
         }
-        $statement = $this->prepare($sql);               // If still running prepare statement
-        $statement->execute($arguments);                 // Execute SQL statement with arguments
-        return $statement;                               // Return PDOStatement object
+        try {
+            $statement = $this->prepare($sql);        // If still running prepare statement
+            $statement->execute($arguments); // Execute SQL statement with arguments
+            return $statement; // Return PDOStatement object
+        } catch (\PDOException $e) {
+            throw new \RuntimeException("Database query error: " . $e->getMessage(), 0, $e);
+        }
     }
-
 }
