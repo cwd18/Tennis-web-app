@@ -181,4 +181,12 @@ $app->put('/api/owner/{fixtureid}/{scope}/{ownerid}', \TennisApp\Action\ApiPutOw
 $app->put('/api/alternateFixtureTime/{fixtureid}', \TennisApp\Action\ApiPutAlternateFixtureTime::class);
 $app->post('/api/emailMessage/{fixtureid}', \TennisApp\Action\ApiPutEmailMessage::class);
 
-$app->run();
+try {
+    $app->run();
+} catch (\Throwable $e) {
+    http_response_code(500);
+    echo 'An unexpected error occurred.';
+    echo $e->getMessage();
+    echo $e->getTraceAsString();
+    session_write_close();
+}
