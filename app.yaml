@@ -8,7 +8,7 @@ handlers:
     static_files: favicon.ico
     upload: favicon\.ico
 
-  # Enables the load of the react app modules
+  # Enables the load of the react app modules, including the icon svg
   - url: /(.*\.(svg|js|css))$
     static_files: react/\1
     upload: react/(.*\.(svg|js|css))$

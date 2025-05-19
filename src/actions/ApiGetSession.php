@@ -19,7 +19,7 @@ final class ApiGetSession
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         $m = $this->container->get('Model');
-        $userId = $m->sessionUser();
+        $userId = $m->sessionUser(); // returns 0 if $_SESSION['User'] doesn't exist
         if ($userId == 0) {
             $response->getBody()->write(json_encode(''));
             return $response->withStatus(401);

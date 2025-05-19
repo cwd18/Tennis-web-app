@@ -22,7 +22,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // Create Container using PHP-DI
 $container = new Container();
 
-// Create model
+// Register Model in container
+// The function to create the model is called when the Model is requested
 $container->set('Model', function () {
     include('../settings.php');
     $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../src/templates');
