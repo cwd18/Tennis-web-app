@@ -83,3 +83,17 @@ EventTime DATETIME DEFAULT NULL,
 EventMessage varchar(1024),
 PRIMARY KEY (Seq)
 );
+CREATE TABLE SessionLog (
+LogId INT(8) NOT NULL auto_increment,
+Sessionid varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+LogTime DATETIME NOT NULL,
+LogType ENUM ('Read', 'Write', 'Destroy'),
+LogMessage varchar(1024),
+PRIMARY KEY (LogId)
+);
+CREATE TABLE FeatureFlags (
+    FeatureName VARCHAR(100) NOT NULL,
+    FeatureEnabled BOOLEAN NOT NULL DEFAULT FALSE,
+    FeatureDescription TEXT,
+    PRIMARY KEY (FeatureName)
+);
