@@ -34,7 +34,8 @@ class Model
         $this->server = $server;
         $this->twig = $twig;
         $this->automate = new Automate();
-        $sessionHandler = new SessionHandler($this->db);
+        $sessionLog = new SessionLog($this->db);
+        $sessionHandler = new SessionHandler($this->db, $sessionLog);
         session_set_save_handler(
             $sessionHandler,
             true
