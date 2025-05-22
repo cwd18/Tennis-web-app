@@ -16,19 +16,42 @@ use Google\Cloud\Logging\LoggingClient;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
+use TennisApp\SessionHandler;
+use TennisApp\SessionLog;
+use TennisApp\Database;
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once('../settings.php'); // defines $db_config, $email_config, $server
+
+// Need to start a session asap, which requires the database connection for the handler
+$dsn = sprintf(
+    'mysql:host=%s;dbname=%s;port=%s;charset=%s',
+    $db_config['host'],
+    $db_config['name'],
+    $db_config['port'],
+    $db_config['charset']
+);
+$username = $db_config['username'];
+$password = $db_config['password'];
+$db = new Database($dsn, $username, $password);
+$sessionLog = new SessionLog($db);
+$sessionHandler = new SessionHandler($db, $sessionLog);
+session_set_save_handler(
+    $sessionHandler,
+    true
+); // register database session handler to enable serverless sessions
+session_start(); // creates a new session if no PHPSESSID cookie exists
+$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../src/templates');
+$twigForEmail = new \Twig\Environment($loader);
+$model = new Model($db, $email_config, $server, $twigForEmail);
+
 
 // Create Container using PHP-DI
 $container = new Container();
 
 // Register Model in container
-// The function to create the model is called when the Model is requested
-$container->set('Model', function () {
-    include('../settings.php');
-    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../src/templates');
-    $twigForEmail = new \Twig\Environment($loader);
-    return new Model($db_config, $email_config, $server, $twigForEmail);
+$container->set('Model', function () use ($model) {
+    return $model;
 });
 
 // Set container to create App with on AppFactory

@@ -17,30 +17,14 @@ class Model
     protected $automate;
 
 
-    public function __construct($db_config, $email_config, $server, $twig)
+    public function __construct($db, $email_config, $server, $twig)
     {
-        $dsn = sprintf(
-            'mysql:host=%s;dbname=%s;port=%s;charset=%s',
-            $db_config['host'],
-            $db_config['name'],
-            $db_config['port'],
-            $db_config['charset']
-        );
-        $username = $db_config['username'];
-        $password = $db_config['password'];
-        $this->db = new Database($dsn, $username, $password);
+        $this->db = $db;
         $this->seriesList = new SeriesList($this->db);
         $this->email = new Email($email_config);
         $this->server = $server;
         $this->twig = $twig;
         $this->automate = new Automate();
-        $sessionLog = new SessionLog($this->db);
-        $sessionHandler = new SessionHandler($this->db, $sessionLog);
-        session_set_save_handler(
-            $sessionHandler,
-            true
-        ); // register database session handler to enable serverless sessions
-        session_start(); // creates a new session if no PHPSESSID cookie exists
     }
 
     public function getUsers()
