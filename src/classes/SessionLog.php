@@ -25,7 +25,7 @@ class SessionLog
         // Log a session operation
         $now = new \DateTime();
         $now->setTimezone(new \DateTimeZone('Europe/London'));
-        $nowDateTime = $now->format("Y-m-d H:i:s");
+        $nowDateTime = $now->format("Y-m-d H:i:s.u");
         $sql = "INSERT INTO SessionLog (Sessionid, LogTime, LogType, LogMessage)
         VALUES (:id, :nowDT, :logType, :msg);";
         $stmt = $this->pdo->prepare($sql);

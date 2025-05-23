@@ -92,8 +92,8 @@ LogMessage varchar(1024),
 PRIMARY KEY (LogId)
 );
 CREATE TABLE FeatureFlags (
-    FeatureName VARCHAR(100) NOT NULL,
-    FeatureEnabled BOOLEAN NOT NULL DEFAULT FALSE,
-    FeatureDescription TEXT,
-    PRIMARY KEY (FeatureName)
+FeatureName VARCHAR(100) NOT NULL,
+FeatureEnabled BOOLEAN NOT NULL DEFAULT FALSE,
+FeatureDescription TEXT,
+PRIMARY KEY (FeatureName)
 );
