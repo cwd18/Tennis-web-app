@@ -34,12 +34,16 @@ $dsn = sprintf(
 $username = $db_config['username'];
 $password = $db_config['password'];
 $db = new Database($dsn, $username, $password);
+// register our database session handler to enable serverless sessions
 $sessionLog = new SessionLog($db);
 $sessionHandler = new SessionHandler($db, $sessionLog);
 session_set_save_handler(
     $sessionHandler,
     true
-); // register database session handler to enable serverless sessions
+);
+// Set a finite session cookie lifetime to stop mobile browsers 
+// from deleting the PHPSESSID cookie after a period of inactivity
+session_set_cookie_params(365 * 24 * 60 * 60); // 1 year
 session_start(); // creates a new session if no PHPSESSID cookie exists
 $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../src/templates');
 $twigForEmail = new \Twig\Environment($loader);
