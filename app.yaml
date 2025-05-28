@@ -30,6 +30,11 @@ handlers:
     static_files: static/\1
     upload: static/.*\.(gif|png|jpg)$
 
+  # Avoid an spurious path of just '/' getting to the PHP application
+  - url: /
+    static_files: static/landing.html
+    upload: static/landing.html
+
   # Every other request is handled by the PHP application
   - url: /.*
     script: auto
