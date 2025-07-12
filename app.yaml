@@ -9,9 +9,9 @@ handlers:
     upload: favicon\.ico
 
   # Enables the load of the react app modules, including the icon svg
-  - url: /(.*\.(svg|js|css))$
+  - url: /(.*\.(svg|png|js|css))$
     static_files: react/\1
-    upload: react/(.*\.(svg|js|css))$
+    upload: react/(.*\.(svg|png|js|css))$
 
   # Enables load of react app via index.html on /start
   # and the browser refresh button to work on /admin etc.
