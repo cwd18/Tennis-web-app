@@ -590,7 +590,7 @@ class Fixture
         $bookingGrid[0][0] = "Court"; // first column is court number
 
         // Get bookings
-        $sql = "SELECT ShortName, CourtNumber, LEFT(BookingTime,5) AS BookingTime FROM Users
+        $sql = "SELECT Users.Userid, Users.ShortName, CourtNumber, LEFT(BookingTime,5) AS BookingTime FROM Users
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
         WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid 
         ORDER BY CourtNumber, BookingTime;";
@@ -602,6 +602,17 @@ class Fixture
         if (count($rows) == 0) { // no bookings
             $bookingViewGrid[0][0] = "None";
             return $bookingViewGrid;
+        }
+
+        // Mark any absent bookers with a '*'
+        $absentBookers = $this->getAbsentBookers();
+        foreach ($rows as $rowIndex => $row) {
+            foreach ($absentBookers as $absentBooker) {
+                if ($row['Userid'] == $absentBooker['Userid']) {
+                    $rows[$rowIndex]['ShortName'] .= "*";
+                    break;
+                }
+            }
         }
 
         // Create first row of column headings
