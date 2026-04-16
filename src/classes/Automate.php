@@ -28,6 +28,7 @@ class Automate
             $s = $m->getSeries($seriesId);
             $eventLog->write(sprintf("Processing series %s (%s)", $seriesId, $series['description']));
             $s->ensure2FutureFixtures();
+            $s->deletePastFixtures();
             if ($series['AutoEmail']) {
                 $fixtureId = $s->getFixtureNumDaysAhead(8);
                 if ($fixtureId != 0) {

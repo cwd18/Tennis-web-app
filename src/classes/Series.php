@@ -193,6 +193,17 @@ class Series
         $this->setBase();
     }
 
+    public function deletePastFixtures(): void
+    {
+        $cutoff = date('Y-m-d', strtotime('-6 months'));
+        $sql = "SELECT Fixtureid FROM Fixtures WHERE Seriesid = :Seriesid AND FixtureDate < :cutoff;";
+        $stmt = $this->pdo->runSQL($sql, ['Seriesid' => $this->seriesId, 'cutoff' => $cutoff]);
+        while ($fixtureId = $stmt->fetchColumn()) {
+            $f = new Fixture($this->pdo, $fixtureId);
+            $f->deleteFixture();
+        }
+    }
+
     public function deleteSeries()
     {
         // Delete any fixtures
