@@ -69,3 +69,52 @@ Each token is associated with one of three roles:
 - **Admin** - has full system access
 
 Users typically receive their tokens through automated emails (invitations and status updates).
+
+## History
+
+The web app was first deployed for Friday 12th April 2024, when participants got an email asking them if they wanted to play on Saturday the 20th. I had been testing the application by entering data from the emails in reply to all in response to manual emails sent out by Lawrence.
+
+I sent an email to announce the system on the 11th.
+
+In the event, the system failed spectacularly owing to a rare 6-hour outage in the unpkg.com service that provided the react libraries used by the front end, which was resolved by switching to cloudflare.com.
+
+The code is still there for the legacy web version of the app (as opposed to the React-based SPA).
+
+Here is the text of the email sent on the 11th:
+
+All
+
+TL;DR: you should get an email from me tomorrow at 7:30 asking you whether you want to play on Saturday 20th with a personal link you should follow to respond
+
+For more info...
+
+Starting with Saturday 20th, I will organise our Saturday morning tennis while Lawrence gets his feet fixed
+
+As some of you know, I will be using a web application I have developed as a retirement project to "do some coding"
+Lawrence and Roger have been helping me to test the system and giving me feedback to improve
+
+The application is aimed at making life easier for you and for me as organiser. The benefits for you are:
+
+- Easier for you to say whether you want to play or not (two clicks)
+- Easier for you to say what courts you booked
+- Easy access to up-to-date information on the start time, who wants to play, what courts have been booked, etc.
+- Fewer errors as much is automated
+
+At the usual time of 7am tomorrow, you will get a “wanna play” email. Rather than from Lawrence, it will come from my gmail account (FYI it’s generated automatically)
+The email has a personal link which will take you to a personal web page that has two buttons to indicate whether you want to play or not.
+That same page also provides information such as who else wants to play and who doesn’t.
+
+Your reply (via selecting one of the two buttons) will be time-stamped, which impacts the position of your name in the list (as Lawrence has always done).
+People who booked a court come before people who didn’t (as Lawrence has also always done).
+The order becomes significant if we don’t have enough courts or if there is an odd number of people wanting to play.
+
+At 7am on Saturday, people who have booked in the past will get an email asking them to book a court and with a list of who should try to book which court
+This email has the same personal link, which you should use to record any courts you booked at 7:30
+
+You shouldn't need to reply to these emails but you can, especially to report any problem or with a suggestion to improve
+
+Anyhow, the basic change is that you select the link to respond rather than reply to the email
+
+Fingers crossed that it all works!
+
+Charles
