@@ -368,12 +368,13 @@ class Fixture
 
     public function getFixtureUsers(): array
     {
-        // Return list of existing participants
-        $sql = "SELECT Users.Userid, FirstName, LastName, ShortName, EmailAddress, Booker 
+        // Return list of existing participants, including whether each is a series candidate
+        $sql = "SELECT Users.Userid, FirstName, LastName, ShortName, EmailAddress, Booker,
+        EXISTS(SELECT 1 FROM SeriesCandidates WHERE Seriesid = :Seriesid AND Userid = Users.Userid) AS SeriesCandidate
         FROM Users JOIN FixtureParticipants ON Users.Userid=FixtureParticipants.Userid
         WHERE Fixtureid = :Fixtureid
         ORDER BY FirstName;";
-        $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
+        $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId, 'Seriesid' => $this->base['Seriesid']]);
         $users = $stmt->fetchall(\PDO::FETCH_ASSOC);
         return $users;
     }

@@ -264,6 +264,17 @@ class Series
         }
     }
 
+    public function setUserCandidate(int $userId, bool $isCandidate): void
+    {
+        if ($isCandidate) {
+            // INSERT IGNORE is safe here: the dialog may submit with the checkbox unchanged
+            $sql = "INSERT IGNORE INTO SeriesCandidates (Seriesid, Userid) VALUES (:Seriesid, :Userid);";
+        } else {
+            $sql = "DELETE FROM SeriesCandidates WHERE Seriesid = :Seriesid AND Userid = :Userid;";
+        }
+        $this->pdo->runSQL($sql, ['Seriesid' => $this->seriesId, 'Userid' => $userId]);
+    }
+
     public function ensure2FutureFixtures()
     {
         // Ensure that the next two future fixtures exist

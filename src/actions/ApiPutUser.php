@@ -40,6 +40,13 @@ final class ApiPutUser
                 $booker
             );
         }
+        $fixtureId = (int)($userData['fixtureid'] ?? 0);
+        if ($fixtureId > 0 && $userId > 0) {
+            $seriesCandidate = array_key_exists('seriescandidate', $userData);
+            $f = $m->getFixture($fixtureId);
+            $s = $m->getSeries($f->getSeriesid());
+            $s->setUserCandidate($userId, $seriesCandidate);
+        }
         return $response->withHeader('Content-Type', 'application/json');
     }
 }
