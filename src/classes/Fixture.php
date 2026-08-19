@@ -434,14 +434,14 @@ class Fixture
 
     public function checkCourtsToCancel(): void
     {
-        // Delete any 'Cancel" court bookings that have since been registered as 'Booked'
+        // Delete any 'Cancel'/'Cancelled' court bookings that have since been registered as 'Booked'
         // The owner of the Cancel booking actually cancelled but someone else has since booked it
         $sql = "DELETE cb1 FROM CourtBookings cb1
-            JOIN CourtBookings cb2 ON cb1.Fixtureid = cb2.Fixtureid 
-            AND cb1.BookingTime = cb2.BookingTime 
+            JOIN CourtBookings cb2 ON cb1.Fixtureid = cb2.Fixtureid
+            AND cb1.BookingTime = cb2.BookingTime
             AND cb1.CourtNumber = cb2.CourtNumber
-            WHERE cb1.BookingType = 'Cancel' 
-            AND cb2.BookingType = 'Booked' 
+            WHERE cb1.BookingType IN ('Cancel', 'Cancelled')
+            AND cb2.BookingType = 'Booked'
             AND cb1.Fixtureid = :Fixtureid;";
         $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
     }
@@ -461,13 +461,16 @@ class Fixture
 
     public function toggleBooking($time, $court): void
     {
-        // Toogle the court booking between 'Booked' and 'Cancel'
-        $sql = "UPDATE CourtBookings 
-        SET BookingType = CASE 
+        // Toggle the court booking between 'Booked' and 'Cancel'/'Cancelled'
+        // A booking whose cancellation email has already been sent ('Cancelled')
+        // reopens as 'Booked' rather than going back to an unsent 'Cancel'
+        $sql = "UPDATE CourtBookings
+        SET BookingType = CASE
         WHEN BookingType = 'Booked' THEN 'Cancel'
         WHEN BookingType = 'Cancel' THEN 'Booked'
-        END         
-        WHERE Fixtureid = :Fixtureid 
+        WHEN BookingType = 'Cancelled' THEN 'Booked'
+        END
+        WHERE Fixtureid = :Fixtureid
         AND BookingTime = :BookingTime AND CourtNumber = :CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam('Fixtureid', $this->fixtureId, \PDO::PARAM_INT);
@@ -493,11 +496,11 @@ class Fixture
     private function getAvailableCourts($userId, $time): array
     {
         // Return a list of available courts for this user at the passed time
-        $sql = "SELECT CourtNumber FROM CourtBookings 
+        $sql = "SELECT CourtNumber FROM CourtBookings
         WHERE Fixtureid = ? AND BookingTime = ?
         AND (
         (BookingType = 'Booked' AND Userid != ?)
-        OR (BookingType = 'Cancel' AND Userid = ?)
+        OR (BookingType IN ('Cancel', 'Cancelled') AND Userid = ?)
         )
         ORDER BY CourtNumber;";
         $stmt = $this->pdo->prepare($sql);
@@ -584,21 +587,27 @@ class Fixture
 
     public function getBookingViewGrid($bookingType = 'Booked'): array
     {
-        // Get court bookings (or bookings to cancel) into a grid 
+        // Get court bookings (or bookings to cancel) into a grid
         // with 2 or 3 booking time columns and a booker's column
         // $bookingType should be 'Booked' or 'Cancel'
+        // 'Cancel' also picks up 'Cancelled' bookings (cancel email already sent)
+        // so the table keeps showing them until the court is rebooked or reopened
 
         $bookingGrid[0][0] = "Court"; // first column is court number
 
         // Get bookings
+        $bookingTypeCondition = $bookingType === 'Cancel'
+            ? "BookingType IN ('Cancel', 'Cancelled')"
+            : "BookingType = :BookingType";
         $sql = "SELECT Users.Userid, Users.ShortName, CourtNumber, LEFT(BookingTime,5) AS BookingTime FROM Users
         JOIN CourtBookings ON Users.Userid = CourtBookings.Userid
-        WHERE BookingType = :BookingType AND Fixtureid = :Fixtureid 
+        WHERE $bookingTypeCondition AND Fixtureid = :Fixtureid
         ORDER BY CourtNumber, BookingTime;";
-        $stmt = $this->pdo->runSQL($sql, [
-            'BookingType' => $bookingType,
-            'Fixtureid' => $this->fixtureId
-        ]);
+        $params = ['Fixtureid' => $this->fixtureId];
+        if ($bookingType !== 'Cancel') {
+            $params['BookingType'] = $bookingType;
+        }
+        $stmt = $this->pdo->runSQL($sql, $params);
         $rows = $stmt->fetchall(\PDO::FETCH_ASSOC);
         if (count($rows) == 0) { // no bookings
             $bookingViewGrid[0][0] = "None";
@@ -909,6 +918,15 @@ class Fixture
         ORDER BY FirstName, LastName;";
         $stmt = $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
         return $stmt->fetchall(\PDO::FETCH_ASSOC);
+    }
+
+    public function markCancelEmailsSent(): void
+    {
+        // Transition 'Cancel' bookings to 'Cancelled' once their cancellation
+        // email has been sent, so the email is never sent twice for the same booking
+        $sql = "UPDATE CourtBookings SET BookingType = 'Cancelled'
+        WHERE BookingType = 'Cancel' AND Fixtureid = :Fixtureid;";
+        $this->pdo->runSQL($sql, ['Fixtureid' => $this->fixtureId]);
     }
 
     public function createBookingRequests(): void

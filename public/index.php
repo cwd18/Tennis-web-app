@@ -208,6 +208,7 @@ $app->put('/api/candidates/{fixtureid}', \TennisApp\Action\ApiPutCandidates::cla
 $app->put('/api/owner/{fixtureid}/{scope}/{ownerid}', \TennisApp\Action\ApiPutOwner::class);
 $app->put('/api/alternateFixtureTime/{fixtureid}', \TennisApp\Action\ApiPutAlternateFixtureTime::class);
 $app->post('/api/emailMessage/{fixtureid}', \TennisApp\Action\ApiPutEmailMessage::class);
+$app->put('/api/sendCancelEmails/{fixtureid}', \TennisApp\Action\ApiPutSendCancelEmails::class);
 
 try {
     $app->run();

@@ -153,5 +153,9 @@ class Automate
             $altmessage = strip_tags($altmessage);
             $e->sendEmail($replyTo, $to['EmailAddress'], $subject, $message, $altmessage);
         }
+        if ($emailType == Automate::EMAIL_CANCEL) {
+            // Mark these bookings 'Cancelled' so the same cancel email is never sent twice
+            $f->markCancelEmailsSent();
+        }
     }
 }
